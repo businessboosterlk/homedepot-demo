@@ -474,7 +474,8 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="fld"><label>Segment</label><select id="iq_lead"><option>Retail</option><option>Project</option></select></div>
         <div class="fld"><label>Source</label><select id="iq_source"><option>Showroom walk-in</option><option>Website enquiry</option><option>WhatsApp</option><option>Phone</option><option>Referral</option><option>Interior designer</option></select></div>
       </div>
-      <div class="fld"><label>Products of interest</label><div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      <div class="fld"><label>Products of interest <span style="color:var(--faint);font-weight:400">(tap to select)</span></label><div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      <div class="fld"><label>Item codes <span style="color:var(--faint);font-weight:400">(optional · links to your stock system)</span></label><input id="iq_codes" placeholder="e.g. CH-800, PD-22, OG-05"></div>
       <div class="fld"><label>Estimated value (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
     </div>
     <div class="modal-f"><button class="btn-ghost" onclick="closeInqModal()">Cancel</button><button class="btn-red" onclick="saveInquiry()">Add Inquiry</button></div>
@@ -602,7 +603,7 @@ function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=o
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
 const PRODUCTS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
-function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=PRODUCTS.map(p=>`<span class="tag iq-prod" onclick="this.classList.toggle('sel')">${p}</span>`).join('');['iq_name','iq_co','iq_value'].forEach(id=>document.getElementById(id).value='');document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=PRODUCTS.map(p=>`<span class="tag iq-prod" onclick="this.classList.toggle('sel')">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
 function closeInqModal(){document.getElementById('inqModal').classList.remove('open');}
 function saveInquiry(){
  const name=document.getElementById('iq_name').value.trim();if(!name){document.getElementById('iq_name').focus();return;}
@@ -611,8 +612,10 @@ function saveInquiry(){
  const source=document.getElementById('iq_source').value,owner=document.getElementById('iq_owner').value;
  const value=+document.getElementById('iq_value').value||0;
  const prods=[].slice.call(document.querySelectorAll('#iq_prods .iq-prod.sel')).map(b=>b.textContent);
+ const codes=document.getElementById('iq_codes').value.split(',').map(s=>s.trim()).filter(Boolean);
  const id=Math.max.apply(null,LEADS.map(l=>l.id))+1;
- LEADS.push({id,name,co,type,lead,stage:'new_inquiry',owner,phone:'',email:'',source,products:prods.length?prods:['Other'],project:lead==='Project'?{type:co,fixtures:0}:null,quote:value?[{p:'Estimated requirement',n:'EST',q:1,u:value}]:[],acts:[{t:'Inquiry added',m:'New inquiry created in the system',tm:'just now'}]});
+ const q=value?[{p:codes.length?'Items: '+codes.join(', '):'Estimated requirement',n:codes[0]||'EST',q:1,u:value}]:[];
+ LEADS.push({id,name,co,type,lead,stage:'new_inquiry',owner,phone:'',email:'',source,products:prods.length?prods:['Other'],codes,project:lead==='Project'?{type:co,fixtures:0}:null,quote:q,acts:[{t:'Inquiry added',m:'New inquiry created'+(codes.length?' · items: '+codes.join(', '):''),tm:'just now'}]});
  MONTH[id]='2026-06';
  closeInqModal();renderBoard();renderAll();renderDash();renderQueue();renderQuo();
  document.getElementById('nbEnq').textContent=LEADS.length;
@@ -766,7 +769,7 @@ function openLead(id){
   <div class="pn-body">
    <div class="sec"><div class="sec-t">Next Best Action</div>${gamePlan(l)}</div>
    <div class="sec"><div class="sec-t">Quotation</div>${quoteHTML}</div>
-   <div class="sec"><div class="sec-t">Products of Interest</div><div class="prod-list">${l.products.map(p=>`<span class="tag">${p}</span>`).join('')}</div></div>
+   <div class="sec"><div class="sec-t">Products of Interest</div><div class="prod-list">${l.products.map(p=>`<span class="tag">${p}</span>`).join('')}</div>${l.codes&&l.codes.length?`<div style="margin-top:11px;font-size:12.5px;color:var(--muted)">Item codes: <b style="color:var(--ink)">${l.codes.join(', ')}</b> <span style="color:var(--faint)">· synced to stock</span></div>`:''}</div>
    ${l.project?`<div class="sec"><div class="sec-t">Project Details</div><div class="info-grid"><div class="info"><div class="il">Project type</div><div class="iv">${l.project.type}</div></div><div class="info"><div class="il">Est. fixtures</div><div class="iv">${l.project.fixtures} units</div></div></div></div>`:''}
    <div class="sec"><div class="sec-t">Inquiry Info</div><div class="info-grid"><div class="info"><div class="il">Customer type</div><div class="iv">${l.type} · ${l.lead}</div></div><div class="info"><div class="il">Source</div><div class="iv">${l.source}</div></div><div class="info"><div class="il">Owner</div><div class="iv">${l.owner}</div></div><div class="info"><div class="il">Stage</div><div class="iv">${stageLabel(l.stage)}</div></div></div></div>
    <div class="sec"><div class="sec-t">Activity</div>${l.acts.map(a=>`<div class="act"><div class="act-ic">●</div><div class="act-c"><div class="act-s">${a.t}</div><div class="act-m">${a.m}</div></div><div class="act-tm">${a.tm}</div></div>`).join('')}</div>
