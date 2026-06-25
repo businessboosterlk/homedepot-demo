@@ -394,10 +394,10 @@ input{font-family:inherit;color:var(--ink)}
         <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none">
           <div style="padding:18px 22px;display:flex;align-items:center;gap:16px;color:#fff">
             <div style="font-family:Poppins;font-size:32px;font-weight:800" id="dueCount">0</div>
-            <div><div style="font-weight:700;font-size:14.5px">customers due for a follow-up</div><div style="font-size:12px;opacity:.85">Reconnect now to win repeat orders and referrals</div></div>
+            <div><div style="font-weight:700;font-size:14.5px">customers due for a message today</div><div style="font-size:12px;opacity:.85">Every customer gets a 30-day, 60-day and 90-day touch — the 90-day carries an offer</div></div>
           </div>
         </div>
-        <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Bought</th><th>Last Purchase</th><th>Follow up by</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
+        <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Purchased</th><th>Last contact</th><th>Cadence</th><th>Next message</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
       <div class="page" id="page-taskbook">
         <div class="toolbar"><span style="font-size:13px;color:var(--muted)">Assign and track tasks across the team</span><div class="sp"></div><button class="btn-red" onclick="openTaskModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div>
@@ -455,6 +455,15 @@ input{font-family:inherit;color:var(--ink)}
       <div class="fld"><label>Estimated value (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
     </div>
     <div class="modal-f"><button class="btn-ghost" onclick="closeInqModal()">Cancel</button><button class="btn-red" onclick="saveInquiry()">Add Inquiry</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="msgModal">
+  <div class="modal" style="width:520px">
+    <div class="modal-h"><div><h3 id="msgTitle">Message</h3><div id="msgSub" style="font-size:12px;color:var(--muted);margin-top:2px"></div></div><button class="pn-close" onclick="closeMsg()" style="position:static;width:30px;height:30px">✕</button></div>
+    <div class="modal-b">
+      <div class="fld"><label>Message (edit before sending)</label><textarea id="msgText" rows="5" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13.5px;color:var(--ink);outline:none;font-family:inherit;resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-f"><button class="btn-ghost" onclick="markSent()">Mark as sent</button><button class="btn-ghost" onclick="sendVia('email')">Send email</button><button class="btn-red" onclick="sendVia('wa')">Send on WhatsApp</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -603,7 +612,7 @@ function greetSub(){
  }
  const wm=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
  const wmVal=wm.reduce((s,l)=>s+val(l),0);const pct=Math.round(wmVal/5000000*100);
- const due=(typeof CUSTOMERS!=='undefined')?CUSTOMERS.filter(c=>c.next<=TODAY).length:0;
+ const due=(typeof dueCustomers==='function')?dueCustomers():0;
  const neg=[...LEADS.filter(l=>l.stage==='negotiation')].sort((a,b)=>val(b)-val(a))[0];
  return `Team won <b>${lkr(wmVal)}</b> in June (<b style="color:var(--red)">${pct}%</b> of target) · <b style="color:var(--red)">${due} customers</b> due for follow-up${neg?` · watch: <b>${neg.name}</b> closing ${lkr(val(neg))}`:''}`;
 }
@@ -612,7 +621,7 @@ function renderDash(){
  const pv=open.reduce((s,l)=>s+val(l),0);
  const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
  const wonMonthVal=wonMonth.reduce((s,l)=>s+val(l),0);
- const dueCust=(typeof CUSTOMERS!=='undefined')?CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length:0;
+ const dueCust=(typeof dueCustomers==='function')?dueCustomers():0;
  const todo=TASKS.filter(t=>!t.d).length;
  const TARGET=5000000;const pct=Math.min(100,Math.round(wonMonthVal/TARGET*100));
  document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)">${greetSub()}</div>`;
@@ -634,25 +643,45 @@ function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart
 function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
 function renderQuo(){document.getElementById('quoBody').innerHTML=LEADS.filter(l=>l.quote.length).sort((a,b)=>val(b)-val(a)).map(l=>`<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></td><td class="tm">${l.products.join(', ')}</td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td><td class="tnum">${lkr(val(l))}</td></tr>`).join('');}
 const TODAY='2026-06-25';
+const CADENCE=[30,60,90];
+const CAD_LABEL=['30-day check-in','60-day re-engage','90-day offer'];
+const CAD_MSG=[
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been about a month since your purchase from Home Depot. We hope your new lighting looks fantastic. If you need anything at all, just reply to this message.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, fresh lighting designs have just arrived in our showroom. We'd love for you to come and see them — there may be a perfect piece for another space in your home or project.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, as a valued Home Depot customer, here's an exclusive 10% off your next purchase, valid this month. We'd love to light up your next project with you. Reply to claim it.`
+];
 const CUSTOMERS=[
- {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',products:'Outdoor + restaurant + pool',last:'2026-06-20',value:2033000,next:'2026-07-20',phone:'034 227 5500',contacted:false},
- {name:'Homewood Construction',co:'Builder · Kottawa',type:'B2B',products:'3 model homes fitout',last:'2026-05-18',value:855600,next:'2026-06-18',phone:'011 275 9080',contacted:false},
- {name:'Villa Saro',co:'Homeowner · Battaramulla',type:'B2C',products:'Full-home chandeliers',last:'2026-05-02',value:420000,next:'2026-06-02',phone:'077 200 1145',contacted:false},
- {name:'The Lagoon Hotel',co:'Hotel · Galle',type:'B2B',products:'Lobby + 30 rooms',last:'2026-04-28',value:1680000,next:'2026-05-28',phone:'091 228 7000',contacted:false},
- {name:'Mr. Anver',co:'Homeowner · Maharagama',type:'B2C',products:'Garden + driveway',last:'2026-06-10',value:96000,next:'2026-07-10',phone:'071 884 2200',contacted:false}
+ {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',products:'Outdoor + restaurant + pool',purchase:'2026-06-18',value:2033000,phone:'034 227 5500',email:'maintenance@araliyaresorts.lk',sent:0,last:'2026-06-18'},
+ {name:'Homewood Construction',co:'Builder · Kottawa',type:'B2B',products:'3 model homes fitout',purchase:'2026-05-20',value:855600,phone:'011 275 9080',email:'site@homewood.lk',sent:0,last:'2026-05-20'},
+ {name:'Villa Saro',co:'Homeowner · Battaramulla',type:'B2C',products:'Full-home chandeliers',purchase:'2026-04-22',value:420000,phone:'077 200 1145',email:'saro@gmail.com',sent:1,last:'2026-05-22'},
+ {name:'Lagoon Hotel',co:'Hotel · Galle',type:'B2B',products:'Lobby + 30 rooms',purchase:'2026-03-25',value:1680000,phone:'091 228 7000',email:'gm@lagoonhotel.lk',sent:2,last:'2026-05-24'},
+ {name:'Anver Rahman',co:'Homeowner · Maharagama',type:'B2C',products:'Garden + driveway',purchase:'2026-06-12',value:96000,phone:'071 884 2200',email:'anver@gmail.com',sent:0,last:'2026-06-12'},
+ {name:'Niluka Fernando',co:'Homeowner · Nugegoda',type:'B2C',products:'Bath & ceiling fixtures',purchase:'2026-05-24',value:128000,phone:'076 110 3344',email:'niluka@gmail.com',sent:0,last:'2026-05-24'},
+ {name:'Skyline Apartments',co:'Developer · Rajagiriya',type:'B2B',products:'Common-area lighting',purchase:'2026-04-26',value:1240000,phone:'011 286 1200',email:'projects@skyline.lk',sent:1,last:'2026-05-26'},
+ {name:'Ceylon Cafe',co:'Cafe · Colombo 05',type:'B2B',products:'Pendant + track lights',purchase:'2026-03-28',value:340000,phone:'011 250 9000',email:'hello@ceyloncafe.lk',sent:3,last:'2026-06-26'}
 ];
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtD(s){const p=s.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];}
-function custStatus(c){if(c.contacted)return['Contacted','bdg-green'];if(c.next<=TODAY)return['Follow up now','bdg-stage'];return['Upcoming','bdg-grey'];}
 function addDaysStr(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
-function setIvl(name,v){const c=CUSTOMERS.find(x=>x.name===name);if(c)c.interval=+v;}
 function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2800);}
-function logContact(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c)return;const ivl=c.interval||30;c.last=TODAY;c.next=addDaysStr(TODAY,ivl);renderCus();if(typeof renderDash==='function')renderDash();document.getElementById('nbCus').textContent=CUSTOMERS.filter(x=>x.next<=TODAY).length;toast(I.check+' Contact logged · next follow-up for '+c.name+' in '+ivl+' days');}
+function custNext(c){return c.sent>=3?null:addDaysStr(c.purchase,CADENCE[c.sent]);}
+function custDue(c){const n=custNext(c);return !!(n&&n<=TODAY);}
+function dueCustomers(){return CUSTOMERS.filter(custDue).length;}
 function renderCus(){
- const due=CUSTOMERS.filter(c=>c.next<=TODAY).length;
- const dc=document.getElementById('dueCount');if(dc)dc.textContent=due;
- document.getElementById('cusBody').innerHTML=[...CUSTOMERS].sort((a,b)=>a.next.localeCompare(b.next)).map(c=>{const overdue=c.next<=TODAY;const st=overdue?['Follow up now','bdg-stage']:['Upcoming','bdg-grey'];const iv=c.interval||30;return `<tr><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${c.products}</td><td class="tm">${fmtD(c.last)}</td><td style="font-weight:600;font-size:13px;color:${overdue?'var(--red)':'var(--muted)'}">${fmtD(c.next)}</td><td><span class="bdg ${st[1]}">${st[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right;white-space:nowrap"><select class="ivl" onchange="setIvl('${c.name}',this.value)"><option value="30" ${iv===30?'selected':''}>30 days</option><option value="60" ${iv===60?'selected':''}>60 days</option><option value="90" ${iv===90?'selected':''}>90 days</option></select><button class="btn-ghost" style="padding:6px 11px" onclick="logContact('${c.name}')">Log contact</button></td></tr>`;}).join('');
+ const dc=document.getElementById('dueCount');if(dc)dc.textContent=dueCustomers();
+ const arr=[...CUSTOMERS].sort((a,b)=>(custNext(a)||'9999').localeCompare(custNext(b)||'9999'));
+ document.getElementById('cusBody').innerHTML=arr.map(c=>{
+  const done=c.sent>=3,next=custNext(c),due=custDue(c);
+  const dots='<span style="display:inline-flex;gap:5px;vertical-align:middle">'+[0,1,2].map(i=>`<span title="${CAD_LABEL[i]}" style="width:9px;height:9px;border-radius:50%;background:${c.sent>i?'var(--green)':(c.sent===i&&due?'var(--red)':'var(--line)')}"></span>`).join('')+'</span>';
+  const stage=done?['Cadence complete','bdg-green']:due?[CAD_LABEL[c.sent]+' due','bdg-stage']:['Next: '+CAD_LABEL[c.sent],'bdg-grey'];
+  return `<tr><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${fmtD(c.purchase)}</td><td class="tm">${fmtD(c.last)}</td><td>${dots}</td><td style="font-weight:600;font-size:12.5px;color:${due?'var(--red)':'var(--muted)'}">${done?'—':fmtD(next)}</td><td><span class="bdg ${stage[1]}">${stage[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right">${done?'<span class="tm">Done</span>':`<button class="btn-ghost" style="padding:6px 11px" onclick="openMsg('${c.name.replace(/'/g,"")}')">${due?'Send message':'Preview'}</button>`}</td></tr>`;
+ }).join('');
 }
+let MSG_CUST=null;
+function openMsg(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c||c.sent>=3)return;MSG_CUST=name;document.getElementById('msgTitle').textContent=CAD_LABEL[c.sent];document.getElementById('msgSub').textContent='To '+c.name+' · '+(custDue(c)?'due now':'scheduled '+fmtD(custNext(c)));document.getElementById('msgText').value=CAD_MSG[c.sent](c);document.getElementById('msgModal').classList.add('open');}
+function closeMsg(){document.getElementById('msgModal').classList.remove('open');}
+function sendVia(ch){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const txt=document.getElementById('msgText').value;if(ch==='wa'){const ph=c.phone.replace(/[^0-9]/g,'').replace(/^0/,'94');window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(txt));}else{window.open('mailto:'+c.email+'?subject='+encodeURIComponent('A note from Home Depot')+'&body='+encodeURIComponent(txt));}markSent();}
+function markSent(){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const label=CAD_LABEL[c.sent];c.sent++;c.last=TODAY;closeMsg();renderCus();if(typeof renderDash==='function')renderDash();document.getElementById('nbCus').textContent=dueCustomers();toast(I.check+' '+label+' sent to '+c.name+(c.sent<3?' · next: '+CAD_LABEL[c.sent]:' · cadence complete'));}
 
 function gamePlan(l){
  const prods=(l.products||[]).join(', ').toLowerCase()||'fixtures';
@@ -766,7 +795,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go)
 
 document.getElementById('nbEnq').textContent=LEADS.length;
 document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).length;
-document.getElementById('nbCus').textContent=CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length;
+document.getElementById('nbCus').textContent=dueCustomers();
 ['ownerFilter','ownerFilter2'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');});
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();updateClock();setInterval(updateClock,15000);
 </script>
