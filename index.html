@@ -255,6 +255,8 @@ input{font-family:inherit;color:var(--ink)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast .ic{color:var(--green);width:16px;height:16px}
 .ivl{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:600;color:var(--ink);outline:none;cursor:pointer;margin-right:8px}
+.iq-prod{cursor:pointer;user-select:none}
+.iq-prod.sel{background:var(--red);color:#fff;border-color:var(--red)}
 @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.kpis{grid-template-columns:1fr 1fr}.panel{width:100vw}.search{display:none}}
 </style>
@@ -318,7 +320,7 @@ input{font-family:inherit;color:var(--ink)}
       <div class="tr">
         <input class="search" placeholder="Search inquiries…">
         <button class="icon-btn" id="themeBtn" title="Toggle theme" onclick="toggleTheme()"></button>
-        <button class="btn-red"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Inquiry</button>
+        <button class="btn-red" onclick="openInqModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Inquiry</button>
       </div>
     </div>
     <div class="content">
@@ -393,6 +395,26 @@ input{font-family:inherit;color:var(--ink)}
       <div class="fld"><label>Due</label><input id="tk_due" type="date"></div>
     </div>
     <div class="modal-f"><button class="btn-ghost" onclick="closeTaskModal()">Cancel</button><button class="btn-red" onclick="saveTask()">Add Task</button></div>
+  </div>
+</div>
+<div class="modal-ov" id="inqModal">
+  <div class="modal" style="width:540px">
+    <div class="modal-h"><h3>New Inquiry</h3><button class="pn-close" onclick="closeInqModal()" style="position:static;width:30px;height:30px">✕</button></div>
+    <div class="modal-b">
+      <div class="fld"><label>Business / customer name</label><input id="iq_name" placeholder="e.g. Cinnamon Grand"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fld"><label>Location / detail</label><input id="iq_co" placeholder="e.g. Hotel · Colombo 03"></div>
+        <div class="fld"><label>Owner</label><select id="iq_owner"></select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="fld"><label>Type</label><select id="iq_type"><option>B2C</option><option>B2B</option></select></div>
+        <div class="fld"><label>Segment</label><select id="iq_lead"><option>Retail</option><option>Project</option></select></div>
+        <div class="fld"><label>Source</label><select id="iq_source"><option>Showroom walk-in</option><option>Website enquiry</option><option>WhatsApp</option><option>Phone</option><option>Referral</option><option>Interior designer</option></select></div>
+      </div>
+      <div class="fld"><label>Products of interest</label><div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      <div class="fld"><label>Estimated value (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
+    </div>
+    <div class="modal-f"><button class="btn-ghost" onclick="closeInqModal()">Cancel</button><button class="btn-red" onclick="saveInquiry()">Add Inquiry</button></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -487,6 +509,23 @@ function toggleTask(i){TASKS[i].d=!TASKS[i].d;renderTasks();}
 function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('tk_title').value='';document.getElementById('tk_due').value='';document.getElementById('taskModal').classList.add('open');}
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
+const PRODUCTS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
+function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=PRODUCTS.map(p=>`<span class="tag iq-prod" onclick="this.classList.toggle('sel')">${p}</span>`).join('');['iq_name','iq_co','iq_value'].forEach(id=>document.getElementById(id).value='');document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+function closeInqModal(){document.getElementById('inqModal').classList.remove('open');}
+function saveInquiry(){
+ const name=document.getElementById('iq_name').value.trim();if(!name){document.getElementById('iq_name').focus();return;}
+ const co=document.getElementById('iq_co').value.trim()||'New inquiry';
+ const type=document.getElementById('iq_type').value,lead=document.getElementById('iq_lead').value;
+ const source=document.getElementById('iq_source').value,owner=document.getElementById('iq_owner').value;
+ const value=+document.getElementById('iq_value').value||0;
+ const prods=[].slice.call(document.querySelectorAll('#iq_prods .iq-prod.sel')).map(b=>b.textContent);
+ const id=Math.max.apply(null,LEADS.map(l=>l.id))+1;
+ LEADS.push({id,name,co,type,lead,stage:'new_inquiry',owner,phone:'',email:'',source,products:prods.length?prods:['Other'],project:lead==='Project'?{type:co,fixtures:0}:null,quote:value?[{p:'Estimated requirement',n:'EST',q:1,u:value}]:[],acts:[{t:'Inquiry added',m:'New inquiry created in the system',tm:'just now'}]});
+ MONTH[id]='2026-06';
+ closeInqModal();renderBoard();renderAll();renderDash();renderQueue();renderQuo();
+ document.getElementById('nbEnq').textContent=LEADS.length;
+ go('pipeline');toast(I.check+' Inquiry added: '+name);
+}
 /* excel export (.xls, opens in Excel) */
 function exportXLS(name,headers,rows){
  const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;');
