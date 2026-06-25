@@ -326,6 +326,7 @@ input{font-family:inherit;color:var(--ink)}
         <div id="greet" style="margin-bottom:20px"></div>
         <div class="grid2" style="margin-bottom:16px"><div class="card" id="heroPipe"></div><div class="card" id="heroGoal"></div></div>
         <div class="kpis" id="statCards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
+        <div class="card" style="margin-bottom:20px"><div class="card-h"><h3>Revenue, last 6 months</h3><span style="font-size:12px;color:var(--muted)">Closed orders by month (LKR M)</span></div><div class="card-b" id="revChart" style="padding:18px 22px 14px"></div></div>
         <div class="card" style="margin-bottom:20px"><div class="card-h"><h3 style="display:flex;align-items:center;gap:8px"><svg class="ic" style="color:var(--red);width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Needs Attention Today</h3><span style="font-size:12px;color:var(--muted)">Smart priorities, highest value first</span></div><div class="card-b" id="queue"></div></div>
         <div class="grid2">
           <div class="card"><div class="card-h"><h3>Pipeline by stage</h3><span class="lk" data-go="pipeline">View board →</span></div><div class="card-b" id="funnel"></div></div>
@@ -342,7 +343,10 @@ input{font-family:inherit;color:var(--ink)}
         </div>
         <div class="board" id="board"></div>
       </div>
-      <div class="page" id="page-inquiries"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div><div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div></div>
+      <div class="page" id="page-inquiries">
+        <div class="toolbar"><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
+        <div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div>
+      </div>
       <div class="page" id="page-quotations"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers">
         <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none">
@@ -371,7 +375,7 @@ input{font-family:inherit;color:var(--ink)}
       </div>
       <div class="page" id="page-finance">
         <div class="kpis" id="finKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
-        <div class="exp-bar"><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
+        <div class="toolbar"><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Advance">Advance / part-paid</option></select><span style="font-size:12px;color:var(--muted)">Filter who has paid vs pending, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
         <div class="card"><div class="card-h"><h3>Orders & Invoices</h3><span style="font-size:12px;color:var(--muted)">All transactions, for the finance team</span></div><table class="tbl"><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Method</th><th>Status</th><th class="tnum">Amount</th></tr></thead><tbody id="finBody"></tbody></table></div>
       </div>
     </div>
@@ -439,6 +443,12 @@ const I={
  bolt:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
  plus:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
 };
+/* animated count-up */
+function fmtNum(v,fmt){if(fmt==='m')return 'LKR '+v.toFixed(2)+'M';if(fmt==='m1')return 'LKR '+v.toFixed(1)+'M';if(fmt==='pct')return Math.round(v)+'%';if(fmt==='lkr')return 'LKR '+Math.round(v).toLocaleString('en-LK');if(fmt==='ratio')return v.toFixed(0);return Math.round(v).toLocaleString();}
+function countUp(el){const to=parseFloat(el.getAttribute('data-to'));const fmt=el.getAttribute('data-fmt')||'int';const pre=el.getAttribute('data-pre')||'';const dur=780;let st=null;function tick(now){if(st===null)st=now;const p=Math.min(1,(now-st)/dur);const e=1-Math.pow(1-p,3);el.textContent=pre+fmtNum(to*e,fmt);if(p<1)requestAnimationFrame(tick);else el.textContent=pre+fmtNum(to,fmt);}requestAnimationFrame(tick);}
+function animateCounts(scope){(scope||document).querySelectorAll('[data-to]').forEach(countUp);}
+/* simple SVG bar chart */
+function barChart(data,h){h=h||140;const W=720;const max=Math.max.apply(null,data.map(function(d){return d.v;}).concat([1]));const gap=W/data.length;const bw=Math.min(48,gap*0.5);return '<svg viewBox="0 0 '+W+' '+(h+30)+'" style="width:100%;height:auto;display:block">'+data.map(function(d,i){const bh=Math.max(3,d.v/max*h);const cx=i*gap+gap/2;const x=cx-bw/2;return '<rect x="'+x+'" y="'+(h-bh)+'" width="'+bw+'" height="'+bh+'" rx="6" fill="'+(d.hi?'var(--red)':'var(--line)')+'"><animate attributeName="height" from="0" to="'+bh+'" dur="0.7s" fill="freeze"/><animate attributeName="y" from="'+h+'" to="'+(h-bh)+'" dur="0.7s" fill="freeze"/></rect>'+(d.hi?'<text x="'+cx+'" y="'+(h-bh-8)+'" text-anchor="middle" font-size="14" font-weight="700" fill="var(--red)">'+d.v+'M</text>':'')+'<text x="'+cx+'" y="'+(h+22)+'" text-anchor="middle" font-size="14" fill="var(--muted)">'+d.label+'</text>';}).join('')+'</svg>';}
 
 const LEADS=[
  {id:1,name:'Nuwan Perera',co:'Homeowner · Battaramulla',type:'B2C',lead:'Retail',stage:'quoted',owner:'Ushan',phone:'077 614 2233',email:'nuwan.p@gmail.com',source:'Showroom walk-in',products:['Chandeliers','Ceiling'],project:null,quote:[{p:'Crystal Chandelier 800mm',n:'CH-800',q:1,u:145000},{p:'LED Ceiling Spot 7W',n:'CL-07',q:8,u:5000}],acts:[{t:'Showroom visit',m:'Came in for living room chandelier, liked the CH-800',tm:'2 days ago'},{t:'Quote sent',m:'Emailed quotation, awaiting confirmation',tm:'1 day ago'}]},
@@ -462,7 +472,7 @@ let TEAM_MONTH='2026-06';
 let FILTER_OWNER='all';
 function owners(){return [...new Set(LEADS.map(l=>l.owner))];}
 function filtered(){return FILTER_OWNER==='all'?LEADS:LEADS.filter(l=>l.owner===FILTER_OWNER);}
-function setFilter(v){FILTER_OWNER=v;renderBoard();renderAll();}
+function setFilter(v){FILTER_OWNER=v;['ownerFilter','ownerFilter2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=v;});renderBoard();renderAll();}
 /* drag to move */
 let DRAG=null;
 function dragStart(e,id){DRAG=id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
@@ -511,11 +521,12 @@ function renderDash(){
  const todo=TASKS.filter(t=>!t.d).length;
  const TARGET=5000000;const pct=Math.min(100,Math.round(wonMonthVal/TARGET*100));
  document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)">${greetSub()}</div>`;
- document.getElementById('heroPipe').innerHTML=`<div style="padding:24px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">Open Pipeline</div><div style="font-family:Poppins;font-size:40px;font-weight:800;margin:8px 0 8px">LKR ${(pv/1e6).toFixed(1)}M</div><div style="font-size:13.5px;color:var(--muted);line-height:1.55">Across <b>${open.length}</b> active deals. Push quoted deals into negotiation to build momentum and close the month strong.</div></div>`;
+ document.getElementById('heroPipe').innerHTML=`<div style="padding:24px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">Open Pipeline</div><div style="font-family:Poppins;font-size:40px;font-weight:800;margin:8px 0 8px"><span data-to="${(pv/1e6).toFixed(1)}" data-fmt="m1">LKR ${(pv/1e6).toFixed(1)}M</span></div><div style="font-size:13.5px;color:var(--muted);line-height:1.55">Across <b>${open.length}</b> active deals. Push quoted deals into negotiation to build momentum and close the month strong.</div></div>`;
  const CIR=2*Math.PI*54;const off=CIR*(1-pct/100);
- document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800">${pct}%</div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">June Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px">LKR ${(wonMonthVal/1e6).toFixed(2)}M</div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
+ document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800"><span data-to="${pct}" data-fmt="pct">${pct}%</span></div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">June Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px"><span data-to="${(wonMonthVal/1e6).toFixed(2)}" data-fmt="m">LKR ${(wonMonthVal/1e6).toFixed(2)}M</span></div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
  const stats=[{ic:I.clock,c:'var(--amber)',bg:'var(--amber-soft)',v:todo,l:'Tasks to do',s:'across the team'},{ic:I.bolt,c:'var(--blue)',bg:'var(--blue-soft)',v:open.length,l:'Active deals',s:'in the pipeline'},{ic:I.check,c:'var(--green)',bg:'var(--green-soft)',v:wonMonth.length,l:'Won in June',s:lkr(wonMonthVal)},{ic:I.user,c:'var(--red)',bg:'var(--red-soft)',v:dueCust,l:'Customers to follow up',s:'reconnect now'}];
- document.getElementById('statCards').innerHTML=stats.map(s=>`<div class="kpi"><div style="width:36px;height:36px;border-radius:10px;background:${s.bg};color:${s.c};display:flex;align-items:center;justify-content:center;margin-bottom:12px">${s.ic}</div><div class="val">${s.v}</div><div style="font-size:12.5px;font-weight:600;margin:6px 0 2px">${s.l}</div><div class="sub">${s.s}</div></div>`).join('');
+ document.getElementById('statCards').innerHTML=stats.map(s=>`<div class="kpi"><div style="width:36px;height:36px;border-radius:10px;background:${s.bg};color:${s.c};display:flex;align-items:center;justify-content:center;margin-bottom:12px">${s.ic}</div><div class="val"><span data-to="${s.v}" data-fmt="int">${s.v}</span></div><div style="font-size:12.5px;font-weight:600;margin:6px 0 2px">${s.l}</div><div class="sub">${s.s}</div></div>`).join('');
+ document.getElementById('revChart').innerHTML=barChart([{label:'Jan',v:1.2},{label:'Feb',v:0.9},{label:'Mar',v:1.8},{label:'Apr',v:2.4},{label:'May',v:1.3},{label:'Jun',v:+(wonMonthVal/1e6).toFixed(2),hi:true}]);
  const maxC=Math.max(...STAGES.map(s=>LEADS.filter(l=>l.stage===s.k).length),1);
  document.getElementById('funnel').innerHTML=STAGES.map(s=>{const it=LEADS.filter(l=>l.stage===s.k);const v=it.reduce((a,l)=>a+val(l),0);return `<div class="fn-row"><div class="fn-name">${s.label}</div><div class="fn-bar"><div class="fn-fill" style="width:${it.length/maxC*100}%;background:${s.color}"></div></div><div class="fn-c">${it.length}</div><div class="fn-v">${v?lkr(v):'—'}</div></div>`;}).join('');
  document.getElementById('latest').innerHTML=[...LEADS].sort((a,b)=>b.id-a.id).slice(0,6).map(rowHTML).join('');
@@ -610,7 +621,7 @@ function renderTeam(){
  const totWon=TEAM.reduce((s,p)=>s+perf(p.n,mo).wonVal,0);
  const totPipe=TEAM.reduce((s,p)=>s+perf(p.n,mo).pipe,0);
  const msel=document.getElementById('monthSel');if(msel)msel.value=mo;
- document.getElementById('teamKpis').innerHTML=`<div class="kpi accent"><div class="lbl">Revenue Brought In</div><div class="val">LKR ${(totWon/1e6).toFixed(2)}M</div><div class="sub">closed orders, all team</div></div><div class="kpi"><div class="lbl">Deals Closed</div><div class="val">${totDeals}</div><div class="sub">orders confirmed + delivered</div></div><div class="kpi"><div class="lbl">Open Pipeline</div><div class="val">LKR ${(totPipe/1e6).toFixed(1)}M</div><div class="sub">value still in play</div></div>`;
+ document.getElementById('teamKpis').innerHTML=`<div class="kpi accent"><div class="lbl">Revenue Brought In</div><div class="val"><span data-to="${(totWon/1e6).toFixed(2)}" data-fmt="m">LKR ${(totWon/1e6).toFixed(2)}M</span></div><div class="sub">closed orders, all team</div></div><div class="kpi"><div class="lbl">Deals Closed</div><div class="val"><span data-to="${totDeals}" data-fmt="int">${totDeals}</span></div><div class="sub">orders confirmed + delivered</div></div><div class="kpi"><div class="lbl">Open Pipeline</div><div class="val"><span data-to="${(totPipe/1e6).toFixed(1)}" data-fmt="m1">LKR ${(totPipe/1e6).toFixed(1)}M</span></div><div class="sub">value still in play</div></div>`;
  document.getElementById('teamGrid').innerHTML=TEAM.map(p=>{
   const d=perf(p.n,mo);
   return `<div class="tp-card" onclick="openEmployee('${p.n}','${p.r}')"><div class="tp-head"><div class="tp-av">${init(p.n)}</div><div><div class="tp-nm">${p.n}</div><div class="tp-rl">${p.r}</div></div>${d.won.length?`<span class="tp-pill">${d.won.length} won</span>`:''}</div>
@@ -639,26 +650,29 @@ const ORDERS=[
  {ref:'INV-1024',cust:'The Lagoon Hotel',date:'2026-04-28',amount:1680000,status:'Paid',method:'Bank transfer'},
  {ref:'INV-1051',cust:'Mr. Anver',date:'2026-06-10',amount:96000,status:'Pending',method:'—'}
 ];
+let FIN_FILTER='all';
+function setFinFilter(v){FIN_FILTER=v;renderFinance();}
+function finRows(){return ORDERS.filter(o=>FIN_FILTER==='all'||(FIN_FILTER==='Advance'?o.status.indexOf('Advance')>-1:o.status===FIN_FILTER));}
 function renderFinance(){
  const total=ORDERS.reduce((s,o)=>s+o.amount,0);
  const collected=ORDERS.filter(o=>o.status==='Paid').reduce((s,o)=>s+o.amount,0)+ORDERS.filter(o=>o.status.indexOf('Advance')>-1).reduce((s,o)=>s+o.amount/2,0);
  const outstanding=total-collected;
  const month=ORDERS.filter(o=>o.date>='2026-06-01').reduce((s,o)=>s+o.amount,0);
  const k=[{l:'Total Invoiced',v:total,s:ORDERS.length+' orders'},{l:'Collected',v:collected,s:'received to date',accent:true},{l:'Outstanding',v:outstanding,s:'advance + pending'},{l:'Invoiced in June',v:month,s:'this month'}];
- document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}"><div class="lbl">${x.l}</div><div class="val" style="font-size:21px">LKR ${(x.v/1e6).toFixed(2)}M</div><div class="sub">${x.s}</div></div>`).join('');
+ document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}"><div class="lbl">${x.l}</div><div class="val" style="font-size:21px"><span data-to="${(x.v/1e6).toFixed(2)}" data-fmt="m">LKR ${(x.v/1e6).toFixed(2)}M</span></div><div class="sub">${x.s}</div></div>`).join('');
  const sb={'Paid':'bdg-green','Pending':'bdg-stage'};
- document.getElementById('finBody').innerHTML=[...ORDERS].sort((a,b)=>b.date.localeCompare(a.date)).map(o=>`<tr><td class="tn">${o.ref}</td><td>${o.cust}</td><td class="tm">${fmtD(o.date)}</td><td class="tm">${o.method}</td><td><span class="bdg ${sb[o.status]||'bdg-grey'}">${o.status}</span></td><td class="tnum">${lkr(o.amount)}</td></tr>`).join('');
+ const rows=finRows();document.getElementById('finBody').innerHTML=[...rows].sort((a,b)=>b.date.localeCompare(a.date)).map(o=>`<tr><td class="tn">${o.ref}</td><td>${o.cust}</td><td class="tm">${fmtD(o.date)}</td><td class="tm">${o.method}</td><td><span class="bdg ${sb[o.status]||'bdg-grey'}">${o.status}</span></td><td class="tnum">${lkr(o.amount)}</td></tr>`).join('')||'<tr><td colspan="6" style="color:var(--faint);font-size:13px;padding:14px">No orders for this filter.</td></tr>';
 }
-function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Date','Method','Status','Amount (LKR)'],ORDERS.map(o=>[o.ref,o.cust,o.date,o.method,o.status,o.amount]));}
+function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Date','Method','Status','Amount (LKR)'],finRows().map(o=>[o.ref,o.cust,o.date,o.method,o.status,o.amount]));}
 const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],audit:['Login Audit','Who signed in, where and when']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();}
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();animateCounts(document.getElementById('page-'+pg));}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 
 document.getElementById('nbEnq').textContent=LEADS.length;
 document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).length;
 document.getElementById('nbCus').textContent=CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length;
-document.getElementById('ownerFilter').innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');
+['ownerFilter','ownerFilter2'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');});
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();
 </script>
 </body>
