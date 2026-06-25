@@ -230,7 +230,9 @@ input{font-family:inherit;color:var(--ink)}
 .lead-card,.eq-row,.aq-item,.tp-card,.kpi,.urow,.nav-item,.pa{transition:transform .15s cubic-bezier(.16,1,.3,1),box-shadow .15s,border-color .15s,background .15s,color .15s}
 /* filter toolbar */
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.toolbar .sp{flex:1}
-.filter{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:500;color:var(--ink);outline:none;cursor:pointer}
+select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 12px center;background-size:12px;padding-right:34px}
+.filter{background-color:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:500;color:var(--ink);outline:none;cursor:pointer;transition:border-color .15s}
+.filter:hover{border-color:var(--border-strong,#3a3a4e)}
 .filter:focus{border-color:var(--red)}
 /* drag */
 .lead-card.dragging{opacity:.35}
@@ -405,7 +407,7 @@ input{font-family:inherit;color:var(--ink)}
         <div class="scope-stats" id="inqStats"></div>
         <div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div>
       </div>
-      <div class="page" id="page-quotations"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
+      <div class="page" id="page-quotations"><div class="toolbar"><select class="filter" id="quoMonth" onchange="setQuoMonth(this.value)"></select><div class="sp"></div></div><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers">
         <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none">
           <div style="padding:18px 22px;display:flex;align-items:center;gap:16px;color:#fff">
@@ -413,6 +415,7 @@ input{font-family:inherit;color:var(--ink)}
             <div><div style="font-weight:700;font-size:14.5px">customers due for a message today</div><div style="font-size:12px;opacity:.85">Every customer gets a 30-day, 60-day and 90-day touch — the 90-day carries an offer</div></div>
           </div>
         </div>
+        <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><span style="font-size:12px;color:var(--muted)">Filter customers by the month they purchased</span></div>
         <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Purchased</th><th>Last contact</th><th>Cadence</th><th>Next message</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
       <div class="page" id="page-taskbook">
@@ -437,7 +440,7 @@ input{font-family:inherit;color:var(--ink)}
           <div class="card"><div class="card-h"><h3>Payment Breakdown</h3><span style="font-size:12px;color:var(--muted)">Where the money stands</span></div><div class="card-b"><div id="finBar"></div><div id="finBreak" style="display:flex;gap:12px;margin-top:16px"></div><div id="finCash" style="margin-top:14px;font-size:13px;color:var(--muted)"></div></div></div>
           <div class="card"><div class="card-h"><h3>Collection Rate</h3><span style="font-size:12px;color:var(--muted)">Collected vs invoiced</span></div><div class="card-b" style="display:flex;align-items:center;justify-content:center;padding:14px 18px 22px"><div style="position:relative;width:130px;height:130px" id="finDonut"></div></div></div>
         </div>
-        <div class="toolbar"><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All invoices</option><option value="Outstanding">Outstanding</option><option value="Overdue">Overdue only</option><option value="Paid">Paid</option></select><span style="font-size:12px;color:var(--muted)">Chase outstanding balances, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
+        <div class="toolbar"><select class="filter" id="finMonth" onchange="setFinMonth(this.value)"></select><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All invoices</option><option value="Outstanding">Outstanding</option><option value="Overdue">Overdue only</option><option value="Paid">Paid</option></select><span style="font-size:12px;color:var(--muted)">Chase outstanding balances, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
         <div class="card"><div class="card-h"><h3>Collections — Orders & Invoices</h3><span style="font-size:12px;color:var(--muted)">Balances to collect, oldest first</span></div><table class="tbl"><thead><tr><th>Invoice</th><th>Customer</th><th class="tnum">Invoiced</th><th class="tnum">Balance Due</th><th>Due Date</th><th>Aging</th><th>Status</th><th></th></tr></thead><tbody id="finBody"></tbody></table></div>
       </div>
     </div>
@@ -665,7 +668,10 @@ function renderBoard(){
 }
 function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart="dragStart(event,${l.id})" ondragend="dragEnd(event)" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
 function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
-function renderQuo(){document.getElementById('quoBody').innerHTML=LEADS.filter(l=>l.quote.length).sort((a,b)=>val(b)-val(a)).map(l=>`<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></td><td class="tm">${l.products.join(', ')}</td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td><td class="tnum">${lkr(val(l))}</td></tr>`).join('');}
+function monthLbl(ym){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const p=ym.split('-');return M[+p[1]-1]+' '+p[0];}
+function monthOpts(set){return '<option value="all">All months</option>'+[...new Set(set)].sort().reverse().map(m=>'<option value="'+m+'">'+monthLbl(m)+'</option>').join('');}
+let QUO_MONTH='all';function setQuoMonth(v){QUO_MONTH=v;renderQuo();}
+function renderQuo(){const rows=LEADS.filter(l=>l.quote.length&&(QUO_MONTH==='all'||MONTH[l.id]===QUO_MONTH));document.getElementById('quoBody').innerHTML=rows.sort((a,b)=>val(b)-val(a)).map(l=>`<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></td><td class="tm">${l.products.join(', ')}</td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td><td class="tnum">${lkr(val(l))}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--faint);font-size:13px;padding:14px">No quotations for this month.</td></tr>';}
 const TODAY='2026-06-25';
 const CADENCE=[30,60,90];
 const CAD_LABEL=['30-day check-in','60-day re-engage','90-day offer'];
@@ -693,9 +699,11 @@ function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.c
 function custNext(c){return c.sent>=3?null:addDaysStr(c.purchase,CADENCE[c.sent]);}
 function custDue(c){const n=custNext(c);return !!(n&&n<=TODAY);}
 function dueCustomers(){return CUSTOMERS.filter(custDue).length;}
+let CUS_MONTH='all';function setCusMonth(v){CUS_MONTH=v;renderCus();}
 function renderCus(){
  const dc=document.getElementById('dueCount');if(dc)dc.textContent=dueCustomers();
- const arr=[...CUSTOMERS].sort((a,b)=>(custNext(a)||'9999').localeCompare(custNext(b)||'9999'));
+ const base=CUSTOMERS.filter(c=>CUS_MONTH==='all'||c.purchase.slice(0,7)===CUS_MONTH);
+ const arr=[...base].sort((a,b)=>(custNext(a)||'9999').localeCompare(custNext(b)||'9999'));
  document.getElementById('cusBody').innerHTML=arr.map(c=>{
   const done=c.sent>=3,next=custNext(c),due=custDue(c);
   const dots='<span style="display:inline-flex;gap:5px;vertical-align:middle">'+[0,1,2].map(i=>`<span title="${CAD_LABEL[i]}" style="width:9px;height:9px;border-radius:50%;background:${c.sent>i?'var(--green)':(c.sent===i&&due?'var(--red)':'var(--line)')}"></span>`).join('')+'</span>';
@@ -819,16 +827,19 @@ function daysOver(o){return Math.round((new Date(TODAY+'T00:00:00')-new Date(o.d
 function balance(o){return o.amount-o.paid;}
 function ordStatus(o){if(balance(o)<=0)return['Paid','bdg-green'];if(daysOver(o)>0)return['Overdue','bdg-stage'];return['Open','bdg-grey'];}
 function agingBucket(o){if(balance(o)<=0)return -1;const d=daysOver(o);if(d<=0)return 0;if(d<=30)return 1;if(d<=60)return 2;if(d<=90)return 3;return 4;}
-let FIN_FILTER='all';
+let FIN_FILTER='all',FIN_MONTH='all';
 function setFinFilter(v){FIN_FILTER=v;renderFinance();}
-function finRows(){return ORDERS.filter(o=>{if(FIN_FILTER==='all')return true;if(FIN_FILTER==='Paid')return balance(o)<=0;if(FIN_FILTER==='Outstanding')return balance(o)>0;if(FIN_FILTER==='Overdue')return balance(o)>0&&daysOver(o)>0;return true;});}
+function setFinMonth(v){FIN_MONTH=v;renderFinance();}
+function finMonthRows(){return FIN_MONTH==='all'?ORDERS:ORDERS.filter(o=>o.date.slice(0,7)===FIN_MONTH);}
+function finRows(){return finMonthRows().filter(o=>{if(FIN_FILTER==='all')return true;if(FIN_FILTER==='Paid')return balance(o)<=0;if(FIN_FILTER==='Outstanding')return balance(o)>0;if(FIN_FILTER==='Overdue')return balance(o)>0&&daysOver(o)>0;return true;});}
 function renderFinance(){
- const total=ORDERS.reduce((s,o)=>s+o.amount,0);
- const collected=ORDERS.reduce((s,o)=>s+o.paid,0);
+ const O=finMonthRows();
+ const total=O.reduce((s,o)=>s+o.amount,0)||1;
+ const collected=O.reduce((s,o)=>s+o.paid,0);
  const outstanding=total-collected;
- const overdue=ORDERS.filter(o=>balance(o)>0&&daysOver(o)>0).reduce((s,o)=>s+balance(o),0);
- const expect30=ORDERS.filter(o=>balance(o)>0&&daysOver(o)<=0&&daysOver(o)>=-30).reduce((s,o)=>s+balance(o),0);
- const k=[{l:'Total Invoiced',v:total,s:ORDERS.length+' orders'},{l:'Collected',v:collected,s:Math.round(collected/total*100)+'% of invoiced',accent:true},{l:'Outstanding',v:outstanding,s:'still to collect'},{l:'Overdue',v:overdue,s:'past due — chase now',danger:true}];
+ const overdue=O.filter(o=>balance(o)>0&&daysOver(o)>0).reduce((s,o)=>s+balance(o),0);
+ const expect30=O.filter(o=>balance(o)>0&&daysOver(o)<=0&&daysOver(o)>=-30).reduce((s,o)=>s+balance(o),0);
+ const k=[{l:'Total Invoiced',v:total,s:O.length+' orders'},{l:'Collected',v:collected,s:Math.round(collected/total*100)+'% of invoiced',accent:true},{l:'Outstanding',v:outstanding,s:'still to collect'},{l:'Overdue',v:overdue,s:'past due — chase now',danger:true}];
  document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}" ${x.danger&&x.v>0?'style="border-color:var(--red)"':''}><div class="lbl">${x.l}</div><div class="val" style="font-size:21px;${x.danger&&x.v>0?'color:var(--red)':''}"><span data-to="${(x.v/1e6).toFixed(2)}" data-fmt="m">LKR ${(x.v/1e6).toFixed(2)}M</span></div><div class="sub">${x.s}</div></div>`).join('');
  const awaiting=outstanding-overdue;
  document.getElementById('finBar').innerHTML='<div style="display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--line)">'+(collected>0?'<div style="width:'+(collected/total*100)+'%;background:var(--green)"></div>':'')+(awaiting>0?'<div style="width:'+(awaiting/total*100)+'%;background:var(--amber)"></div>':'')+(overdue>0?'<div style="width:'+(overdue/total*100)+'%;background:var(--red)"></div>':'')+'</div>';
@@ -852,6 +863,9 @@ document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).len
 document.getElementById('nbCus').textContent=dueCustomers();
 ['ownerFilter','ownerFilter2'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');});
 ['monthFilterP','monthFilterI'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All months</option>'+MONTHS.map(m=>`<option value="${m[0]}">${m[1]}</option>`).join('');});
+document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.length).map(l=>MONTH[l.id]));
+document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>c.purchase.slice(0,7)));
+document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
 </script>
 </body>
