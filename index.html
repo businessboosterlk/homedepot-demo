@@ -299,6 +299,7 @@ input{font-family:inherit;color:var(--ink)}
       <div class="nav-item" data-pg="inquiries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Inquiries<span class="badge" id="nbEnq"></span></div>
       <div class="nav-item" data-pg="quotations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Quotations<span class="badge" id="nbQuo"></span></div>
       <div class="nav-item" data-pg="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Customers<span class="badge" id="nbCus"></span></div>
+      <div class="nav-item" data-pg="taskbook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Book<span class="badge" id="nbTask"></span></div>
       <div class="nav-label ceo-only">Management</div>
       <div class="nav-item ceo-only" data-pg="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>Team & Performance</div>
       <div class="nav-item ceo-only" data-pg="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finance</div>
@@ -352,6 +353,10 @@ input{font-family:inherit;color:var(--ink)}
         </div>
         <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Bought</th><th>Last Purchase</th><th>Follow up by</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
+      <div class="page" id="page-taskbook">
+        <div class="toolbar"><span style="font-size:13px;color:var(--muted)">Assign and track tasks across the team</span><div class="sp"></div><button class="btn-red" onclick="openTaskModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div>
+        <div class="card"><div class="card-b" id="taskBookList" style="padding:8px 20px 16px"></div></div>
+      </div>
       <div class="page" id="page-team">
         <div class="toolbar"><select class="filter" id="monthSel" onchange="setMonth(this.value)"><option value="2026-06">June 2026</option><option value="2026-05">May 2026</option></select><span style="font-size:12px;color:var(--muted)">Performance for the selected month</span></div>
         <div class="kpis" id="teamKpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px"></div>
@@ -395,18 +400,18 @@ function applyTheme(t){document.body.classList.toggle('dark',t==='dark');documen
 function toggleTheme(){applyTheme(document.body.classList.contains('dark')?'light':'dark');}
 (function(){let t='light';try{t=localStorage.getItem('hd_theme')||'light'}catch(e){}applyTheme(t);})();
 
-let PEND=null,CURRENT_NAME='Nihla';
+let PEND=null,CURRENT_NAME='Nihla',CURRENT_ROLE='Director';
 function pickUser(name,role,pw){PEND={name,role,pw};document.getElementById('lgAv').textContent=name[0];document.getElementById('lgName').textContent=name;document.getElementById('lgRole').textContent=role;document.getElementById('lgPw').value='';document.getElementById('lgErr').textContent='';document.getElementById('loginStep1').style.display='none';document.getElementById('loginStep2').style.display='block';setTimeout(function(){document.getElementById('lgPw').focus();},60);}
 function backLogin(){document.getElementById('loginStep2').style.display='none';document.getElementById('loginStep1').style.display='block';}
 function doLogin(){if(!PEND)return;if(document.getElementById('lgPw').value===PEND.pw){signIn(PEND.name,PEND.role);}else{document.getElementById('lgErr').textContent='Incorrect password. Please try again.';}}
 function signIn(name,role){
-  CURRENT_NAME=name;
+  CURRENT_NAME=name;CURRENT_ROLE=role.split(' · ')[0];
   document.getElementById('meAv').textContent=name[0];
   document.getElementById('meName').textContent=name;
   document.getElementById('meRole').textContent=role.split(' · ')[0];
   const full=role.indexOf('Director')>-1||role.indexOf('Manager')>-1;
   document.querySelectorAll('.ceo-only').forEach(e=>e.style.display=full?'':'none');
-  if(typeof renderDash==='function')renderDash();
+  if(typeof renderDash==='function'){renderDash();renderQueue();renderTasks();}
   go('dashboard');
   backLogin();
   document.getElementById('login').classList.add('hide');
@@ -467,7 +472,7 @@ function dragLeave(el){el.classList.remove('dragover');}
 function drop(e,stage){e.preventDefault();const l=LEADS.find(x=>x.id===DRAG);if(l)l.stage=stage;DRAG=null;renderBoard();renderDash();renderQueue();}
 /* tasks */
 let TASKS=[{t:'Call Cinnamon Grand on the 8% request',w:'Raashid · today',d:false},{t:'Site visit — Rajitha Silva garden',w:'Ushan · Saturday',d:false},{t:'Send quotation to Ascon Developers',w:'Yasitha · today',d:false},{t:'Confirm delivery slot — Araliya Resort',w:'Raashid · tomorrow',d:true}];
-function renderTasks(){const el=document.getElementById('taskList');if(!el)return;el.innerHTML=TASKS.map((t,i)=>`<div class="task ${t.d?'done':''}"><div class="cb" onclick="toggleTask(${i})">${I.check}</div><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-m">${t.w}</div></div></div>`).join('');}
+function renderTasks(){const html=TASKS.map((t,i)=>`<div class="task ${t.d?'done':''}"><div class="cb" onclick="toggleTask(${i})">${I.check}</div><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-m">${t.w}</div></div></div>`).join('');['taskList','taskBookList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});const nb=document.getElementById('nbTask');if(nb)nb.textContent=TASKS.filter(t=>!t.d).length;}
 function toggleTask(i){TASKS[i].d=!TASKS[i].d;renderTasks();}
 function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('tk_title').value='';document.getElementById('tk_due').value='';document.getElementById('taskModal').classList.add('open');}
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
@@ -483,6 +488,20 @@ function exportXLS(name,headers,rows){
 function exportInquiriesXLS(){exportXLS('homedepot-inquiries.xls',['Customer','Company','Type','Lead','Stage','Source','Owner','Products','Value (LKR)'],filtered().map(l=>[l.name,l.co,l.type,l.lead,stageLabel(l.stage),l.source,l.owner,l.products.join(' / '),val(l)]));}
 function exportQuotesXLS(){const rows=[];LEADS.filter(l=>l.quote.length).forEach(l=>l.quote.forEach(r=>rows.push([l.name,r.p,r.n,r.q,r.u,r.q*r.u,stageLabel(l.stage)])));exportXLS('homedepot-quotations.xls',['Customer','Product','Code','Qty','Unit (LKR)','Line Total (LKR)','Stage'],rows);}
 
+function greetSub(){
+ if(CURRENT_ROLE==='Sales'){
+  const own=LEADS.filter(l=>l.owner===CURRENT_NAME&&l.stage!=='delivered');
+  const need=own.filter(l=>['quoted','negotiation','site_visit'].includes(l.stage));
+  const myTasks=TASKS.filter(t=>!t.d&&t.w.indexOf(CURRENT_NAME)>-1).length;
+  const top=[...own].sort((a,b)=>val(b)-val(a))[0];
+  return `<b style="color:var(--red)">${need.length} of your deals</b> need attention${myTasks?` · <b style="color:var(--red)">${myTasks} task${myTasks===1?'':'s'}</b> to do`:''}${top?` · your top open deal: <b>${top.name}</b> (${lkr(val(top))})`:''}`;
+ }
+ const wm=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
+ const wmVal=wm.reduce((s,l)=>s+val(l),0);const pct=Math.round(wmVal/5000000*100);
+ const due=(typeof CUSTOMERS!=='undefined')?CUSTOMERS.filter(c=>c.next<=TODAY).length:0;
+ const neg=[...LEADS.filter(l=>l.stage==='negotiation')].sort((a,b)=>val(b)-val(a))[0];
+ return `Team won <b>${lkr(wmVal)}</b> in June (<b style="color:var(--red)">${pct}%</b> of target) · <b style="color:var(--red)">${due} customers</b> due for follow-up${neg?` · watch: <b>${neg.name}</b> closing ${lkr(val(neg))}`:''}`;
+}
 function renderDash(){
  const open=LEADS.filter(l=>l.stage!=='delivered');
  const pv=open.reduce((s,l)=>s+val(l),0);
@@ -491,7 +510,7 @@ function renderDash(){
  const dueCust=(typeof CUSTOMERS!=='undefined')?CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length:0;
  const todo=TASKS.filter(t=>!t.d).length;
  const TARGET=5000000;const pct=Math.min(100,Math.round(wonMonthVal/TARGET*100));
- document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)"><b style="color:var(--red)">${dueCust} customers</b> are due for a follow-up · <b style="color:var(--red)">${todo} tasks</b> to do</div>`;
+ document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)">${greetSub()}</div>`;
  document.getElementById('heroPipe').innerHTML=`<div style="padding:24px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">Open Pipeline</div><div style="font-family:Poppins;font-size:40px;font-weight:800;margin:8px 0 8px">LKR ${(pv/1e6).toFixed(1)}M</div><div style="font-size:13.5px;color:var(--muted);line-height:1.55">Across <b>${open.length}</b> active deals. Push quoted deals into negotiation to build momentum and close the month strong.</div></div>`;
  const CIR=2*Math.PI*54;const off=CIR*(1-pct/100);
  document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800">${pct}%</div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">June Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px">LKR ${(wonMonthVal/1e6).toFixed(2)}M</div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
@@ -544,8 +563,9 @@ function gamePlan(l){
 }
 function renderQueue(){
  const SIG={new_inquiry:['Send quotation','#2563eb','New inquiry, no quote sent yet'],quoted:['Follow up','#d97706','Quote sent, awaiting their response'],site_visit:['Confirm visit','#7c3aed','Site visit pending'],negotiation:['Close the deal','#E4002B','In negotiation, needs a push'],order_confirmed:['Schedule delivery','#16a34a','Order won, arrange delivery']};
- const open=LEADS.filter(l=>l.stage!=='delivered').sort((a,b)=>val(b)-val(a)).slice(0,6);
- document.getElementById('queue').innerHTML=open.map(l=>{const s=SIG[l.stage]||SIG.new_inquiry;return `<div class="aq-item" onclick="openLead(${l.id})"><span class="aq-dot" style="background:${s[1]}"></span><div class="aq-main"><div class="aq-nm">${l.name}</div><div class="aq-why">${s[2]}</div></div><span class="aq-act">${s[0]}</span><div class="aq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}).join('');
+ let data=LEADS.filter(l=>l.stage!=='delivered');if(CURRENT_ROLE==='Sales')data=data.filter(l=>l.owner===CURRENT_NAME);
+ const open=data.sort((a,b)=>val(b)-val(a)).slice(0,6);
+ document.getElementById('queue').innerHTML=open.map(l=>{const s=SIG[l.stage]||SIG.new_inquiry;return `<div class="aq-item" onclick="openLead(${l.id})"><span class="aq-dot" style="background:${s[1]}"></span><div class="aq-main"><div class="aq-nm">${l.name}</div><div class="aq-why">${s[2]}</div></div><span class="aq-act">${s[0]}</span><div class="aq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}).join('')||'<div style="color:var(--faint);font-size:13px;padding:12px">Nothing needs your attention right now.</div>';
 }
 function exportCSV(name,headers,rows){
  const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
@@ -630,7 +650,7 @@ function renderFinance(){
  document.getElementById('finBody').innerHTML=[...ORDERS].sort((a,b)=>b.date.localeCompare(a.date)).map(o=>`<tr><td class="tn">${o.ref}</td><td>${o.cust}</td><td class="tm">${fmtD(o.date)}</td><td class="tm">${o.method}</td><td><span class="bdg ${sb[o.status]||'bdg-grey'}">${o.status}</span></td><td class="tnum">${lkr(o.amount)}</td></tr>`).join('');
 }
 function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Date','Method','Status','Amount (LKR)'],ORDERS.map(o=>[o.ref,o.cust,o.date,o.method,o.status,o.amount]));}
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],audit:['Login Audit','Who signed in, where and when']};
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],audit:['Login Audit','Who signed in, where and when']};
 function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
