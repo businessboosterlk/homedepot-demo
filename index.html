@@ -155,7 +155,7 @@ input{font-family:inherit;color:var(--ink)}
 
 /* panel */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;pointer-events:none;transition:.2s}.overlay.open{opacity:1;pointer-events:auto}
-.panel{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:94vw;background:var(--surface);z-index:60;transform:translateX(100%);transition:transform .26s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.22)}.panel.open{transform:translateX(0)}
+.panel{position:fixed;top:0;right:0;bottom:0;width:560px;max-width:94vw;background:var(--surface);z-index:60;opacity:0;visibility:hidden;transform:translateX(0);transition:opacity .24s ease,visibility 0s linear .24s;overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.22)}.panel.open{opacity:1;visibility:visible;transition:opacity .24s ease}
 .pn-head{padding:22px 24px 18px;border-bottom:1px solid var(--line);position:relative}
 .pn-close{position:absolute;top:18px;right:20px;width:34px;height:34px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted)}.pn-close:hover{background:var(--line)}
 .pn-nm{font-family:'Poppins';font-size:22px;font-weight:800}.pn-co{font-size:13px;color:var(--muted);margin-top:2px}
@@ -175,6 +175,24 @@ input{font-family:inherit;color:var(--ink)}
 .q-total{display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--surface-2);font-weight:800;font-size:15px}
 .q-total .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
 .q-total .amt{color:var(--red);font-family:'Poppins';font-variant-numeric:tabular-nums}
+.qe{font-size:12.5px}
+.qe-hd,.qe-row{display:grid;grid-template-columns:1fr 48px 84px 76px 24px;gap:8px;align-items:center}
+.qe-hd{padding:0 2px 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--faint);font-weight:700}
+.qe-row{padding:7px 2px;border-bottom:1px solid var(--line)}
+.qe-pc{display:flex;flex-direction:column;gap:4px;min-width:0}
+.qe-in{background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:7px 8px;font-size:12.5px;color:var(--ink);width:100%;font-family:inherit;-webkit-appearance:none;appearance:none}
+.qe-in:focus{outline:none;border-color:var(--red);background:var(--surface)}
+.qe-code{font-size:11px;padding:5px 8px;color:var(--muted)}
+.qe-q,.qe-u{text-align:right;font-variant-numeric:tabular-nums}
+.qe-lt{text-align:right;font-weight:700;font-variant-numeric:tabular-nums;font-size:12px}
+.qe-rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:13px;padding:4px;border-radius:6px;line-height:1}.qe-rm:hover{color:var(--red);background:rgba(228,0,43,.08)}
+.qe-add{margin-top:10px;background:var(--surface-2);border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:9px;width:100%;cursor:pointer;font-size:12.5px;font-weight:600;font-family:inherit}.qe-add:hover{border-color:var(--red);color:var(--red)}
+.qe-empty{color:var(--faint);padding:10px 2px;font-size:12.5px}
+.qe-tot{margin-top:12px;border-top:2px solid var(--line);padding-top:10px}
+.qe-tr{display:flex;justify-content:space-between;align-items:center;padding:5px 2px;font-size:13px}
+.qe-tr .qe-disc{width:130px;text-align:right}
+.qe-tr.grand{font-weight:800;font-size:15px;margin-top:4px}
+.qe-tr.grand .amt{color:var(--red);font-family:'Poppins';font-variant-numeric:tabular-nums}
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .info{background:var(--surface-2);border-radius:10px;padding:12px 14px}.info .il{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:600;margin-bottom:4px}.info .iv{font-size:13.5px;font-weight:600}
 .prod-list{display:flex;flex-wrap:wrap;gap:7px}
@@ -547,7 +565,7 @@ function generateQuote(id){
  const l=LEADS.find(x=>x.id===id);if(!l)return;
  if(!l.quote||!l.quote.length){toast(I.doc+' Add products and a value first to generate a quotation');return;}
  const MN2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const d=new Date();const fdt=x=>String(x.getDate()).padStart(2,'0')+' '+MN2[x.getMonth()]+' '+x.getFullYear();const vd=new Date();vd.setDate(vd.getDate()+14);
- const qno='HD-QTN-'+String(1000+l.id).slice(1).padStart(4,'0');const total=qTotal(l);
+ const qno='HD-QTN-'+String(1000+l.id).slice(1).padStart(4,'0');const total=qTotal(l);const disc=l.discount||0;const net=Math.max(0,total-disc);
  const logo=(document.querySelector('.login-logo')||{}).src||'';
  const rows=l.quote.map((r,i)=>'<tr><td class="ta-c">'+(i+1)+'</td><td class="desc"><div class="p">'+r.p+'</div>'+(r.n?'<div class="code">'+r.n+'</div>':'')+'</td><td class="ta-c">'+r.q+'</td><td class="ta-c">Nos</td><td class="ta-r">'+r.u.toLocaleString()+'</td><td class="ta-r amt">'+(r.q*r.u).toLocaleString()+'</td></tr>').join('');
  const f=n=>'LKR '+n.toLocaleString();
@@ -574,7 +592,7 @@ function generateQuote(id){
  '<div class="prow"><span class="lbl">Email</span><span class="s">:</span><span class="val">hello@homedepot.lk</span></div></div></div>'+
  '<table><thead><tr><th class="c" style="width:42px">#</th><th>Description</th><th class="c" style="width:60px">Qty</th><th class="c" style="width:64px">Unit</th><th class="r" style="width:120px">Unit Price</th><th class="r" style="width:130px">Amount</th></tr></thead><tbody>'+rows+'</tbody></table>'+
  '<div class="lower"><div class="notes"><span class="ptag">Notes</span><div class="notebox"></div></div>'+
- '<div class="totals"><div class="trow"><span class="k">Subtotal</span><span>'+f(total)+'</span></div><div class="trow"><span class="k">Discount</span><span>LKR 0</span></div><div class="trow"><span class="k">Delivery &amp; Installation</span><span>Quoted separately</span></div><div class="trow grand"><span>TOTAL</span><span>'+f(total)+'</span></div></div></div>'+
+ '<div class="totals"><div class="trow"><span class="k">Subtotal</span><span>'+f(total)+'</span></div><div class="trow"><span class="k">Discount</span><span>'+(disc>0?'- '+f(disc):'LKR 0')+'</span></div><div class="trow"><span class="k">Delivery &amp; Installation</span><span>Quoted separately</span></div><div class="trow grand"><span>TOTAL</span><span>'+f(net)+'</span></div></div></div>'+
  '<div class="terms"><span class="ptag">Terms &amp; Conditions</span><ul><li>This quotation is valid until the date specified above.</li><li>Prices are in LKR and inclusive of standard warranty.</li><li>A 50% advance confirms the order; balance is due on delivery.</li><li>Delivery and installation are quoted separately based on site requirements.</li><li>This is a computer-generated quotation and does not require a signature.</li></ul>'+
  '<div class="sign"><div class="line"></div><div class="lbl">Authorized Signature</div></div></div></div>'+
  '<div class="foot"><div class="fcell">'+pi(icPhone)+'<span>+94 112 825 866</span></div><div class="fcell">'+pi(icMail)+'<span>hello@homedepot.lk<br>thehomedepot.lk</span></div><div class="fcell">'+pi(icPin)+'<span>Nawala Road, Nawala<br>Colombo, Sri Lanka</span></div></div><div class="fred"></div></div>'+
@@ -827,9 +845,20 @@ function exportCSV(name,headers,rows){
 function exportInquiries(){exportCSV('homedepot-inquiries.csv',['Customer','Company','Type','Lead','Stage','Source','Owner','Products','Value'],LEADS.map(l=>[l.name,l.co,l.type,l.lead,stageLabel(l.stage),l.source,l.owner,l.products.join(' / '),val(l)]));}
 function exportQuotes(){const rows=[];LEADS.filter(l=>l.quote.length).forEach(l=>l.quote.forEach(r=>rows.push([l.name,r.p,r.n,r.q,r.u,r.q*r.u,stageLabel(l.stage)])));exportCSV('homedepot-quotations.csv',['Customer','Product','Code','Qty','Unit','Line Total','Stage'],rows);}
 function exportLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;const rows=l.quote.length?l.quote.map(r=>[l.name,r.p,r.n,r.q,r.u,r.q*r.u]):[[l.name,'(no quote)','',0,0,0]];exportCSV('homedepot-'+l.name.replace(/\s+/g,'-').toLowerCase()+'.csv',['Customer','Product','Code','Qty','Unit','Total'],rows);}
+function quoteEditor(l){
+ const sub=qTotal(l);const disc=l.discount||0;const net=Math.max(0,sub-disc);
+ const esc=s=>(s||'').toString().replace(/"/g,'&quot;');
+ const rows=l.quote.map((r,i)=>`<div class="qe-row"><div class="qe-pc"><input class="qe-in qe-p" value="${esc(r.p)}" placeholder="Product name" onchange="qiField(${l.id},${i},'p',this.value)"><input class="qe-in qe-code" value="${esc(r.n)}" placeholder="Item code" onchange="qiField(${l.id},${i},'n',this.value)"></div><input class="qe-in qe-q" type="number" min="0" inputmode="numeric" value="${r.q}" onchange="qiField(${l.id},${i},'q',this.value)"><input class="qe-in qe-u" type="number" min="0" inputmode="numeric" value="${r.u}" onchange="qiField(${l.id},${i},'u',this.value)"><div class="qe-lt">${(r.q*r.u).toLocaleString()}</div><button class="qe-rm" title="Remove" onclick="removeQuoteItem(${l.id},${i})">✕</button></div>`).join('');
+ return `<div class="qe"><div class="qe-hd"><div>Product / Code</div><div style="text-align:right">Qty</div><div style="text-align:right">Unit</div><div style="text-align:right">Total</div><div></div></div>${rows||'<div class="qe-empty">No items yet — add the first product below.</div>'}<button class="qe-add" onclick="addQuoteItem(${l.id})">+ Add item</button><div class="qe-tot"><div class="qe-tr"><span>Subtotal</span><span>${lkr(sub)}</span></div><div class="qe-tr"><span>Discount (LKR)</span><input class="qe-in qe-disc" type="number" min="0" inputmode="numeric" value="${disc}" onchange="setDiscount(${l.id},this.value)"></div><div class="qe-tr grand"><span>Quotation Total</span><span class="amt">${lkr(net)}</span></div></div></div>`;
+}
+function reLead(id){const p=document.getElementById('panel');const sc=p?p.scrollTop:0;openLead(id);if(p)p.scrollTop=sc;}
+function qiField(id,i,f,v){const l=LEADS.find(x=>x.id===id);if(!l||!l.quote[i])return;if(f==='q'||f==='u')v=Math.max(0,parseInt(v)||0);l.quote[i][f]=v;reLead(id);}
+function addQuoteItem(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(!l.quote)l.quote=[];l.quote.push({p:'New item',n:'',q:1,u:0});reLead(id);}
+function removeQuoteItem(id,i){const l=LEADS.find(x=>x.id===id);if(!l)return;l.quote.splice(i,1);reLead(id);}
+function setDiscount(id,v){const l=LEADS.find(x=>x.id===id);if(!l)return;l.discount=Math.max(0,parseInt(v)||0);reLead(id);}
 function openLead(id){
  const l=LEADS.find(x=>x.id===id);if(!l)return;const t=qTotal(l);
- const quoteHTML=l.quote.length?`<div class="quote"><div class="q-row head"><div>Product</div><div style="text-align:center">Qty</div><div class="q-num">Unit</div><div class="q-num">Total</div></div>${l.quote.map(r=>`<div class="q-row"><div><div class="qp">${r.p}</div><div class="qn">${r.n}</div></div><div style="text-align:center;font-weight:600">${r.q}</div><div class="q-num">${r.u.toLocaleString()}</div><div class="q-num" style="font-weight:700">${(r.q*r.u).toLocaleString()}</div></div>`).join('')}<div class="q-total"><span class="lbl">Quotation Total</span><span class="amt">${lkr(t)}</span></div></div>`:`<div style="font-size:13px;color:var(--faint);padding:6px 0">No quotation yet — start by adding products and prices.</div>`;
+ const quoteHTML=quoteEditor(l);
  const panel=document.getElementById('panel');
  panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${l.name}</div><div class="pn-co">${l.co}</div><div class="pn-badges"><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><span class="bdg bdg-grey">${l.lead}</span><span class="bdg bdg-stage">${stageLabel(l.stage)}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${l.phone}">${l.phone}</a></span><span>${I.mail} <a href="mailto:${l.email}">${l.email}</a></span><span>${I.user} ${l.owner}</span></div></div>
   <div class="pn-actions"><button class="pa primary" onclick="logActivity(${id})">${I.phone} Log Activity</button><button class="pa" onclick="generateQuote(${id})">${I.doc} Generate Quote</button><button class="pa" onclick="followUp(${id})">${I.clock} Follow-Up</button><button class="pa" onclick="convertOrder(${id})">${I.check} Convert to Order</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
