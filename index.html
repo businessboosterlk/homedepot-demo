@@ -434,7 +434,7 @@ input{font-family:inherit;color:var(--ink)}
       <div class="page" id="page-finance">
         <div class="kpis" id="finKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
         <div class="grid2" style="margin-bottom:20px">
-          <div class="card"><div class="card-h"><h3>Receivables Aging</h3><span style="font-size:12px;color:var(--muted)">Outstanding balances by age</span></div><div class="card-b"><div class="aging-row" id="finAging"></div><div id="finCash" style="margin-top:14px;font-size:13px;color:var(--muted)"></div></div></div>
+          <div class="card"><div class="card-h"><h3>Payment Breakdown</h3><span style="font-size:12px;color:var(--muted)">Where the money stands</span></div><div class="card-b"><div id="finBar"></div><div id="finBreak" style="display:flex;gap:12px;margin-top:16px"></div><div id="finCash" style="margin-top:14px;font-size:13px;color:var(--muted)"></div></div></div>
           <div class="card"><div class="card-h"><h3>Collection Rate</h3><span style="font-size:12px;color:var(--muted)">Collected vs invoiced</span></div><div class="card-b" style="display:flex;align-items:center;justify-content:center;padding:14px 18px 22px"><div style="position:relative;width:130px;height:130px" id="finDonut"></div></div></div>
         </div>
         <div class="toolbar"><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All invoices</option><option value="Outstanding">Outstanding</option><option value="Overdue">Overdue only</option><option value="Paid">Paid</option></select><span style="font-size:12px;color:var(--muted)">Chase outstanding balances, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
@@ -669,10 +669,12 @@ function renderQuo(){document.getElementById('quoBody').innerHTML=LEADS.filter(l
 const TODAY='2026-06-25';
 const CADENCE=[30,60,90];
 const CAD_LABEL=['30-day check-in','60-day re-engage','90-day offer'];
+const FULLMN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function purMonth(c){return FULLMN[+c.purchase.split('-')[1]-1];}
 const CAD_MSG=[
- c=>`Hi ${(c.name.split(' ')[0])}, it's been about a month since your purchase from Home Depot. We hope your new lighting looks fantastic. If you need anything at all, just reply to this message.`,
- c=>`Hi ${(c.name.split(' ')[0])}, fresh lighting designs have just arrived in our showroom. We'd love for you to come and see them — there may be a perfect piece for another space in your home or project.`,
- c=>`Hi ${(c.name.split(' ')[0])}, as a valued Home Depot customer, here's an exclusive 10% off your next purchase, valid this month. We'd love to light up your next project with you. Reply to claim it.`
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been about a month since your ${purMonth(c)} purchase of ${lkr(c.value)} from Home Depot. We hope your new lighting looks fantastic. If you need anything at all, just reply to this message.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been two months since your ${purMonth(c)} purchase of ${lkr(c.value)}. Fresh lighting designs have just arrived in our showroom — there may be a perfect piece for another space.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been three months since your ${purMonth(c)} purchase of ${lkr(c.value)}. As a valued customer, here's an exclusive 10% off your next purchase, valid this month. Reply to claim it.`
 ];
 const CUSTOMERS=[
  {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',products:'Outdoor + restaurant + pool',purchase:'2026-06-18',value:2033000,phone:'034 227 5500',email:'maintenance@araliyaresorts.lk',sent:0,last:'2026-06-18'},
@@ -828,8 +830,10 @@ function renderFinance(){
  const expect30=ORDERS.filter(o=>balance(o)>0&&daysOver(o)<=0&&daysOver(o)>=-30).reduce((s,o)=>s+balance(o),0);
  const k=[{l:'Total Invoiced',v:total,s:ORDERS.length+' orders'},{l:'Collected',v:collected,s:Math.round(collected/total*100)+'% of invoiced',accent:true},{l:'Outstanding',v:outstanding,s:'still to collect'},{l:'Overdue',v:overdue,s:'past due — chase now',danger:true}];
  document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}" ${x.danger&&x.v>0?'style="border-color:var(--red)"':''}><div class="lbl">${x.l}</div><div class="val" style="font-size:21px;${x.danger&&x.v>0?'color:var(--red)':''}"><span data-to="${(x.v/1e6).toFixed(2)}" data-fmt="m">LKR ${(x.v/1e6).toFixed(2)}M</span></div><div class="sub">${x.s}</div></div>`).join('');
- const AG=['Current','1–30 days','31–60 days','61–90 days','90+ days'];const buckets=[0,0,0,0,0];ORDERS.forEach(o=>{const b=agingBucket(o);if(b>=0)buckets[b]+=balance(o);});
- document.getElementById('finAging').innerHTML=AG.map((lbl,i)=>`<div class="ag-box ${i>=1&&buckets[i]>0?'over':''}"><div class="ag-l">${lbl}</div><div class="ag-v">${buckets[i]?lkr(buckets[i]):'—'}</div></div>`).join('');
+ const awaiting=outstanding-overdue;
+ document.getElementById('finBar').innerHTML='<div style="display:flex;height:16px;border-radius:99px;overflow:hidden;background:var(--line)">'+(collected>0?'<div style="width:'+(collected/total*100)+'%;background:var(--green)"></div>':'')+(awaiting>0?'<div style="width:'+(awaiting/total*100)+'%;background:var(--amber)"></div>':'')+(overdue>0?'<div style="width:'+(overdue/total*100)+'%;background:var(--red)"></div>':'')+'</div>';
+ const seg=[['Collected','var(--green)',collected],['Awaiting payment','var(--amber)',awaiting],['Overdue','var(--red)',overdue]];
+ document.getElementById('finBreak').innerHTML=seg.map(s=>`<div style="flex:1"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-weight:600"><span style="width:9px;height:9px;border-radius:50%;background:${s[1]}"></span>${s[0]}</div><div style="font-family:Poppins;font-size:16px;font-weight:800;margin-top:5px">${lkr(s[2])}</div></div>`).join('');
  document.getElementById('finCash').innerHTML='Expected in next 30 days: <b style="color:var(--green)">'+lkr(expect30)+'</b> &nbsp;·&nbsp; Overdue to chase: <b style="color:var(--red)">'+lkr(overdue)+'</b>';
  const pct=Math.round(collected/total*100);const CIR=2*Math.PI*52;const off=CIR*(1-pct/100);
  document.getElementById('finDonut').innerHTML=`<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="52" fill="none" stroke="var(--line)" stroke-width="13"/><circle cx="65" cy="65" r="52" fill="none" stroke="var(--green)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 65 65)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:25px;font-weight:800">${pct}%</div><div style="font-size:10px;color:var(--muted)">collected</div></div>`;
