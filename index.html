@@ -265,7 +265,9 @@ input{font-family:inherit;color:var(--ink)}
 .sr-ic{width:30px;height:30px;border-radius:8px;background:var(--red-soft);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
 .sr-nm{font-size:13px;font-weight:600}.sr-meta{font-size:11px;color:var(--muted)}
 .sr-empty{padding:16px;text-align:center;color:var(--faint);font-size:13px}
-.sb-clock{padding:2px 20px 14px;font-size:11.5px;color:var(--sidebar-faint);font-family:'Poppins',sans-serif;font-weight:500}
+.sb-clock{margin:14px 16px 6px;padding:14px 16px;background:rgba(255,255,255,.045);border:1px solid var(--sidebar-line);border-radius:14px;text-align:center}
+.sb-clock .t{font-family:'Poppins',sans-serif;font-size:23px;font-weight:800;letter-spacing:1px;color:#fff;line-height:1}
+.sb-clock .d{font-size:10.5px;color:var(--sidebar-faint);letter-spacing:1.8px;margin-top:6px;text-transform:uppercase;font-weight:600}
 .aging-row{display:flex;flex-wrap:wrap;gap:10px}
 .ag-box{flex:1;min-width:88px;background:var(--surface-2);border-radius:10px;padding:11px 13px;border:1px solid var(--line)}
 .ag-box.over{border-color:var(--red);background:var(--red-soft)}
@@ -505,7 +507,7 @@ function signIn(name,role){
 function signOut(){document.getElementById('app').classList.add('hide');document.getElementById('login').classList.remove('hide');closePanel();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open');}
-function updateClock(){const d=new Date();const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let h=d.getHours();const m=('0'+d.getMinutes()).slice(-2);const ap=h>=12?'PM':'AM';h=h%12||12;const el=document.getElementById('sbClock');if(el)el.textContent=days[d.getDay()]+', '+mo[d.getMonth()]+' '+d.getDate()+'  ·  '+h+':'+m+' '+ap;}
+function updateClock(){const d=new Date();const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let h=d.getHours();const m=('0'+d.getMinutes()).slice(-2);const ap=h>=12?'PM':'AM';h=h%12||12;const el=document.getElementById('sbClock');if(el)el.innerHTML='<div class="t">'+h+':'+m+' '+ap+'</div><div class="d">'+days[d.getDay()]+' '+d.getDate()+' '+mo[d.getMonth()]+'</div>';}
 function doSearch(q){const el=document.getElementById('searchResults');q=(q||'').trim().toLowerCase();if(!q){el.classList.remove('open');return;}
  const lh=LEADS.filter(l=>l.name.toLowerCase().indexOf(q)>-1||(l.co||'').toLowerCase().indexOf(q)>-1).slice(0,6);
  const ch=(typeof CUSTOMERS!=='undefined'?CUSTOMERS:[]).filter(c=>c.name.toLowerCase().indexOf(q)>-1).slice(0,4);
@@ -684,14 +686,27 @@ function renderCus(){
   const done=c.sent>=3,next=custNext(c),due=custDue(c);
   const dots='<span style="display:inline-flex;gap:5px;vertical-align:middle">'+[0,1,2].map(i=>`<span title="${CAD_LABEL[i]}" style="width:9px;height:9px;border-radius:50%;background:${c.sent>i?'var(--green)':(c.sent===i&&due?'var(--red)':'var(--line)')}"></span>`).join('')+'</span>';
   const stage=done?['Cadence complete','bdg-green']:due?[CAD_LABEL[c.sent]+' due','bdg-stage']:['Next: '+CAD_LABEL[c.sent],'bdg-grey'];
-  return `<tr><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${fmtD(c.purchase)}</td><td class="tm">${fmtD(c.last)}</td><td>${dots}</td><td style="font-weight:600;font-size:12.5px;color:${due?'var(--red)':'var(--muted)'}">${done?'—':fmtD(next)}</td><td><span class="bdg ${stage[1]}">${stage[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right">${done?'<span class="tm">Done</span>':`<button class="btn-ghost" style="padding:6px 11px" onclick="openMsg('${c.name.replace(/'/g,"")}')">${due?'Send message':'Preview'}</button>`}</td></tr>`;
+  return `<tr onclick="openCustomer('${c.name.replace(/'/g,"")}')" style="cursor:pointer"><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${fmtD(c.purchase)}</td><td class="tm">${fmtD(c.last)}</td><td>${dots}</td><td style="font-weight:600;font-size:12.5px;color:${due?'var(--red)':'var(--muted)'}">${done?'—':fmtD(next)}</td><td><span class="bdg ${stage[1]}">${stage[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right">${done?'<span class="tm">Done</span>':`<button class="btn-ghost" style="padding:6px 11px" onclick="event.stopPropagation();openMsg('${c.name.replace(/'/g,"")}')">${due?'Send message':'Preview'}</button>`}</td></tr>`;
  }).join('');
 }
 let MSG_CUST=null;
 function openMsg(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c||c.sent>=3)return;MSG_CUST=name;document.getElementById('msgTitle').textContent=CAD_LABEL[c.sent];document.getElementById('msgSub').textContent='To '+c.name+' · '+(custDue(c)?'due now':'scheduled '+fmtD(custNext(c)));document.getElementById('msgText').value=CAD_MSG[c.sent](c);document.getElementById('msgModal').classList.add('open');}
 function closeMsg(){document.getElementById('msgModal').classList.remove('open');}
 function sendVia(ch){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const txt=document.getElementById('msgText').value;if(ch==='wa'){const ph=c.phone.replace(/[^0-9]/g,'').replace(/^0/,'94');window.open('https://wa.me/'+ph+'?text='+encodeURIComponent(txt));}else{window.open('mailto:'+c.email+'?subject='+encodeURIComponent('A note from Home Depot')+'&body='+encodeURIComponent(txt));}markSent();}
-function markSent(){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const label=CAD_LABEL[c.sent];c.sent++;c.last=TODAY;closeMsg();renderCus();if(typeof renderDash==='function')renderDash();document.getElementById('nbCus').textContent=dueCustomers();toast(I.check+' '+label+' sent to '+c.name+(c.sent<3?' · next: '+CAD_LABEL[c.sent]:' · cadence complete'));}
+function markSent(){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const label=CAD_LABEL[c.sent];c.sent++;c.last=TODAY;closeMsg();renderCus();if(document.getElementById('panel').classList.contains('open'))openCustomer(c.name);if(typeof renderDash==='function')renderDash();document.getElementById('nbCus').textContent=dueCustomers();toast(I.check+' '+label+' sent to '+c.name+(c.sent<3?' · next: '+CAD_LABEL[c.sent]:' · cadence complete'));}
+function openCustomer(name){
+ const c=CUSTOMERS.find(x=>x.name===name);if(!c)return;const done=c.sent>=3,due=custDue(c);
+ const steps=['30-day check-in','60-day re-engage','90-day offer'].map((lbl,i)=>{const st=c.sent>i?'done':(c.sent===i?(due?'due':'next'):'pending');const col=st==='done'?'var(--green)':(st==='due'?'var(--red)':'var(--line)');const txt=st==='done'?'Sent':(st==='due'?'Due now':(st==='next'?'Scheduled '+fmtD(custNext(c)):'Upcoming'));return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line2)"><div style="width:26px;height:26px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${st==='done'?'✓':i+1}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${lbl}</div></div><div style="font-size:11.5px;font-weight:600;color:${st==='due'?'var(--red)':'var(--muted)'}">${txt}</div></div>`;}).join('');
+ const wa=c.phone.replace(/[^0-9]/g,'').replace(/^0/,'94');
+ const panel=document.getElementById('panel');
+ panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${c.name}</div><div class="pn-co">${c.co}</div><div class="pn-badges"><span class="bdg ${c.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${c.type}</span><span class="bdg ${done?'bdg-green':due?'bdg-stage':'bdg-grey'}">${done?'Cadence complete':due?CAD_LABEL[c.sent]+' due':'Next: '+CAD_LABEL[c.sent]}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${c.phone}">${c.phone}</a></span><span>${I.mail} <a href="mailto:${c.email}">${c.email}</a></span></div></div>
+  <div class="pn-actions">${done?'':`<button class="pa primary" onclick="openMsg('${c.name.replace(/'/g,"")}')">${I.doc} ${due?'Send message':'Preview message'}</button>`}<a class="pa" href="https://wa.me/${wa}" target="_blank">${I.phone} WhatsApp</a></div>
+  <div class="pn-body">
+   <div class="sec"><div class="sec-t">Customer Summary</div><div class="info-grid"><div class="info"><div class="il">Total spent</div><div class="iv" style="color:var(--green)">${lkr(c.value)}</div></div><div class="info"><div class="il">Purchased</div><div class="iv">${fmtD(c.purchase)}</div></div><div class="info"><div class="il">Last contact</div><div class="iv">${fmtD(c.last)}</div></div><div class="info"><div class="il">Bought</div><div class="iv">${c.products}</div></div></div></div>
+   <div class="sec"><div class="sec-t">Message Cadence</div>${steps}</div>
+  </div>`;
+ document.getElementById('overlay').classList.add('open');panel.classList.add('open');
+}
 
 function gamePlan(l){
  const prods=(l.products||[]).join(', ').toLowerCase()||'fixtures';
