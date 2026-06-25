@@ -266,6 +266,12 @@ input{font-family:inherit;color:var(--ink)}
 .sr-nm{font-size:13px;font-weight:600}.sr-meta{font-size:11px;color:var(--muted)}
 .sr-empty{padding:16px;text-align:center;color:var(--faint);font-size:13px}
 .sb-clock{padding:2px 20px 14px;font-size:11.5px;color:var(--sidebar-faint);font-family:'Poppins',sans-serif;font-weight:500}
+.aging-row{display:flex;flex-wrap:wrap;gap:10px}
+.ag-box{flex:1;min-width:88px;background:var(--surface-2);border-radius:10px;padding:11px 13px;border:1px solid var(--line)}
+.ag-box.over{border-color:var(--red);background:var(--red-soft)}
+.ag-l{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600}
+.ag-v{font-family:'Poppins',sans-serif;font-size:15px;font-weight:800;margin-top:5px}
+.ag-box.over .ag-v{color:var(--red)}
 @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}}
 .hamb{display:none;width:40px;height:40px;border-radius:10px;background:var(--bg);border:1px solid var(--line);align-items:center;justify-content:center;flex-shrink:0}
 .hamb svg{width:21px;height:21px}
@@ -417,8 +423,12 @@ input{font-family:inherit;color:var(--ink)}
       </div>
       <div class="page" id="page-finance">
         <div class="kpis" id="finKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
-        <div class="toolbar"><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option><option value="Advance">Advance / part-paid</option></select><span style="font-size:12px;color:var(--muted)">Filter who has paid vs pending, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
-        <div class="card"><div class="card-h"><h3>Orders & Invoices</h3><span style="font-size:12px;color:var(--muted)">All transactions, for the finance team</span></div><table class="tbl"><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Method</th><th>Status</th><th class="tnum">Amount</th></tr></thead><tbody id="finBody"></tbody></table></div>
+        <div class="grid2" style="margin-bottom:20px">
+          <div class="card"><div class="card-h"><h3>Receivables Aging</h3><span style="font-size:12px;color:var(--muted)">Outstanding balances by age</span></div><div class="card-b"><div class="aging-row" id="finAging"></div><div id="finCash" style="margin-top:14px;font-size:13px;color:var(--muted)"></div></div></div>
+          <div class="card"><div class="card-h"><h3>Collection Rate</h3><span style="font-size:12px;color:var(--muted)">Collected vs invoiced</span></div><div class="card-b" style="display:flex;align-items:center;justify-content:center;padding:14px 18px 22px"><div style="position:relative;width:130px;height:130px" id="finDonut"></div></div></div>
+        </div>
+        <div class="toolbar"><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All invoices</option><option value="Outstanding">Outstanding</option><option value="Overdue">Overdue only</option><option value="Paid">Paid</option></select><span style="font-size:12px;color:var(--muted)">Chase outstanding balances, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
+        <div class="card"><div class="card-h"><h3>Collections — Orders & Invoices</h3><span style="font-size:12px;color:var(--muted)">Balances to collect, oldest first</span></div><table class="tbl"><thead><tr><th>Invoice</th><th>Customer</th><th class="tnum">Invoiced</th><th class="tnum">Balance Due</th><th>Due Date</th><th>Aging</th><th>Status</th><th></th></tr></thead><tbody id="finBody"></tbody></table></div>
       </div>
     </div>
   </main>
@@ -767,27 +777,40 @@ function openEmployee(name,role){
  document.getElementById('overlay').classList.add('open');panel.classList.add('open');
 }
 const ORDERS=[
- {ref:'INV-1048',cust:'Cinnamon Grand',date:'2026-06-24',amount:680000,status:'Advance 50%',method:'Bank transfer'},
- {ref:'INV-1042',cust:'Araliya Resort',date:'2026-06-20',amount:2033000,status:'Advance 50%',method:'Bank transfer'},
- {ref:'INV-1038',cust:'Homewood Construction',date:'2026-05-18',amount:855600,status:'Paid',method:'Cheque'},
- {ref:'INV-1031',cust:'Villa Saro',date:'2026-05-02',amount:420000,status:'Paid',method:'Card'},
- {ref:'INV-1024',cust:'The Lagoon Hotel',date:'2026-04-28',amount:1680000,status:'Paid',method:'Bank transfer'},
- {ref:'INV-1051',cust:'Mr. Anver',date:'2026-06-10',amount:96000,status:'Pending',method:'—'}
+ {ref:'INV-1048',cust:'Cinnamon Grand',date:'2026-06-24',amount:680000,paid:340000,due:'2026-07-24',method:'Bank transfer'},
+ {ref:'INV-1042',cust:'Araliya Resort',date:'2026-06-18',amount:2033000,paid:1016500,due:'2026-07-18',method:'Bank transfer'},
+ {ref:'INV-1038',cust:'Homewood Construction',date:'2026-05-20',amount:855600,paid:855600,due:'2026-06-19',method:'Cheque'},
+ {ref:'INV-1031',cust:'Villa Saro',date:'2026-05-02',amount:420000,paid:420000,due:'2026-06-01',method:'Card'},
+ {ref:'INV-1024',cust:'Lagoon Hotel',date:'2026-04-28',amount:1680000,paid:840000,due:'2026-05-28',method:'Bank transfer'},
+ {ref:'INV-1051',cust:'Anver Rahman',date:'2026-06-10',amount:96000,paid:0,due:'2026-06-20',method:'—'},
+ {ref:'INV-1019',cust:'Skyline Apartments',date:'2026-03-15',amount:1240000,paid:620000,due:'2026-05-10',method:'Bank transfer'},
+ {ref:'INV-1009',cust:'Ceylon Cafe',date:'2026-02-20',amount:340000,paid:0,due:'2026-03-22',method:'—'}
 ];
+function daysOver(o){return Math.round((new Date(TODAY+'T00:00:00')-new Date(o.due+'T00:00:00'))/86400000);}
+function balance(o){return o.amount-o.paid;}
+function ordStatus(o){if(balance(o)<=0)return['Paid','bdg-green'];if(daysOver(o)>0)return['Overdue','bdg-stage'];return['Open','bdg-grey'];}
+function agingBucket(o){if(balance(o)<=0)return -1;const d=daysOver(o);if(d<=0)return 0;if(d<=30)return 1;if(d<=60)return 2;if(d<=90)return 3;return 4;}
 let FIN_FILTER='all';
 function setFinFilter(v){FIN_FILTER=v;renderFinance();}
-function finRows(){return ORDERS.filter(o=>FIN_FILTER==='all'||(FIN_FILTER==='Advance'?o.status.indexOf('Advance')>-1:o.status===FIN_FILTER));}
+function finRows(){return ORDERS.filter(o=>{if(FIN_FILTER==='all')return true;if(FIN_FILTER==='Paid')return balance(o)<=0;if(FIN_FILTER==='Outstanding')return balance(o)>0;if(FIN_FILTER==='Overdue')return balance(o)>0&&daysOver(o)>0;return true;});}
 function renderFinance(){
  const total=ORDERS.reduce((s,o)=>s+o.amount,0);
- const collected=ORDERS.filter(o=>o.status==='Paid').reduce((s,o)=>s+o.amount,0)+ORDERS.filter(o=>o.status.indexOf('Advance')>-1).reduce((s,o)=>s+o.amount/2,0);
+ const collected=ORDERS.reduce((s,o)=>s+o.paid,0);
  const outstanding=total-collected;
- const month=ORDERS.filter(o=>o.date>='2026-06-01').reduce((s,o)=>s+o.amount,0);
- const k=[{l:'Total Invoiced',v:total,s:ORDERS.length+' orders'},{l:'Collected',v:collected,s:'received to date',accent:true},{l:'Outstanding',v:outstanding,s:'advance + pending'},{l:'Invoiced in June',v:month,s:'this month'}];
- document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}"><div class="lbl">${x.l}</div><div class="val" style="font-size:21px"><span data-to="${(x.v/1e6).toFixed(2)}" data-fmt="m">LKR ${(x.v/1e6).toFixed(2)}M</span></div><div class="sub">${x.s}</div></div>`).join('');
- const sb={'Paid':'bdg-green','Pending':'bdg-stage'};
- const rows=finRows();document.getElementById('finBody').innerHTML=[...rows].sort((a,b)=>b.date.localeCompare(a.date)).map(o=>`<tr><td class="tn">${o.ref}</td><td>${o.cust}</td><td class="tm">${fmtD(o.date)}</td><td class="tm">${o.method}</td><td><span class="bdg ${sb[o.status]||'bdg-grey'}">${o.status}</span></td><td class="tnum">${lkr(o.amount)}</td></tr>`).join('')||'<tr><td colspan="6" style="color:var(--faint);font-size:13px;padding:14px">No orders for this filter.</td></tr>';
+ const overdue=ORDERS.filter(o=>balance(o)>0&&daysOver(o)>0).reduce((s,o)=>s+balance(o),0);
+ const expect30=ORDERS.filter(o=>balance(o)>0&&daysOver(o)<=0&&daysOver(o)>=-30).reduce((s,o)=>s+balance(o),0);
+ const k=[{l:'Total Invoiced',v:total,s:ORDERS.length+' orders'},{l:'Collected',v:collected,s:Math.round(collected/total*100)+'% of invoiced',accent:true},{l:'Outstanding',v:outstanding,s:'still to collect'},{l:'Overdue',v:overdue,s:'past due — chase now',danger:true}];
+ document.getElementById('finKpis').innerHTML=k.map(x=>`<div class="kpi ${x.accent?'accent':''}" ${x.danger&&x.v>0?'style="border-color:var(--red)"':''}><div class="lbl">${x.l}</div><div class="val" style="font-size:21px;${x.danger&&x.v>0?'color:var(--red)':''}"><span data-to="${(x.v/1e6).toFixed(2)}" data-fmt="m">LKR ${(x.v/1e6).toFixed(2)}M</span></div><div class="sub">${x.s}</div></div>`).join('');
+ const AG=['Current','1–30 days','31–60 days','61–90 days','90+ days'];const buckets=[0,0,0,0,0];ORDERS.forEach(o=>{const b=agingBucket(o);if(b>=0)buckets[b]+=balance(o);});
+ document.getElementById('finAging').innerHTML=AG.map((lbl,i)=>`<div class="ag-box ${i>=1&&buckets[i]>0?'over':''}"><div class="ag-l">${lbl}</div><div class="ag-v">${buckets[i]?lkr(buckets[i]):'—'}</div></div>`).join('');
+ document.getElementById('finCash').innerHTML='Expected in next 30 days: <b style="color:var(--green)">'+lkr(expect30)+'</b> &nbsp;·&nbsp; Overdue to chase: <b style="color:var(--red)">'+lkr(overdue)+'</b>';
+ const pct=Math.round(collected/total*100);const CIR=2*Math.PI*52;const off=CIR*(1-pct/100);
+ document.getElementById('finDonut').innerHTML=`<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="52" fill="none" stroke="var(--line)" stroke-width="13"/><circle cx="65" cy="65" r="52" fill="none" stroke="var(--green)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 65 65)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:25px;font-weight:800">${pct}%</div><div style="font-size:10px;color:var(--muted)">collected</div></div>`;
+ const rows=finRows();
+ document.getElementById('finBody').innerHTML=[...rows].sort((a,b)=>daysOver(b)-daysOver(a)).map(o=>{const st=ordStatus(o);const dov=daysOver(o);const bal=balance(o);return `<tr><td class="tn">${o.ref}</td><td>${o.cust}</td><td class="tnum">${lkr(o.amount)}</td><td class="tnum" style="font-weight:700;${bal>0?'color:var(--red)':''}">${bal>0?lkr(bal):'—'}</td><td class="tm">${fmtD(o.due)}</td><td style="font-size:12px;font-weight:600;color:${bal>0&&dov>0?'var(--red)':'var(--muted)'}">${bal<=0?'Settled':(dov>0?dov+'d overdue':(dov===0?'due today':Math.abs(dov)+'d left'))}</td><td><span class="bdg ${st[1]}">${st[0]}</span></td><td style="text-align:right">${bal>0?`<button class="btn-ghost" style="padding:6px 11px" onclick="markPaid('${o.ref}')">Mark paid</button>`:'<span class="tm">✓ settled</span>'}</td></tr>`;}).join('')||'<tr><td colspan="8" style="color:var(--faint);font-size:13px;padding:14px">Nothing for this filter.</td></tr>';
 }
-function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Date','Method','Status','Amount (LKR)'],finRows().map(o=>[o.ref,o.cust,o.date,o.method,o.status,o.amount]));}
+function markPaid(ref){const o=ORDERS.find(x=>x.ref===ref);if(!o)return;o.paid=o.amount;renderFinance();toast(I.check+' '+o.ref+' marked fully paid · '+o.cust);}
+function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Invoiced (LKR)','Paid (LKR)','Balance (LKR)','Due date','Days overdue','Method'],finRows().map(o=>[o.ref,o.cust,o.amount,o.paid,balance(o),o.due,Math.max(0,daysOver(o)),o.method]));}
 const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],audit:['Login Audit','Who signed in, where and when']};
 function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
