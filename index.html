@@ -183,8 +183,11 @@ input{font-family:inherit;color:var(--ink)}
 #login .login-lbl,#login .login-foot{color:#9ca3af}
 #login .urow{border-color:#e7e9ee;background:#fff}
 #login .urow:hover{background:rgba(228,0,43,.06);border-color:#E4002B}
-#login .uname{color:#141414}
+#login .uname,#login .login-h h2,#login .fld input{color:#141414}
 #login .uav.mgr{background:#141414;color:#fff}
+#login .fld label{color:#6b7280}
+#login .fld input{background:#f4f5f7;border-color:#e7e9ee}
+#login .fld input:focus{border-color:#E4002B}
 .side-logo{height:34px;width:auto;display:block}
 /* team / performance */
 .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:22px}
@@ -259,12 +262,21 @@ input{font-family:inherit;color:var(--ink)}
   <div class="login-bg"></div>
   <div class="login-card">
     <img class="login-logo" src="data:image/webp;base64,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" alt="Home Depot — Lighting that inspires">
-    <div class="login-h"><h2>Sales & Inquiry System</h2><p>Choose your account to continue</p></div>
-    <div class="login-lbl">Team</div>
-    <div class="users">
-      <button class="urow" onclick="signIn('Nihla','CEO · Full access')"><div class="uav">N</div><div><div class="uname">Nihla</div><div class="urole">CEO · Full access</div></div><span class="uarrow">→</span></button>
-      <button class="urow" onclick="signIn('Raashid','Manager · Full access')"><div class="uav mgr">R</div><div><div class="uname">Raashid</div><div class="urole">Manager · Full access</div></div><span class="uarrow">→</span></button>
-      <button class="urow" onclick="signIn('Ushan','Sales · Own leads')"><div class="uav mgr">U</div><div><div class="uname">Ushan</div><div class="urole">Sales · Own leads</div></div><span class="uarrow">→</span></button>
+    <div id="loginStep1">
+      <div class="login-h"><h2>Sales & Inquiry System</h2><p>Choose your account to sign in</p></div>
+      <div class="login-lbl">Team</div>
+      <div class="users">
+        <button class="urow" onclick="pickUser('Nihla','Director · Full access','1111')"><div class="uav">N</div><div><div class="uname">Nihla</div><div class="urole">Director · Full access</div></div><span class="uarrow">→</span></button>
+        <button class="urow" onclick="pickUser('Raashid','Manager · Full access','2222')"><div class="uav mgr">R</div><div><div class="uname">Raashid</div><div class="urole">Manager · Full access</div></div><span class="uarrow">→</span></button>
+        <button class="urow" onclick="pickUser('Ushan','Sales · Own leads','3333')"><div class="uav mgr">U</div><div><div class="uname">Ushan</div><div class="urole">Sales · Own leads</div></div><span class="uarrow">→</span></button>
+      </div>
+    </div>
+    <div id="loginStep2" style="display:none">
+      <div class="login-h"><div class="uav" id="lgAv" style="width:54px;height:54px;border-radius:15px;font-size:21px;margin:0 auto 12px"></div><h2 id="lgName"></h2><p id="lgRole"></p></div>
+      <div class="fld"><label>Password</label><input id="lgPw" type="password" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div id="lgErr" style="color:var(--red);font-size:12.5px;font-weight:600;min-height:18px;margin-bottom:8px"></div>
+      <button class="btn-red" style="width:100%;justify-content:center;padding:12px;font-size:14px" onclick="doLogin()">Sign In</button>
+      <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:8px;border:none;background:none" onclick="backLogin()">← Back</button>
     </div>
     <div class="login-foot">Home Depot · Sales System · Demo</div>
   </div>
@@ -305,7 +317,9 @@ input{font-family:inherit;color:var(--ink)}
     </div>
     <div class="content">
       <div class="page active" id="page-dashboard">
-        <div class="kpis" id="kpis"></div>
+        <div id="greet" style="margin-bottom:20px"></div>
+        <div class="grid2" style="margin-bottom:16px"><div class="card" id="heroPipe"></div><div class="card" id="heroGoal"></div></div>
+        <div class="kpis" id="statCards" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
         <div class="card" style="margin-bottom:20px"><div class="card-h"><h3 style="display:flex;align-items:center;gap:8px"><svg class="ic" style="color:var(--red);width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Needs Attention Today</h3><span style="font-size:12px;color:var(--muted)">Smart priorities, highest value first</span></div><div class="card-b" id="queue"></div></div>
         <div class="grid2">
           <div class="card"><div class="card-h"><h3>Pipeline by stage</h3><span class="lk" data-go="pipeline">View board →</span></div><div class="card-b" id="funnel"></div></div>
@@ -324,7 +338,15 @@ input{font-family:inherit;color:var(--ink)}
       </div>
       <div class="page" id="page-inquiries"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div><div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div></div>
       <div class="page" id="page-quotations"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
-      <div class="page" id="page-customers"><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Segment</th><th>Source</th><th>Status</th><th class="tnum">Value</th></tr></thead><tbody id="cusBody"></tbody></table></div></div>
+      <div class="page" id="page-customers">
+        <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none">
+          <div style="padding:18px 22px;display:flex;align-items:center;gap:16px;color:#fff">
+            <div style="font-family:Poppins;font-size:32px;font-weight:800" id="dueCount">0</div>
+            <div><div style="font-weight:700;font-size:14.5px">customers due for a follow-up</div><div style="font-size:12px;opacity:.85">Reconnect now to win repeat orders and referrals</div></div>
+          </div>
+        </div>
+        <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Bought</th><th>Last Purchase</th><th>Follow up by</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
+      </div>
       <div class="page" id="page-team">
         <div class="toolbar"><select class="filter" id="monthSel" onchange="setMonth(this.value)"><option value="2026-06">June 2026</option><option value="2026-05">May 2026</option></select><span style="font-size:12px;color:var(--muted)">Performance for the selected month</span></div>
         <div class="kpis" id="teamKpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px"></div>
@@ -362,13 +384,20 @@ function applyTheme(t){document.body.classList.toggle('dark',t==='dark');documen
 function toggleTheme(){applyTheme(document.body.classList.contains('dark')?'light':'dark');}
 (function(){let t='light';try{t=localStorage.getItem('hd_theme')||'light'}catch(e){}applyTheme(t);})();
 
+let PEND=null,CURRENT_NAME='Nihla';
+function pickUser(name,role,pw){PEND={name,role,pw};document.getElementById('lgAv').textContent=name[0];document.getElementById('lgName').textContent=name;document.getElementById('lgRole').textContent=role;document.getElementById('lgPw').value='';document.getElementById('lgErr').textContent='';document.getElementById('loginStep1').style.display='none';document.getElementById('loginStep2').style.display='block';setTimeout(function(){document.getElementById('lgPw').focus();},60);}
+function backLogin(){document.getElementById('loginStep2').style.display='none';document.getElementById('loginStep1').style.display='block';}
+function doLogin(){if(!PEND)return;if(document.getElementById('lgPw').value===PEND.pw){signIn(PEND.name,PEND.role);}else{document.getElementById('lgErr').textContent='Incorrect password. Please try again.';}}
 function signIn(name,role){
+  CURRENT_NAME=name;
   document.getElementById('meAv').textContent=name[0];
   document.getElementById('meName').textContent=name;
   document.getElementById('meRole').textContent=role.split(' · ')[0];
-  const full=role.indexOf('CEO')>-1||role.indexOf('Manager')>-1;
+  const full=role.indexOf('Director')>-1||role.indexOf('Manager')>-1;
   document.querySelectorAll('.ceo-only').forEach(e=>e.style.display=full?'':'none');
+  if(typeof renderDash==='function')renderDash();
   go('dashboard');
+  backLogin();
   document.getElementById('login').classList.add('hide');
   document.getElementById('app').classList.remove('hide');
 }
@@ -448,14 +477,15 @@ function renderDash(){
  const pv=open.reduce((s,l)=>s+val(l),0);
  const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
  const wonMonthVal=wonMonth.reduce((s,l)=>s+val(l),0);
- const kpis=[
-  {lbl:'Open Inquiries',val:open.length,sub:'<b>+3</b> this week'},
-  {lbl:'Quotes Sent',val:LEADS.filter(l=>l.quote.length).length,sub:'awaiting response'},
-  {lbl:'Pipeline Value',val:'LKR '+(pv/1e6).toFixed(1)+'M',sub:'across open deals',accent:true},
-  {lbl:'Closed This Month',val:wonMonth.length,sub:'<b>LKR '+(wonMonthVal/1e6).toFixed(2)+'M</b> won in June'},
-  {lbl:'B2B / B2C',val:LEADS.filter(l=>l.type==='B2B').length+' / '+LEADS.filter(l=>l.type==='B2C').length,sub:'project / retail'}
- ];
- document.getElementById('kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.accent?'accent':''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
+ const dueCust=(typeof CUSTOMERS!=='undefined')?CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length:0;
+ const todo=TASKS.filter(t=>!t.d).length;
+ const TARGET=5000000;const pct=Math.min(100,Math.round(wonMonthVal/TARGET*100));
+ document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)"><b style="color:var(--red)">${dueCust} customers</b> are due for a follow-up · <b style="color:var(--red)">${todo} tasks</b> to do</div>`;
+ document.getElementById('heroPipe').innerHTML=`<div style="padding:24px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">Open Pipeline</div><div style="font-family:Poppins;font-size:40px;font-weight:800;margin:8px 0 8px">LKR ${(pv/1e6).toFixed(1)}M</div><div style="font-size:13.5px;color:var(--muted);line-height:1.55">Across <b>${open.length}</b> active deals. Push quoted deals into negotiation to build momentum and close the month strong.</div></div>`;
+ const CIR=2*Math.PI*54;const off=CIR*(1-pct/100);
+ document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800">${pct}%</div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">June Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px">LKR ${(wonMonthVal/1e6).toFixed(2)}M</div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
+ const stats=[{ic:I.clock,c:'var(--amber)',bg:'var(--amber-soft)',v:todo,l:'Tasks to do',s:'across the team'},{ic:I.bolt,c:'var(--blue)',bg:'var(--blue-soft)',v:open.length,l:'Active deals',s:'in the pipeline'},{ic:I.check,c:'var(--green)',bg:'var(--green-soft)',v:wonMonth.length,l:'Won in June',s:lkr(wonMonthVal)},{ic:I.user,c:'var(--red)',bg:'var(--red-soft)',v:dueCust,l:'Customers to follow up',s:'reconnect now'}];
+ document.getElementById('statCards').innerHTML=stats.map(s=>`<div class="kpi"><div style="width:36px;height:36px;border-radius:10px;background:${s.bg};color:${s.c};display:flex;align-items:center;justify-content:center;margin-bottom:12px">${s.ic}</div><div class="val">${s.v}</div><div style="font-size:12.5px;font-weight:600;margin:6px 0 2px">${s.l}</div><div class="sub">${s.s}</div></div>`).join('');
  const maxC=Math.max(...STAGES.map(s=>LEADS.filter(l=>l.stage===s.k).length),1);
  document.getElementById('funnel').innerHTML=STAGES.map(s=>{const it=LEADS.filter(l=>l.stage===s.k);const v=it.reduce((a,l)=>a+val(l),0);return `<div class="fn-row"><div class="fn-name">${s.label}</div><div class="fn-bar"><div class="fn-fill" style="width:${it.length/maxC*100}%;background:${s.color}"></div></div><div class="fn-c">${it.length}</div><div class="fn-v">${v?lkr(v):'—'}</div></div>`;}).join('');
  document.getElementById('latest').innerHTML=[...LEADS].sort((a,b)=>b.id-a.id).slice(0,6).map(rowHTML).join('');
@@ -467,7 +497,23 @@ function renderBoard(){
 function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart="dragStart(event,${l.id})" ondragend="dragEnd(event)" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
 function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
 function renderQuo(){document.getElementById('quoBody').innerHTML=LEADS.filter(l=>l.quote.length).sort((a,b)=>val(b)-val(a)).map(l=>`<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></td><td class="tm">${l.products.join(', ')}</td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td><td class="tnum">${lkr(val(l))}</td></tr>`).join('');}
-function renderCus(){document.getElementById('cusBody').innerHTML=[...LEADS].sort((a,b)=>val(b)-val(a)).map(l=>{const won=['order_confirmed','delivered'].includes(l.stage);return `<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type} · ${l.lead}</span></td><td class="tm">${l.source}</td><td><span class="bdg ${won?'bdg-green':'bdg-grey'}">${won?'Customer':'Lead'}</span></td><td class="tnum">${val(l)?lkr(val(l)):'—'}</td></tr>`;}).join('');}
+const TODAY='2026-06-25';
+const CUSTOMERS=[
+ {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',products:'Outdoor + restaurant + pool',last:'2026-06-20',value:2033000,next:'2026-07-20',phone:'034 227 5500',contacted:false},
+ {name:'Homewood Construction',co:'Builder · Kottawa',type:'B2B',products:'3 model homes fitout',last:'2026-05-18',value:855600,next:'2026-06-18',phone:'011 275 9080',contacted:false},
+ {name:'Villa Saro',co:'Homeowner · Battaramulla',type:'B2C',products:'Full-home chandeliers',last:'2026-05-02',value:420000,next:'2026-06-02',phone:'077 200 1145',contacted:false},
+ {name:'The Lagoon Hotel',co:'Hotel · Galle',type:'B2B',products:'Lobby + 30 rooms',last:'2026-04-28',value:1680000,next:'2026-05-28',phone:'091 228 7000',contacted:false},
+ {name:'Mr. Anver',co:'Homeowner · Maharagama',type:'B2C',products:'Garden + driveway',last:'2026-06-10',value:96000,next:'2026-07-10',phone:'071 884 2200',contacted:false}
+];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtD(s){const p=s.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];}
+function custStatus(c){if(c.contacted)return['Contacted','bdg-green'];if(c.next<=TODAY)return['Follow up now','bdg-stage'];return['Upcoming','bdg-grey'];}
+function logContact(name){const c=CUSTOMERS.find(x=>x.name===name);if(c){c.contacted=true;}renderCus();}
+function renderCus(){
+ const due=CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length;
+ const dc=document.getElementById('dueCount');if(dc)dc.textContent=due;
+ document.getElementById('cusBody').innerHTML=[...CUSTOMERS].sort((a,b)=>(a.contacted-b.contacted)||a.next.localeCompare(b.next)).map(c=>{const st=custStatus(c);const overdue=c.next<=TODAY&&!c.contacted;return `<tr><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${c.products}</td><td class="tm">${fmtD(c.last)}</td><td style="font-weight:600;font-size:13px;color:${overdue?'var(--red)':'var(--muted)'}">${fmtD(c.next)}</td><td><span class="bdg ${st[1]}">${st[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right">${c.contacted?'<span class="tm">Done</span>':`<button class="btn-ghost" style="padding:6px 11px" onclick="logContact('${c.name}')">Log contact</button>`}</td></tr>`;}).join('');
+}
 
 function gamePlan(l){
  const prods=(l.products||[]).join(', ').toLowerCase()||'fixtures';
@@ -515,7 +561,7 @@ function closePanel(){document.getElementById('overlay').classList.remove('open'
 
 const TEAM=[{n:'Raashid',r:'Manager'},{n:'Yasitha',r:'Manager'},{n:'Shafna',r:'Manager'},{n:'Ushan',r:'Sales'}];
 const AUDIT=[
- {u:'Nihla',r:'CEO',d:'MacBook · Chrome',loc:'Colombo',t:'Today, 08:42 AM'},
+ {u:'Nihla',r:'Director',d:'MacBook · Chrome',loc:'Colombo',t:'Today, 08:42 AM'},
  {u:'Ushan',r:'Sales',d:'iPhone · Safari',loc:'Nawala showroom',t:'Today, 08:15 AM'},
  {u:'Raashid',r:'Manager',d:'Desktop · Chrome',loc:'Office',t:'Today, 07:58 AM'},
  {u:'Shafna',r:'Manager',d:'Android · Chrome',loc:'Nugegoda',t:'Yesterday, 06:12 PM'},
@@ -558,7 +604,7 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go)
 
 document.getElementById('nbEnq').textContent=LEADS.length;
 document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).length;
-document.getElementById('nbCus').textContent=LEADS.length;
+document.getElementById('nbCus').textContent=CUSTOMERS.filter(c=>!c.contacted&&c.next<=TODAY).length;
 document.getElementById('ownerFilter').innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();
 </script>
