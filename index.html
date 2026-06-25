@@ -274,6 +274,11 @@ input{font-family:inherit;color:var(--ink)}
 .ag-l{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600}
 .ag-v{font-family:'Poppins',sans-serif;font-size:15px;font-weight:800;margin-top:5px}
 .ag-box.over .ag-v{color:var(--red)}
+.scope-stats{display:flex;gap:14px;margin-bottom:16px}
+.ss-box{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow)}
+.ss-v{font-family:'Poppins',sans-serif;font-size:23px;font-weight:800}
+.ss-l{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-top:4px}
+@media(max-width:860px){.scope-stats{gap:10px}.ss-v{font-size:18px}}
 @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}}
 .hamb{display:none;width:40px;height:40px;border-radius:10px;background:var(--bg);border:1px solid var(--line);align-items:center;justify-content:center;flex-shrink:0}
 .hamb svg{width:21px;height:21px}
@@ -386,15 +391,18 @@ input{font-family:inherit;color:var(--ink)}
       </div>
       <div class="page" id="page-pipeline">
         <div class="toolbar">
+          <select class="filter" id="monthFilterP" onchange="setLeadMonth(this.value)"></select>
           <select class="filter" id="ownerFilter" onchange="setFilter(this.value)"><option value="all">All team members</option></select>
-          <span style="font-size:12px;color:var(--muted)">Drag a card between columns to move a deal</span>
+          <span style="font-size:12px;color:var(--muted)">Drag a card to move a deal</span>
           <div class="sp"></div>
           <button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
         </div>
+        <div class="scope-stats" id="pipeStats"></div>
         <div class="board" id="board"></div>
       </div>
       <div class="page" id="page-inquiries">
-        <div class="toolbar"><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
+        <div class="toolbar"><select class="filter" id="monthFilterI" onchange="setLeadMonth(this.value)"></select><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
+        <div class="scope-stats" id="inqStats"></div>
         <div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div>
       </div>
       <div class="page" id="page-quotations"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
@@ -570,8 +578,12 @@ let TEAM_MONTH='2026-06';
 /* filter */
 let FILTER_OWNER='all';
 function owners(){return [...new Set(LEADS.map(l=>l.owner))];}
-function filtered(){return FILTER_OWNER==='all'?LEADS:LEADS.filter(l=>l.owner===FILTER_OWNER);}
-function setFilter(v){FILTER_OWNER=v;['ownerFilter','ownerFilter2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=v;});renderBoard();renderAll();}
+let LEAD_MONTH='all';
+function filtered(){return LEADS.filter(l=>(FILTER_OWNER==='all'||l.owner===FILTER_OWNER)&&(LEAD_MONTH==='all'||MONTH[l.id]===LEAD_MONTH));}
+function setFilter(v){FILTER_OWNER=v;['ownerFilter','ownerFilter2'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=v;});renderBoard();renderAll();renderScopeStats();}
+function setLeadMonth(v){LEAD_MONTH=v;['monthFilterP','monthFilterI'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=v;});renderBoard();renderAll();renderScopeStats();}
+function scopeStats(){const d=filtered();return{leads:d.length,orders:d.filter(l=>['order_confirmed','delivered'].includes(l.stage)).length,rev:d.reduce((s,l)=>s+val(l),0)};}
+function renderScopeStats(){const s=scopeStats();const html='<div class="ss-box"><div class="ss-v"><span data-to="'+s.leads+'" data-fmt="int">'+s.leads+'</span></div><div class="ss-l">Total Leads</div></div><div class="ss-box"><div class="ss-v"><span data-to="'+s.orders+'" data-fmt="int">'+s.orders+'</span></div><div class="ss-l">Orders Won</div></div><div class="ss-box"><div class="ss-v"><span data-to="'+(s.rev/1e6).toFixed(2)+'" data-fmt="m">LKR '+(s.rev/1e6).toFixed(2)+'M</span></div><div class="ss-l">Total Revenue</div></div>';['pipeStats','inqStats'].forEach(function(id){const el=document.getElementById(id);if(el){el.innerHTML=html;animateCounts(el);}});}
 /* drag to move */
 let DRAG=null;
 function dragStart(e,id){DRAG=id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
@@ -835,7 +847,8 @@ document.getElementById('nbEnq').textContent=LEADS.length;
 document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).length;
 document.getElementById('nbCus').textContent=dueCustomers();
 ['ownerFilter','ownerFilter2'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');});
-renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();updateClock();setInterval(updateClock,15000);
+['monthFilterP','monthFilterI'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All months</option>'+MONTHS.map(m=>`<option value="${m[0]}">${m[1]}</option>`).join('');});
+renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
 </script>
 </body>
 </html>
