@@ -20,6 +20,8 @@ body.dark{
 --shadow:0 1px 3px rgba(0,0,0,.4);--shadow2:0 12px 40px rgba(0,0,0,.5);
 }
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden;max-width:100%}
+.main{overflow-x:hidden}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
 h1,h2,h3,h4{font-family:'Poppins',sans-serif}
 button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit}
@@ -257,6 +259,10 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .task.done .cb{background:var(--green);border-color:var(--green);color:#fff}
 .task.done .tk-t{text-decoration:line-through;color:var(--faint)}
 .tk-main{flex:1}.tk-t{font-size:13.5px;font-weight:600}.tk-m{font-size:11.5px;color:var(--muted);margin-top:1px}
+.tg-head{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink);margin:20px 0 2px;display:flex;align-items:center;gap:9px}
+.tg-head:first-child{margin-top:0}
+.tg-count{font-size:10.5px;font-weight:700;background:var(--surface-2);color:var(--muted);padding:2px 9px;border-radius:99px;text-transform:none;letter-spacing:0}
+.tk-empty{font-size:12.5px;color:var(--faint);padding:8px 0}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:#141414;color:#fff;padding:13px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 12px 34px rgba(0,0,0,.35);z-index:90;opacity:0;pointer-events:none;transition:.26s cubic-bezier(.16,1,.3,1);display:flex;align-items:center;gap:9px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast .ic{color:var(--green);width:16px;height:16px}
@@ -519,6 +525,7 @@ function signIn(name,role){
   backLogin();
   document.getElementById('login').classList.add('hide');
   document.getElementById('app').classList.remove('hide');
+  window.scrollTo(0,0);try{document.querySelector('.main').scrollTop=0;}catch(e){}
 }
 function signOut(){document.getElementById('app').classList.add('hide');document.getElementById('login').classList.remove('hide');closePanel();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open');}
@@ -534,7 +541,24 @@ function doSearch(q){const el=document.getElementById('searchResults');q=(q||'')
  el.innerHTML=html;el.classList.add('open');}
 function closeSearch(){const el=document.getElementById('searchResults');if(el)el.classList.remove('open');}
 function logActivity(id){const l=LEADS.find(x=>x.id===id);if(!l)return;const note=prompt('Log activity for '+l.name+':');if(note&&note.trim()){l.acts.unshift({t:'Activity',m:note.trim(),tm:'just now'});openLead(id);toast(I.check+' Activity logged for '+l.name);}}
-function sendQuote(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(l.email){const body=encodeURIComponent('Dear '+l.name+',\n\nThank you for your interest. Please find our quotation for your lighting requirement'+(qTotal(l)?' totalling LKR '+qTotal(l).toLocaleString():'')+'.\n\nWe would be glad to arrange a showroom visit or site measurement at your convenience.\n\nBest regards,\nHome Depot · Lighting that inspires');window.open('mailto:'+l.email+'?subject='+encodeURIComponent('Your quotation from Home Depot')+'&body='+body);toast(I.check+' Opening email to '+l.name);}else{toast(I.check+' Quote prepared for '+l.name+' (no email on file)');}}
+function generateQuote(id){
+ const l=LEADS.find(x=>x.id===id);if(!l)return;
+ if(!l.quote||!l.quote.length){toast(I.doc+' Add products and a value first to generate a quotation');return;}
+ const MN2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const d=new Date();const fdt=x=>x.getDate()+' '+MN2[x.getMonth()]+' '+x.getFullYear();const vd=new Date();vd.setDate(vd.getDate()+14);
+ const qno='Q-'+(1000+l.id);const total=qTotal(l);
+ const rows=l.quote.map((r,i)=>'<tr><td style="padding:11px 14px;border-bottom:1px solid #eee">'+(i+1)+'</td><td style="padding:11px 14px;border-bottom:1px solid #eee;font-weight:600">'+r.p+'</td><td style="padding:11px 14px;border-bottom:1px solid #eee;color:#888">'+(r.n||'—')+'</td><td style="padding:11px 14px;border-bottom:1px solid #eee;text-align:center">'+r.q+'</td><td style="padding:11px 14px;border-bottom:1px solid #eee;text-align:right">'+r.u.toLocaleString()+'</td><td style="padding:11px 14px;border-bottom:1px solid #eee;text-align:right;font-weight:700">'+(r.q*r.u).toLocaleString()+'</td></tr>').join('');
+ const w=window.open('','_blank');if(!w){toast('Allow pop-ups to generate the quotation');return;}
+ w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Quotation '+qno+' — '+l.name+'</title><style>*{margin:0;box-sizing:border-box;font-family:-apple-system,Segoe UI,Inter,sans-serif}body{padding:48px 56px;color:#1a1a1a;font-size:13.5px}.hd{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #E4002B;padding-bottom:22px}.lg{font-family:Poppins,sans-serif;font-size:30px;font-weight:800;letter-spacing:-.5px}.lg .r{color:#E4002B}.lg .g{color:#9aa}.tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#999;margin-top:2px}.addr{font-size:11.5px;color:#777;margin-top:10px;line-height:1.6}.qt{text-align:right}.qt h1{font-family:Poppins;font-size:26px;font-weight:800;color:#E4002B;letter-spacing:1px}.meta{font-size:12px;color:#555;margin-top:8px;line-height:1.8}.meta b{color:#1a1a1a}.bill{margin:26px 0 8px}.bill .l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#999;font-weight:700;margin-bottom:6px}.bill .n{font-size:16px;font-weight:700}.bill .c{font-size:12.5px;color:#777;margin-top:2px}table{width:100%;border-collapse:collapse;margin-top:18px}th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#999;padding:10px 14px;border-bottom:2px solid #1a1a1a}.tot{display:flex;justify-content:flex-end;margin-top:18px}.tot .box{width:280px}.tot .row{display:flex;justify-content:space-between;padding:8px 0;font-size:13.5px}.tot .grand{border-top:2px solid #1a1a1a;margin-top:6px;padding-top:12px;font-family:Poppins;font-size:18px;font-weight:800}.tot .grand .v{color:#E4002B}.terms{margin-top:34px;font-size:11.5px;color:#777;line-height:1.7;border-top:1px solid #eee;padding-top:18px}.ft{margin-top:30px;text-align:center;font-size:12px;color:#999}.print{position:fixed;top:20px;right:20px;background:#E4002B;color:#fff;border:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer}@media print{.print{display:none}body{padding:24px}}</style></head><body>'+
+ '<button class="print" onclick="window.print()">Print / Save as PDF</button>'+
+ '<div class="hd"><div><div class="lg"><span class="r">Home</span> <span class="g">depot</span></div><div class="tag">Lighting that inspires</div><div class="addr">Studio 213, Nawala Road, Nawala<br>+94 112 825 866 · hello@homedepot.lk</div></div><div class="qt"><h1>QUOTATION</h1><div class="meta">Quote No: <b>'+qno+'</b><br>Date: <b>'+fdt(d)+'</b><br>Valid until: <b>'+fdt(vd)+'</b></div></div></div>'+
+ '<div class="bill"><div class="l">Prepared for</div><div class="n">'+l.name+'</div><div class="c">'+l.co+(l.phone?' · '+l.phone:'')+'</div></div>'+
+ '<table><thead><tr><th style="width:36px">#</th><th>Product</th><th>Code</th><th style="text-align:center">Qty</th><th style="text-align:right">Unit (LKR)</th><th style="text-align:right">Amount (LKR)</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+ '<div class="tot"><div class="box"><div class="row"><span>Subtotal</span><span>LKR '+total.toLocaleString()+'</span></div><div class="row" style="color:#777"><span>Delivery & installation</span><span>Quoted separately</span></div><div class="row grand"><span>Total</span><span class="v">LKR '+total.toLocaleString()+'</span></div></div></div>'+
+ '<div class="terms"><b>Terms:</b> This quotation is valid for 14 days. Prices are in LKR and inclusive of standard warranty. A 50% advance confirms the order; balance on delivery. Delivery and installation are quoted separately based on site requirements.</div>'+
+ '<div class="ft">Thank you for considering Home Depot — Lighting that inspires.</div>'+
+ '</body></html>');
+ w.document.close();toast(I.check+' Quotation '+qno+' generated for '+l.name);
+}
 function followUp(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.acts.unshift({t:'Follow-up scheduled',m:'Reminder set to follow up',tm:'just now'});openLead(id);toast(I.clock+' Follow-up scheduled for '+l.name);}
 function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});renderBoard();renderDash();renderQueue();renderCus();openLead(id);toast(I.check+' '+l.name+' converted to an order');}
 
@@ -601,7 +625,24 @@ function dragLeave(el){el.classList.remove('dragover');}
 function drop(e,stage){e.preventDefault();const l=LEADS.find(x=>x.id===DRAG);if(l)l.stage=stage;DRAG=null;renderBoard();renderDash();renderQueue();}
 /* tasks */
 let TASKS=[{t:'Call Cinnamon Grand on the 8% request',w:'Raashid · today',d:false},{t:'Site visit — Rajitha Silva garden',w:'Ushan · Saturday',d:false},{t:'Send quotation to Ascon Developers',w:'Yasitha · today',d:false},{t:'Confirm delivery slot — Araliya Resort',w:'Raashid · tomorrow',d:true}];
-function renderTasks(){const html=TASKS.map((t,i)=>`<div class="task ${t.d?'done':''}"><div class="cb" onclick="toggleTask(${i})">${I.check}</div><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-m">${t.w}</div></div></div>`).join('');['taskList','taskBookList'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});const nb=document.getElementById('nbTask');if(nb)nb.textContent=TASKS.filter(t=>!t.d).length;}
+function taskPerson(t){return (t.w||'').split(' · ')[0]||'Unassigned';}
+function taskRow(t,i){return `<div class="task ${t.d?'done':''}"><div class="cb" onclick="toggleTask(${i})">${I.check}</div><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-m">${t.w}</div></div></div>`;}
+function renderTasks(){
+ const tl=document.getElementById('taskList');if(tl)tl.innerHTML=TASKS.map((t,i)=>taskRow(t,i)).join('')||'<div class="tk-empty">No tasks yet</div>';
+ const tb=document.getElementById('taskBookList');
+ if(tb){
+  const others=[...new Set(TASKS.map(taskPerson))].filter(p=>p!==CURRENT_NAME).sort();
+  const persons=[CURRENT_NAME,...others];
+  tb.innerHTML=persons.map(p=>{
+   const items=TASKS.map((t,i)=>({t,i})).filter(x=>taskPerson(x.t)===p);
+   if(p!==CURRENT_NAME&&!items.length)return '';
+   const open=items.filter(x=>!x.t.d).length;
+   const label=p===CURRENT_NAME?'Your tasks':p;
+   return `<div class="tg-head">${label}<span class="tg-count">${open} open</span></div>`+(items.length?items.map(x=>taskRow(x.t,x.i)).join(''):'<div class="tk-empty">No tasks assigned</div>');
+  }).join('');
+ }
+ const nb=document.getElementById('nbTask');if(nb)nb.textContent=TASKS.filter(t=>!t.d).length;
+}
 function toggleTask(i){TASKS[i].d=!TASKS[i].d;renderTasks();}
 function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('tk_title').value='';document.getElementById('tk_due').value='';document.getElementById('taskModal').classList.add('open');}
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
@@ -769,7 +810,7 @@ function openLead(id){
  const quoteHTML=l.quote.length?`<div class="quote"><div class="q-row head"><div>Product</div><div style="text-align:center">Qty</div><div class="q-num">Unit</div><div class="q-num">Total</div></div>${l.quote.map(r=>`<div class="q-row"><div><div class="qp">${r.p}</div><div class="qn">${r.n}</div></div><div style="text-align:center;font-weight:600">${r.q}</div><div class="q-num">${r.u.toLocaleString()}</div><div class="q-num" style="font-weight:700">${(r.q*r.u).toLocaleString()}</div></div>`).join('')}<div class="q-total"><span class="lbl">Quotation Total</span><span class="amt">${lkr(t)}</span></div></div>`:`<div style="font-size:13px;color:var(--faint);padding:6px 0">No quotation yet — start by adding products and prices.</div>`;
  const panel=document.getElementById('panel');
  panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${l.name}</div><div class="pn-co">${l.co}</div><div class="pn-badges"><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><span class="bdg bdg-grey">${l.lead}</span><span class="bdg bdg-stage">${stageLabel(l.stage)}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${l.phone}">${l.phone}</a></span><span>${I.mail} <a href="mailto:${l.email}">${l.email}</a></span><span>${I.user} ${l.owner}</span></div></div>
-  <div class="pn-actions"><button class="pa primary" onclick="logActivity(${id})">${I.phone} Log Activity</button><button class="pa" onclick="sendQuote(${id})">${I.doc} Send Quote</button><button class="pa" onclick="followUp(${id})">${I.clock} Follow-Up</button><button class="pa" onclick="convertOrder(${id})">${I.check} Convert to Order</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
+  <div class="pn-actions"><button class="pa primary" onclick="logActivity(${id})">${I.phone} Log Activity</button><button class="pa" onclick="generateQuote(${id})">${I.doc} Generate Quote</button><button class="pa" onclick="followUp(${id})">${I.clock} Follow-Up</button><button class="pa" onclick="convertOrder(${id})">${I.check} Convert to Order</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
   <div class="pn-body">
    <div class="sec"><div class="sec-t">Next Best Action</div>${gamePlan(l)}</div>
    <div class="sec"><div class="sec-t">Quotation</div>${quoteHTML}</div>
