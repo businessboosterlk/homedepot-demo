@@ -217,6 +217,37 @@ input{font-family:inherit;color:var(--ink)}
 .exp-bar{display:flex;justify-content:flex-end;margin-bottom:12px}
 .btn-ghost{font-size:12.5px;font-weight:600;padding:9px 14px;border-radius:9px;border:1px solid var(--line);background:var(--surface);display:inline-flex;align-items:center;gap:7px;transition:.15s}
 .btn-ghost:hover{border-color:var(--red);color:var(--red)}
+/* vector icons */
+.ic{width:15px;height:15px;vertical-align:-3px;display:inline-block;flex-shrink:0;stroke-width:2}
+.pa .ic,.btn-red .ic,.btn-ghost .ic{width:14px;height:14px}
+/* premium navigation feel */
+.page.active{animation:slideup .34s cubic-bezier(.16,1,.3,1)}
+@keyframes slideup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.nav-item:active{transform:scale(.98)}.btn-red:active,.pa:active,.btn-ghost:active,.lead-card:active{transform:scale(.97)}
+.lead-card,.eq-row,.aq-item,.tp-card,.kpi,.urow,.nav-item,.pa{transition:transform .15s cubic-bezier(.16,1,.3,1),box-shadow .15s,border-color .15s,background .15s,color .15s}
+/* filter toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.toolbar .sp{flex:1}
+.filter{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:500;color:var(--ink);outline:none;cursor:pointer}
+.filter:focus{border-color:var(--red)}
+/* drag */
+.lead-card.dragging{opacity:.35}
+.col.dragover .col-b{outline:2px dashed var(--red);outline-offset:-5px;border-radius:11px}
+/* modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:70;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border-radius:18px;width:440px;max-width:94vw;box-shadow:var(--shadow2);overflow:hidden;animation:slideup .25s}
+.modal-h{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.modal-h h3{font-size:16px;font-weight:700}
+.modal-b{padding:20px 22px}
+.fld{margin-bottom:14px}.fld label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px}
+.fld input,.fld select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--ink);outline:none}
+.fld input:focus,.fld select:focus{border-color:var(--red)}
+.modal-f{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
+/* tasks */
+.task{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line2)}.task:last-child{border:none}
+.task .cb{width:20px;height:20px;border:2px solid var(--line);border-radius:6px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;color:transparent}
+.task.done .cb{background:var(--green);border-color:var(--green);color:#fff}
+.task.done .tk-t{text-decoration:line-through;color:var(--faint)}
+.tk-main{flex:1}.tk-t{font-size:13.5px;font-weight:600}.tk-m{font-size:11.5px;color:var(--muted);margin-top:1px}
 @media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}}
 @media(max-width:760px){.sidebar{transform:translateX(-100%)}.main{margin-left:0}.kpis{grid-template-columns:1fr 1fr}.panel{width:100vw}.search{display:none}}
 </style>
@@ -275,17 +306,27 @@ input{font-family:inherit;color:var(--ink)}
     <div class="content">
       <div class="page active" id="page-dashboard">
         <div class="kpis" id="kpis"></div>
-        <div class="card" style="margin-bottom:20px"><div class="card-h"><h3>⚡ Needs Attention Today</h3><span style="font-size:12px;color:var(--muted)">Smart priorities, highest value first</span></div><div class="card-b" id="queue"></div></div>
+        <div class="card" style="margin-bottom:20px"><div class="card-h"><h3 style="display:flex;align-items:center;gap:8px"><svg class="ic" style="color:var(--red);width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Needs Attention Today</h3><span style="font-size:12px;color:var(--muted)">Smart priorities, highest value first</span></div><div class="card-b" id="queue"></div></div>
         <div class="grid2">
           <div class="card"><div class="card-h"><h3>Pipeline by stage</h3><span class="lk" data-go="pipeline">View board →</span></div><div class="card-b" id="funnel"></div></div>
-          <div class="card"><div class="card-h"><h3>Latest inquiries</h3><span class="lk" data-go="inquiries">See all →</span></div><div class="card-b" id="latest"></div></div>
+          <div class="card"><div class="card-h"><h3>Tasks</h3><button class="btn-ghost" onclick="openTaskModal()" style="padding:6px 12px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div><div class="card-b" id="taskList"></div></div>
         </div>
+        <div class="card" style="margin-top:20px"><div class="card-h"><h3>Latest inquiries</h3><span class="lk" data-go="inquiries">See all →</span></div><div class="card-b" id="latest"></div></div>
       </div>
-      <div class="page" id="page-pipeline"><div class="board" id="board"></div></div>
-      <div class="page" id="page-inquiries"><div class="exp-bar"><button class="btn-ghost" onclick="exportInquiries()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button></div><div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div></div>
-      <div class="page" id="page-quotations"><div class="exp-bar"><button class="btn-ghost" onclick="exportQuotes()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
+      <div class="page" id="page-pipeline">
+        <div class="toolbar">
+          <select class="filter" id="ownerFilter" onchange="setFilter(this.value)"><option value="all">All team members</option></select>
+          <span style="font-size:12px;color:var(--muted)">Drag a card between columns to move a deal</span>
+          <div class="sp"></div>
+          <button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
+        </div>
+        <div class="board" id="board"></div>
+      </div>
+      <div class="page" id="page-inquiries"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div><div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div></div>
+      <div class="page" id="page-quotations"><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers"><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Segment</th><th>Source</th><th>Status</th><th class="tnum">Value</th></tr></thead><tbody id="cusBody"></tbody></table></div></div>
       <div class="page" id="page-team">
+        <div class="toolbar"><select class="filter" id="monthSel" onchange="setMonth(this.value)"><option value="2026-06">June 2026</option><option value="2026-05">May 2026</option></select><span style="font-size:12px;color:var(--muted)">Performance for the selected month</span></div>
         <div class="kpis" id="teamKpis" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px"></div>
         <div class="sec-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Team Performance &nbsp;<span style="font-size:11px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--faint)">tap a person to see their deals</span></div>
         <div class="team-grid" id="teamGrid"></div>
@@ -302,6 +343,17 @@ input{font-family:inherit;color:var(--ink)}
 
 <div class="overlay" id="overlay" onclick="closePanel()"></div>
 <aside class="panel" id="panel"></aside>
+<div class="modal-ov" id="taskModal">
+  <div class="modal">
+    <div class="modal-h"><h3>Add Task</h3><button class="pn-close" onclick="closeTaskModal()" style="position:static;width:30px;height:30px">✕</button></div>
+    <div class="modal-b">
+      <div class="fld"><label>Task</label><input id="tk_title" placeholder="e.g. Follow up on Cinnamon Grand quote"></div>
+      <div class="fld"><label>Assign to</label><select id="tk_who"></select></div>
+      <div class="fld"><label>Due</label><input id="tk_due" type="date"></div>
+    </div>
+    <div class="modal-f"><button class="btn-ghost" onclick="closeTaskModal()">Cancel</button><button class="btn-red" onclick="saveTask()">Add Task</button></div>
+  </div>
+</div>
 
 <script>
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>';
@@ -330,6 +382,18 @@ const STAGES=[
 const stageLabel=k=>(STAGES.find(s=>s.k===k)||{}).label||k;
 const lkr=n=>'LKR '+n.toLocaleString('en-LK');
 const init=s=>s.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const I={
+ phone:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+ mail:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>',
+ user:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+ clock:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+ doc:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+ check:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>',
+ download:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+ target:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+ bolt:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+ plus:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+};
 
 const LEADS=[
  {id:1,name:'Nuwan Perera',co:'Homeowner · Battaramulla',type:'B2C',lead:'Retail',stage:'quoted',owner:'Ushan',phone:'077 614 2233',email:'nuwan.p@gmail.com',source:'Showroom walk-in',products:['Chandeliers','Ceiling'],project:null,quote:[{p:'Crystal Chandelier 800mm',n:'CH-800',q:1,u:145000},{p:'LED Ceiling Spot 7W',n:'CL-07',q:8,u:5000}],acts:[{t:'Showroom visit',m:'Came in for living room chandelier, liked the CH-800',tm:'2 days ago'},{t:'Quote sent',m:'Emailed quotation, awaiting confirmation',tm:'1 day ago'}]},
@@ -345,16 +409,50 @@ const qTotal=l=>l.quote.reduce((s,r)=>s+r.q*r.u,0);
 const val=l=>qTotal(l);
 
 function rowHTML(l){return `<div class="eq-row" onclick="openLead(${l.id})"><div class="eq-av">${init(l.name)}</div><div class="eq-main"><div class="eq-nm">${l.name}</div><div class="eq-mt">${l.co} · ${stageLabel(l.stage)}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><div class="eq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}
+/* month each lead belongs to */
+const MONTH={1:'2026-06',2:'2026-06',3:'2026-06',4:'2026-06',5:'2026-05',6:'2026-06',7:'2026-06',8:'2026-05'};
+const MONTHS=[['2026-06','June 2026'],['2026-05','May 2026']];
+let TEAM_MONTH='2026-06';
+/* filter */
+let FILTER_OWNER='all';
+function owners(){return [...new Set(LEADS.map(l=>l.owner))];}
+function filtered(){return FILTER_OWNER==='all'?LEADS:LEADS.filter(l=>l.owner===FILTER_OWNER);}
+function setFilter(v){FILTER_OWNER=v;renderBoard();renderAll();}
+/* drag to move */
+let DRAG=null;
+function dragStart(e,id){DRAG=id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function dragEnd(e){e.currentTarget.classList.remove('dragging');document.querySelectorAll('.col').forEach(c=>c.classList.remove('dragover'));}
+function dragOver(e,el){e.preventDefault();el.classList.add('dragover');}
+function dragLeave(el){el.classList.remove('dragover');}
+function drop(e,stage){e.preventDefault();const l=LEADS.find(x=>x.id===DRAG);if(l)l.stage=stage;DRAG=null;renderBoard();renderDash();renderQueue();}
+/* tasks */
+let TASKS=[{t:'Call Cinnamon Grand on the 8% request',w:'Raashid · today',d:false},{t:'Site visit — Rajitha Silva garden',w:'Ushan · Saturday',d:false},{t:'Send quotation to Ascon Developers',w:'Yasitha · today',d:false},{t:'Confirm delivery slot — Araliya Resort',w:'Raashid · tomorrow',d:true}];
+function renderTasks(){const el=document.getElementById('taskList');if(!el)return;el.innerHTML=TASKS.map((t,i)=>`<div class="task ${t.d?'done':''}"><div class="cb" onclick="toggleTask(${i})">${I.check}</div><div class="tk-main"><div class="tk-t">${t.t}</div><div class="tk-m">${t.w}</div></div></div>`).join('');}
+function toggleTask(i){TASKS[i].d=!TASKS[i].d;renderTasks();}
+function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('tk_title').value='';document.getElementById('tk_due').value='';document.getElementById('taskModal').classList.add('open');}
+function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
+function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
+/* excel export (.xls, opens in Excel) */
+function exportXLS(name,headers,rows){
+ const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+ const head='<tr>'+headers.map(h=>`<th style="background:#E4002B;color:#fff;padding:6px">${esc(h)}</th>`).join('')+'</tr>';
+ const body=rows.map(r=>'<tr>'+r.map(c=>`<td style="padding:5px">${esc(c)}</td>`).join('')+'</tr>').join('');
+ const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1" cellspacing="0">${head}${body}</table></body></html>`;
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'application/vnd.ms-excel'}));a.download=name;a.click();
+}
+function exportInquiriesXLS(){exportXLS('homedepot-inquiries.xls',['Customer','Company','Type','Lead','Stage','Source','Owner','Products','Value (LKR)'],filtered().map(l=>[l.name,l.co,l.type,l.lead,stageLabel(l.stage),l.source,l.owner,l.products.join(' / '),val(l)]));}
+function exportQuotesXLS(){const rows=[];LEADS.filter(l=>l.quote.length).forEach(l=>l.quote.forEach(r=>rows.push([l.name,r.p,r.n,r.q,r.u,r.q*r.u,stageLabel(l.stage)])));exportXLS('homedepot-quotations.xls',['Customer','Product','Code','Qty','Unit (LKR)','Line Total (LKR)','Stage'],rows);}
 
 function renderDash(){
  const open=LEADS.filter(l=>l.stage!=='delivered');
  const pv=open.reduce((s,l)=>s+val(l),0);
- const orders=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)).length;
+ const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
+ const wonMonthVal=wonMonth.reduce((s,l)=>s+val(l),0);
  const kpis=[
   {lbl:'Open Inquiries',val:open.length,sub:'<b>+3</b> this week'},
   {lbl:'Quotes Sent',val:LEADS.filter(l=>l.quote.length).length,sub:'awaiting response'},
   {lbl:'Pipeline Value',val:'LKR '+(pv/1e6).toFixed(1)+'M',sub:'across open deals',accent:true},
-  {lbl:'Orders This Month',val:orders,sub:'<b>'+Math.round(orders/LEADS.length*100)+'%</b> conversion'},
+  {lbl:'Closed This Month',val:wonMonth.length,sub:'<b>LKR '+(wonMonthVal/1e6).toFixed(2)+'M</b> won in June'},
   {lbl:'B2B / B2C',val:LEADS.filter(l=>l.type==='B2B').length+' / '+LEADS.filter(l=>l.type==='B2C').length,sub:'project / retail'}
  ];
  document.getElementById('kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.accent?'accent':''}"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('');
@@ -363,10 +461,11 @@ function renderDash(){
  document.getElementById('latest').innerHTML=[...LEADS].sort((a,b)=>b.id-a.id).slice(0,6).map(rowHTML).join('');
 }
 function renderBoard(){
- document.getElementById('board').innerHTML=STAGES.map(s=>{const it=LEADS.filter(l=>l.stage===s.k);return `<div class="col"><div class="col-h"><div class="ct"><span class="dot" style="background:${s.color}"></span>${s.label}</div><span class="cn">${it.length}</span></div><div class="col-b">${it.map(cardHTML).join('')||'<div style="color:var(--faint);font-size:12px;text-align:center;padding:14px">—</div>'}</div></div>`;}).join('');
+ const data=filtered();
+ document.getElementById('board').innerHTML=STAGES.map(s=>{const it=data.filter(l=>l.stage===s.k);return `<div class="col" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="drop(event,'${s.k}')"><div class="col-h"><div class="ct"><span class="dot" style="background:${s.color}"></span>${s.label}</div><span class="cn">${it.length}</span></div><div class="col-b">${it.map(cardHTML).join('')||'<div style="color:var(--faint);font-size:12px;text-align:center;padding:14px">—</div>'}</div></div>`;}).join('');
 }
-function cardHTML(l){return `<div class="lead-card" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
-function renderAll(){document.getElementById('allList').innerHTML=[...LEADS].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('');}
+function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart="dragStart(event,${l.id})" ondragend="dragEnd(event)" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
+function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
 function renderQuo(){document.getElementById('quoBody').innerHTML=LEADS.filter(l=>l.quote.length).sort((a,b)=>val(b)-val(a)).map(l=>`<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></td><td class="tm">${l.products.join(', ')}</td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td><td class="tnum">${lkr(val(l))}</td></tr>`).join('');}
 function renderCus(){document.getElementById('cusBody').innerHTML=[...LEADS].sort((a,b)=>val(b)-val(a)).map(l=>{const won=['order_confirmed','delivered'].includes(l.stage);return `<tr onclick="openLead(${l.id})"><td><div class="tn">${l.name}</div><div class="tm">${l.co}</div></td><td><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type} · ${l.lead}</span></td><td class="tm">${l.source}</td><td><span class="bdg ${won?'bdg-green':'bdg-grey'}">${won?'Customer':'Lead'}</span></td><td class="tnum">${val(l)?lkr(val(l)):'—'}</td></tr>`;}).join('');}
 
@@ -381,7 +480,7 @@ function gamePlan(l){
   delivered:['Follow up for repeat and referral',`Hope you're loving the new lighting. If you have another space, I'd love to help.`]
  };
  const g=M[l.stage]||M.new_inquiry;
- return `<div class="gp"><div class="gp-obj">🎯 ${g[0]}</div><div class="gp-open">"${g[1]}"</div></div>`;
+ return `<div class="gp"><div class="gp-obj">${I.target} ${g[0]}</div><div class="gp-open">"${g[1]}"</div></div>`;
 }
 function renderQueue(){
  const SIG={new_inquiry:['Send quotation','#2563eb','New inquiry, no quote sent yet'],quoted:['Follow up','#d97706','Quote sent, awaiting their response'],site_visit:['Confirm visit','#7c3aed','Site visit pending'],negotiation:['Close the deal','#E4002B','In negotiation, needs a push'],order_confirmed:['Schedule delivery','#16a34a','Order won, arrange delivery']};
@@ -400,8 +499,8 @@ function openLead(id){
  const l=LEADS.find(x=>x.id===id);if(!l)return;const t=qTotal(l);
  const quoteHTML=l.quote.length?`<div class="quote"><div class="q-row head"><div>Product</div><div style="text-align:center">Qty</div><div class="q-num">Unit</div><div class="q-num">Total</div></div>${l.quote.map(r=>`<div class="q-row"><div><div class="qp">${r.p}</div><div class="qn">${r.n}</div></div><div style="text-align:center;font-weight:600">${r.q}</div><div class="q-num">${r.u.toLocaleString()}</div><div class="q-num" style="font-weight:700">${(r.q*r.u).toLocaleString()}</div></div>`).join('')}<div class="q-total"><span class="lbl">Quotation Total</span><span class="amt">${lkr(t)}</span></div></div>`:`<div style="font-size:13px;color:var(--faint);padding:6px 0">No quotation yet — start by adding products and prices.</div>`;
  const panel=document.getElementById('panel');
- panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${l.name}</div><div class="pn-co">${l.co}</div><div class="pn-badges"><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><span class="bdg bdg-grey">${l.lead}</span><span class="bdg bdg-stage">${stageLabel(l.stage)}</span></div><div class="pn-contact"><span>📞 <a href="tel:${l.phone}">${l.phone}</a></span><span>✉️ <a href="mailto:${l.email}">${l.email}</a></span><span>👤 ${l.owner}</span></div></div>
-  <div class="pn-actions"><button class="pa primary">📞 Log Activity</button><button class="pa">🧾 Send Quote</button><button class="pa">⏰ Follow-Up</button><button class="pa">✓ Convert to Order</button><button class="pa" onclick="exportLead(${id})">⤓ Export</button></div>
+ panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${l.name}</div><div class="pn-co">${l.co}</div><div class="pn-badges"><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><span class="bdg bdg-grey">${l.lead}</span><span class="bdg bdg-stage">${stageLabel(l.stage)}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${l.phone}">${l.phone}</a></span><span>${I.mail} <a href="mailto:${l.email}">${l.email}</a></span><span>${I.user} ${l.owner}</span></div></div>
+  <div class="pn-actions"><button class="pa primary">${I.phone} Log Activity</button><button class="pa">${I.doc} Send Quote</button><button class="pa">${I.clock} Follow-Up</button><button class="pa">${I.check} Convert to Order</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
   <div class="pn-body">
    <div class="sec"><div class="sec-t">Next Best Action</div>${gamePlan(l)}</div>
    <div class="sec"><div class="sec-t">Quotation</div>${quoteHTML}</div>
@@ -423,14 +522,17 @@ const AUDIT=[
  {u:'Yasitha',r:'Manager',d:'Desktop · Edge',loc:'Office',t:'Yesterday, 05:40 PM'},
  {u:'Ushan',r:'Sales',d:'iPhone · Safari',loc:'On site · Bentota',t:'Yesterday, 09:03 AM'}
 ];
-function perf(name){const owned=LEADS.filter(l=>l.owner===name);const won=owned.filter(l=>['order_confirmed','delivered'].includes(l.stage));return{owned,quotes:owned.filter(l=>l.quote.length).length,won,wonVal:won.reduce((s,l)=>s+val(l),0),pipe:owned.filter(l=>l.stage!=='delivered').reduce((s,l)=>s+val(l),0),conv:owned.length?Math.round(won.length/owned.length*100):0};}
+function perf(name,mo){const owned=LEADS.filter(l=>l.owner===name&&(!mo||MONTH[l.id]===mo));const won=owned.filter(l=>['order_confirmed','delivered'].includes(l.stage));return{owned,quotes:owned.filter(l=>l.quote.length).length,won,wonVal:won.reduce((s,l)=>s+val(l),0),pipe:owned.filter(l=>l.stage!=='delivered').reduce((s,l)=>s+val(l),0),conv:owned.length?Math.round(won.length/owned.length*100):0};}
+function setMonth(v){TEAM_MONTH=v;renderTeam();}
 function renderTeam(){
- const totDeals=TEAM.reduce((s,p)=>s+perf(p.n).won.length,0);
- const totWon=TEAM.reduce((s,p)=>s+perf(p.n).wonVal,0);
- const totPipe=TEAM.reduce((s,p)=>s+perf(p.n).pipe,0);
+ const mo=TEAM_MONTH;
+ const totDeals=TEAM.reduce((s,p)=>s+perf(p.n,mo).won.length,0);
+ const totWon=TEAM.reduce((s,p)=>s+perf(p.n,mo).wonVal,0);
+ const totPipe=TEAM.reduce((s,p)=>s+perf(p.n,mo).pipe,0);
+ const msel=document.getElementById('monthSel');if(msel)msel.value=mo;
  document.getElementById('teamKpis').innerHTML=`<div class="kpi accent"><div class="lbl">Revenue Brought In</div><div class="val">LKR ${(totWon/1e6).toFixed(2)}M</div><div class="sub">closed orders, all team</div></div><div class="kpi"><div class="lbl">Deals Closed</div><div class="val">${totDeals}</div><div class="sub">orders confirmed + delivered</div></div><div class="kpi"><div class="lbl">Open Pipeline</div><div class="val">LKR ${(totPipe/1e6).toFixed(1)}M</div><div class="sub">value still in play</div></div>`;
  document.getElementById('teamGrid').innerHTML=TEAM.map(p=>{
-  const d=perf(p.n);
+  const d=perf(p.n,mo);
   return `<div class="tp-card" onclick="openEmployee('${p.n}','${p.r}')"><div class="tp-head"><div class="tp-av">${init(p.n)}</div><div><div class="tp-nm">${p.n}</div><div class="tp-rl">${p.r}</div></div>${d.won.length?`<span class="tp-pill">${d.won.length} won</span>`:''}</div>
    <div class="tp-stats"><div class="tp-stat"><div class="v">${d.owned.length}</div><div class="l">Leads</div></div><div class="tp-stat"><div class="v">${d.quotes}</div><div class="l">Quotes</div></div><div class="tp-stat"><div class="v">${d.won.length}</div><div class="l">Orders</div></div><div class="tp-stat"><div class="v">${d.conv}%</div><div class="l">Conv.</div></div></div>
    <div class="tp-conv"><span class="cl">Conversion</span><div class="tp-bar"><div class="f" style="width:${d.conv}%"></div></div><span class="cv">${d.conv}%</span></div>
@@ -439,9 +541,9 @@ function renderTeam(){
  document.getElementById('auditBody').innerHTML=AUDIT.map(a=>`<tr><td><div class="tn">${a.u}</div></td><td><span class="bdg ${a.r==='Sales'?'bdg-grey':'bdg-stage'}">${a.r}</span></td><td class="tm">${a.d}</td><td class="tm">${a.loc}</td><td class="tnum" style="font-weight:500;color:var(--muted)">${a.t}</td></tr>`).join('');
 }
 function openEmployee(name,role){
- const d=perf(name);
+ const d=perf(name,TEAM_MONTH);const moLabel=(MONTHS.find(m=>m[0]===TEAM_MONTH)||['','']) [1];
  const panel=document.getElementById('panel');
- panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${name}</div><div class="pn-co">${role} · Sales performance</div>
+ panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${name}</div><div class="pn-co">${role} · ${moLabel}</div>
    <div class="pn-badges"><span class="bdg bdg-green">${d.won.length} deal${d.won.length===1?'':'s'} closed</span><span class="bdg bdg-stage">${lkr(d.wonVal)} brought in</span></div></div>
   <div class="pn-body">
    <div class="sec"><div class="sec-t">Performance Summary</div><div class="info-grid"><div class="info"><div class="il">Leads owned</div><div class="iv">${d.owned.length}</div></div><div class="info"><div class="il">Quotes sent</div><div class="iv">${d.quotes}</div></div><div class="info"><div class="il">Deals closed</div><div class="iv">${d.won.length}</div></div><div class="info"><div class="il">Conversion</div><div class="iv">${d.conv}%</div></div><div class="info"><div class="il">Money brought in</div><div class="iv" style="color:var(--green)">${d.wonVal?lkr(d.wonVal):'—'}</div></div><div class="info"><div class="il">Open pipeline</div><div class="iv">${d.pipe?lkr(d.pipe):'—'}</div></div></div></div>
@@ -457,7 +559,8 @@ document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go)
 document.getElementById('nbEnq').textContent=LEADS.length;
 document.getElementById('nbQuo').textContent=LEADS.filter(l=>l.quote.length).length;
 document.getElementById('nbCus').textContent=LEADS.length;
-renderDash();renderQueue();renderBoard();renderAll();renderQuo();renderCus();renderTeam();
+document.getElementById('ownerFilter').innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');
+renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();
 </script>
 </body>
 </html>
