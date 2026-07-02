@@ -376,9 +376,11 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .rv-stage-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .rv-prob-sel{width:56px;padding:4px 2px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:12px;font-weight:700;text-align:center;cursor:pointer}
 .rv-prob-sel:focus{border-color:var(--red);outline:none}
-.rv-bar-wrap{height:28px;background:var(--line);border-radius:14px;overflow:hidden;position:relative}
-.rv-bar-fill{height:100%;border-radius:14px;transition:width .6s cubic-bezier(.25,.8,.25,1);position:relative}
-.rv-bar-fill::after{content:attr(data-label);position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.rv-bar-wrap{height:28px;background:var(--line);border-radius:14px;overflow:visible;position:relative}
+.rv-bar-fill{height:100%;border-radius:14px;transition:width .6s cubic-bezier(.25,.8,.25,1);position:relative;overflow:visible}
+.rv-bar-fill::after{content:attr(data-label);position:absolute;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;white-space:nowrap}
+.rv-bar-fill.bar-inside::after{right:10px;color:#fff}
+.rv-bar-fill.bar-outside::after{left:calc(100% + 8px);color:var(--ink)}
 .rv-val{font-variant-numeric:tabular-nums;text-align:right}
 .rv-val-raw{font-size:13px;color:var(--muted);font-weight:500}
 .rv-val-wt{font-size:14px;font-weight:800;color:var(--ink)}
@@ -571,6 +573,10 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
           <div class="grid2" style="margin-bottom:20px">
             <div class="card"><div class="card-h"><h3>Key Insights</h3></div><div class="card-b" id="srInsights" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
             <div class="card"><div class="card-h"><h3>Next Steps</h3></div><div class="card-b" id="srNextSteps" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
+          </div>
+          <div style="margin-top:32px;padding:24px 0;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border:2px solid var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-weight:800;font-size:10px;color:var(--red)">Hd</span></div><div><div style="font-size:13px;font-weight:700;color:var(--ink)">Home Depot Sri Lanka</div><div style="font-size:11px;color:var(--muted)">213 Nawala Rd, Nugegoda, Colombo</div></div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:var(--faint)">Sales Operating System</div><div style="font-size:10px;color:var(--faint);margin-top:2px">Powered by Business Booster</div></div>
           </div>
         </div>
       </div>
@@ -1230,7 +1236,7 @@ function renderRevPipeline(){
     const wt=Math.round(raw*s.prob/100);
     const pct=Math.round(raw/maxVal*100);
     const probOpts=[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`<option value="${p}"${p===s.prob?' selected':''}>${p}%</option>`).join('');
-    return `<div class="rv-stage"><div class="rv-stage-name"><span class="rv-stage-dot" style="background:${s.color}"></span>${s.label}</div><select class="rv-prob-sel" onchange="updateStageProb('${s.k}',this.value)" title="Close probability">${probOpts}</select><div class="rv-bar-wrap"><div class="rv-bar-fill" style="width:${Math.max(3,pct)}%;background:${s.color}" data-label="${stLeads.length} deal${stLeads.length===1?'':'s'}"></div></div><div class="rv-val"><div class="rv-val-raw">${lkr(raw)}</div></div><div class="rv-val"><div class="rv-val-wt" style="color:${s.color}">${lkr(wt)}</div></div></div>`;
+    return `<div class="rv-stage"><div class="rv-stage-name"><span class="rv-stage-dot" style="background:${s.color}"></span>${s.label}</div><select class="rv-prob-sel" onchange="updateStageProb('${s.k}',this.value)" title="Close probability">${probOpts}</select><div class="rv-bar-wrap"><div class="rv-bar-fill ${pct>=20?'bar-inside':'bar-outside'}" style="width:${Math.max(3,pct)}%;background:${s.color}" data-label="${stLeads.length} deal${stLeads.length===1?'':'s'}"></div></div><div class="rv-val"><div class="rv-val-raw">${lkr(raw)}</div></div><div class="rv-val"><div class="rv-val-wt" style="color:${s.color}">${lkr(wt)}</div></div></div>`;
   }).join('')+'</div>';
   destroyRVCharts();
   const isDark=document.body.classList.contains('dark');
@@ -1262,7 +1268,7 @@ function exportRevPipelineXLS(){
 })();
 
 /* ── Sales Report ── */
-const SR_COLORS={maroon:'#E4002B',teal:'#007565',rose:'#DE7878',dark:'#231211',gold:'#DBBC82',amber:'#FFAE00'};
+const SR_COLORS={red:'#E4002B',teal:'#007565',rose:'#DE7878',slate:'#64748b',gold:'#DBBC82',amber:'#FFAE00'};
 const SR_CATS=['Chandeliers','LED Panels','Outdoor Lighting','Decorative Wall','Smart Lighting','Ceiling Fans'];
 const SR_CHANNELS=['Showroom','WhatsApp','B2B Projects'];
 const SR_PRODUCTS=[
@@ -1311,7 +1317,7 @@ function renderSalesReport(){
   const fmt=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?Math.round(n/1000)+'K':n.toLocaleString();
   const fmtFull=n=>'LKR '+n.toLocaleString();
   const kpis=[
-    {label:'Total Revenue',val:fmtFull(d.thisMonth.rev),delta:d.revDelta,color:SR_COLORS.maroon},
+    {label:'Total Revenue',val:fmtFull(d.thisMonth.rev),delta:d.revDelta,color:SR_COLORS.red},
     {label:'Orders',val:d.orders,delta:d.ordDelta,color:SR_COLORS.teal},
     {label:'Avg Order Value',val:fmtFull(d.aov),delta:d.aovDelta,color:SR_COLORS.gold},
     {label:'Retention Rate',val:d.retention+'%',delta:d.retDelta,color:SR_COLORS.rose}
@@ -1324,12 +1330,12 @@ function renderSalesReport(){
   const txtColor=isDark?'#9aa0a8':'#6b7280';
   Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
 
-  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.maroon,backgroundColor:'rgba(228,0,43,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.maroon}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
+  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.red,backgroundColor:'rgba(228,0,43,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.red}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
 
   const catTotal=d.catData.reduce((s,v)=>s+v,0);
-  srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS.map((c,i)=>c+' ('+Math.round(d.catData[i]/catTotal*100)+'%)'),datasets:[{data:d.catData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.dark],borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11},generateLabels:function(chart){return chart.data.labels.map(function(label,i){return{text:label,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i};});}}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': LKR '+ctx.parsed.toLocaleString();}}}}}});
+  srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS.map((c,i)=>c+' ('+Math.round(d.catData[i]/catTotal*100)+'%)'),datasets:[{data:d.catData,backgroundColor:[SR_COLORS.red,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.slate],borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11},generateLabels:function(chart){return chart.data.labels.map(function(label,i){return{text:label,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i};});}}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': LKR '+ctx.parsed.toLocaleString();}}}}}});
 
-  srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:[{label:'Revenue',data:d.chanData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:32}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
+  srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:[{label:'Revenue',data:d.chanData,backgroundColor:[SR_COLORS.red,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:32}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
 
   srCharts.aov=new Chart(document.getElementById('srAovChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'AOV',data:d.aovTrend,borderColor:SR_COLORS.teal,backgroundColor:'rgba(0,117,101,.1)',fill:true,tension:.35,yAxisID:'y'},{label:'Retention %',data:d.retTrend,borderColor:SR_COLORS.amber,borderDash:[5,3],tension:.35,yAxisID:'y1',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{y:{position:'left',ticks:{callback:v=>'LKR '+fmt(v)},grid:{color:gridColor}},y1:{position:'right',min:0,max:100,ticks:{callback:v=>v+'%'},grid:{display:false}},x:{grid:{display:false}}}}});
 
@@ -1342,7 +1348,7 @@ function renderSalesReport(){
     `${d.products[0].name} leads product sales with ${d.products[0].units} units (LKR ${d.products[0].rev.toLocaleString()}).`,
     d.retention>=35?`Retention at ${d.retention}% is healthy. Keep nurturing repeat buyers.`:`Retention at ${d.retention}% needs attention. Consider loyalty programs.`
   ];
-  document.getElementById('srInsights').innerHTML=insights.map(i=>`<div style="margin-bottom:8px;padding-left:14px;border-left:3px solid ${SR_COLORS.maroon}">&#8226; ${i}</div>`).join('');
+  document.getElementById('srInsights').innerHTML=insights.map(i=>`<div style="margin-bottom:8px;padding-left:14px;border-left:3px solid ${SR_COLORS.red}">&#8226; ${i}</div>`).join('');
 
   const steps=[
     'Review underperforming categories and adjust inventory allocation.',
