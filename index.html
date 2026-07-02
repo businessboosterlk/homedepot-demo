@@ -361,6 +361,46 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .sr-chart-card canvas{width:100%!important}
 @media(max-width:700px){.sr-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:440px){.sr-kpis{grid-template-columns:1fr}}
+
+/* Revenue Pipeline */
+.rv-hero{display:grid;grid-template-columns:1fr 1fr;gap:0;background:linear-gradient(135deg,#772820 0%,#4a1812 100%);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;color:#fff}
+.rv-hero-cell{padding:28px 32px}
+.rv-hero-cell+.rv-hero-cell{border-left:1px solid rgba(255,255,255,.15)}
+.rv-hero-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.7;font-weight:600;margin-bottom:8px}
+.rv-hero-val{font-family:Poppins,sans-serif;font-size:36px;font-weight:800;line-height:1.1}
+.rv-hero-sub{font-size:13px;opacity:.6;margin-top:6px}
+.rv-stages{display:flex;flex-direction:column;gap:10px;margin:24px 0}
+.rv-stage{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;display:grid;grid-template-columns:180px 60px 1fr 120px 120px;align-items:center;gap:14px;transition:box-shadow .15s}
+.rv-stage:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.rv-stage-name{font-weight:700;font-size:14px;display:flex;align-items:center;gap:10px}
+.rv-stage-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rv-prob-sel{width:56px;padding:4px 2px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:12px;font-weight:700;text-align:center;cursor:pointer}
+.rv-prob-sel:focus{border-color:var(--red);outline:none}
+.rv-bar-wrap{height:28px;background:var(--line);border-radius:14px;overflow:hidden;position:relative}
+.rv-bar-fill{height:100%;border-radius:14px;transition:width .6s cubic-bezier(.25,.8,.25,1);position:relative}
+.rv-bar-fill::after{content:attr(data-label);position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.rv-val{font-variant-numeric:tabular-nums;text-align:right}
+.rv-val-raw{font-size:13px;color:var(--muted);font-weight:500}
+.rv-val-wt{font-size:14px;font-weight:800;color:var(--ink)}
+.rv-charts{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.rv-chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.rv-chart-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:14px}
+.rv-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.rv-cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;text-align:center}
+.rv-cmp-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:600;margin-bottom:8px}
+.rv-cmp-val{font-family:Poppins,sans-serif;font-size:26px;font-weight:800;color:var(--ink)}
+.rv-cmp-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.rv-delta-up{color:#16a34a;font-weight:700}
+.rv-delta-down{color:#dc2626;font-weight:700}
+@media(max-width:700px){
+ .rv-hero{grid-template-columns:1fr}
+ .rv-hero-cell+.rv-hero-cell{border-left:none;border-top:1px solid rgba(255,255,255,.15)}
+ .rv-hero-val{font-size:26px}
+ .rv-stage{grid-template-columns:1fr;gap:8px;padding:14px 16px}
+ .rv-stage-name{font-size:13px}
+ .rv-charts,.rv-compare{grid-template-columns:1fr}
+ .rv-cmp-val{font-size:20px}
+}
 </style>
 </head>
 <body>
@@ -401,6 +441,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-label">Sales</div>
       <div class="nav-item active" data-pg="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</div>
       <div class="nav-item" data-pg="pipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>Sales Pipeline</div>
+      <div class="nav-item ceo-only" data-pg="revpipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Revenue Pipeline</div>
       <div class="nav-item" data-pg="inquiries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Inquiries<span class="badge" id="nbEnq"></span></div>
       <div class="nav-item" data-pg="quotations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Quotations<span class="badge" id="nbQuo"></span></div>
       <div class="nav-item" data-pg="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Customers<span class="badge" id="nbCus"></span></div>
@@ -452,6 +493,24 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="scope-stats" id="pipeStats"></div>
         <div class="board" id="board"></div>
       </div>
+
+      <!-- Revenue Pipeline -->
+      <div class="page" id="page-revpipeline">
+        <div class="toolbar" style="margin-bottom:0">
+          <select class="filter" id="rvMonth" onchange="renderRevPipeline()"></select>
+          <div class="sp"></div>
+          <button class="btn-ghost" onclick="exportRevPipelineXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
+        </div>
+        <div id="rvHero"></div>
+        <div class="sr-kpis" id="rvKpis" style="margin-bottom:4px"></div>
+        <div id="rvStages"></div>
+        <div class="rv-charts" id="rvChartsRow">
+          <div class="rv-chart-card"><div class="rv-chart-title">Raw vs Weighted Value by Stage</div><div style="height:260px"><canvas id="rvBarChart"></canvas></div></div>
+          <div class="rv-chart-card"><div class="rv-chart-title">Pipeline Value Distribution</div><div style="height:260px"><canvas id="rvDonutChart"></canvas></div></div>
+        </div>
+        <div class="rv-compare" id="rvCompare"></div>
+      </div>
+
       <div class="page" id="page-inquiries">
         <div class="toolbar"><select class="filter" id="monthFilterI" onchange="setLeadMonth(this.value)"></select><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
         <div class="scope-stats" id="inqStats"></div>
@@ -653,9 +712,9 @@ function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['ord
  renderBoard();renderDash();renderQueue();renderCus();openLead(id);toast(I.check+' '+l.name+' converted to order and added as a Customer');}
 
 const STAGES=[
- {k:'new_inquiry',label:'New Inquiry',color:'#2563eb'},{k:'quoted',label:'Quoted',color:'#7c3aed'},
- {k:'site_visit',label:'Site Visit',color:'#d97706'},{k:'negotiation',label:'Negotiation',color:'#0891b2'},
- {k:'order_confirmed',label:'Order Confirmed',color:'#16a34a'},{k:'delivered',label:'Delivered / Installed',color:'#15803d'}
+ {k:'new_inquiry',label:'New Inquiry',color:'#2563eb',prob:10},{k:'quoted',label:'Quoted',color:'#7c3aed',prob:30},
+ {k:'site_visit',label:'Site Visit',color:'#d97706',prob:50},{k:'negotiation',label:'Negotiation',color:'#0891b2',prob:60},
+ {k:'order_confirmed',label:'Order Confirmed',color:'#16a34a',prob:90},{k:'delivered',label:'Delivered / Installed',color:'#15803d',prob:100}
 ];
 const stageLabel=k=>(STAGES.find(s=>s.k===k)||{}).label||k;
 const lkr=n=>'LKR '+n.toLocaleString('en-LK');
@@ -1076,7 +1135,7 @@ function renderFinance(){
 }
 function markPaid(ref){const o=ORDERS.find(x=>x.ref===ref);if(!o)return;o.paid=o.amount;renderFinance();toast(I.check+' '+o.ref+' marked fully paid · '+o.cust);}
 function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Invoiced (LKR)','Paid (LKR)','Balance (LKR)','Due date','Days overdue','Method'],finRows().map(o=>[o.ref,o.cust,o.amount,o.paid,balance(o),o.due,Math.max(0,daysOver(o)),o.method]));}
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted deal value across every stage'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
 function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -1090,6 +1149,77 @@ document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.
 document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
 document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
+
+/* ── Revenue Pipeline ── */
+let rvCharts={};
+function destroyRVCharts(){Object.values(rvCharts).forEach(c=>{if(c&&c.destroy)c.destroy()});rvCharts={};}
+function rvFiltered(mo){return LEADS.filter(l=>mo==='all'||MONTH[l.id]===mo);}
+function rvPrevMonth(ym){if(ym==='all')return 'all';const[y,m]=ym.split('-').map(Number);const d=new Date(y,m-2,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function updateStageProb(k,v){const s=STAGES.find(x=>x.k===k);if(s)s.prob=+v;renderRevPipeline();}
+function renderRevPipeline(){
+  const mo=document.getElementById('rvMonth').value||'all';
+  const leads=rvFiltered(mo);
+  const prev=rvFiltered(rvPrevMonth(mo));
+  const open=leads.filter(l=>l.stage!=='delivered');
+  const prevOpen=prev.filter(l=>l.stage!=='delivered');
+  const totalPipe=open.reduce((s,l)=>s+val(l),0);
+  const weightedPipe=open.reduce((s,l)=>{const st=STAGES.find(x=>x.k===l.stage);return s+val(l)*(st?st.prob:0)/100;},0);
+  const prevTotal=prevOpen.reduce((s,l)=>s+val(l),0);
+  const prevWeighted=prevOpen.reduce((s,l)=>{const st=STAGES.find(x=>x.k===l.stage);return s+val(l)*(st?st.prob:0)/100;},0);
+  const wonLeads=leads.filter(l=>['order_confirmed','delivered'].includes(l.stage));
+  const wonVal=wonLeads.reduce((s,l)=>s+val(l),0);
+  const winRate=leads.length?Math.round(wonLeads.length/leads.length*100):0;
+  const avgDeal=open.length?Math.round(totalPipe/open.length):0;
+  const dealCount=open.length;
+  document.getElementById('rvHero').innerHTML=`<div class="rv-hero"><div class="rv-hero-cell"><div class="rv-hero-label">Total Pipeline Value</div><div class="rv-hero-val"><span data-to="${(totalPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(totalPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">${dealCount} open deal${dealCount===1?'':'s'} across ${STAGES.length-1} stages</div></div><div class="rv-hero-cell"><div class="rv-hero-label">Weighted Expected Value</div><div class="rv-hero-val"><span data-to="${(weightedPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(weightedPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">Probability-adjusted forecast</div></div></div>`;
+  const kpis=[
+    {label:'Open Deals',val:dealCount,delta:dealCount-(prevOpen.length||dealCount),color:'#2563eb',fmt:'int'},
+    {label:'Avg Deal Size',val:lkr(avgDeal),delta:prevOpen.length?Math.round(((avgDeal-(prevTotal/(prevOpen.length||1)))/(prevTotal/(prevOpen.length||1)))*100):0,color:'#007565',fmt:'pct'},
+    {label:'Win Rate',val:winRate+'%',delta:0,color:'#d97706',fmt:'pct'},
+    {label:'Revenue Won',val:lkr(wonVal),delta:prevTotal?Math.round(((wonVal-prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0))/(prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0)||1))*100):0,color:'#772820',fmt:'pct'}
+  ];
+  document.getElementById('rvKpis').innerHTML=kpis.map(k=>{
+    const dv=k.delta;const arrow=dv>=0?'&#9650;':'&#9660;';const cls=dv>=0?'up':'down';
+    const dvShow=Math.min(Math.abs(dv),999);
+    return `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:${k.color}"></div><div class="sr-kpi-label">${k.label}</div><div class="sr-kpi-val">${k.val}</div>${dv!==0?`<div class="sr-kpi-delta ${cls}">${arrow} ${dvShow}${k.fmt==='pct'?'%':''} vs last month</div>`:''}</div>`;
+  }).join('');
+  const maxVal=Math.max(...STAGES.filter(s=>s.k!=='delivered').map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0)),1);
+  document.getElementById('rvStages').innerHTML='<div class="rv-stages">'+STAGES.filter(s=>s.k!=='delivered').map(s=>{
+    const stLeads=leads.filter(l=>l.stage===s.k);
+    const raw=stLeads.reduce((a,l)=>a+val(l),0);
+    const wt=Math.round(raw*s.prob/100);
+    const pct=Math.round(raw/maxVal*100);
+    const probOpts=[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100].map(p=>`<option value="${p}"${p===s.prob?' selected':''}>${p}%</option>`).join('');
+    return `<div class="rv-stage"><div class="rv-stage-name"><span class="rv-stage-dot" style="background:${s.color}"></span>${s.label}</div><select class="rv-prob-sel" onchange="updateStageProb('${s.k}',this.value)" title="Close probability">${probOpts}</select><div class="rv-bar-wrap"><div class="rv-bar-fill" style="width:${Math.max(3,pct)}%;background:${s.color}" data-label="${stLeads.length} deal${stLeads.length===1?'':'s'}"></div></div><div class="rv-val"><div class="rv-val-raw">${lkr(raw)}</div></div><div class="rv-val"><div class="rv-val-wt" style="color:${s.color}">${lkr(wt)}</div></div></div>`;
+  }).join('')+'</div>';
+  destroyRVCharts();
+  const isDark=document.body.classList.contains('dark');
+  const gridColor=isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
+  const txtColor=isDark?'#9aa0a8':'#6b7280';
+  Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
+  const activeStages=STAGES.filter(s=>s.k!=='delivered');
+  const rawData=activeStages.map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0));
+  const wtData=activeStages.map((s,i)=>Math.round(rawData[i]*s.prob/100));
+  rvCharts.bar=new Chart(document.getElementById('rvBarChart'),{type:'bar',data:{labels:activeStages.map(s=>s.label),datasets:[{label:'Raw Value',data:rawData,backgroundColor:activeStages.map(s=>s.color+'33'),borderColor:activeStages.map(s=>s.color),borderWidth:2,borderRadius:6,barThickness:18},{label:'Weighted',data:wtData,backgroundColor:activeStages.map(s=>s.color),borderRadius:6,barThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': LKR '+ctx.parsed.x.toLocaleString()}}},scales:{x:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'K':v},grid:{color:gridColor}},y:{grid:{display:false}}}}});
+  const donutData=activeStages.map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0));
+  const donutTotal=donutData.reduce((s,v)=>s+v,0)||1;
+  rvCharts.donut=new Chart(document.getElementById('rvDonutChart'),{type:'doughnut',data:{labels:activeStages.map((s,i)=>s.label+' ('+Math.round(donutData[i]/donutTotal*100)+'%)'),datasets:[{data:donutData,backgroundColor:activeStages.map(s=>s.color),borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': LKR '+ctx.parsed.toLocaleString()}}}}});
+  const pTotalDelta=prevTotal?((totalPipe-prevTotal)/prevTotal*100).toFixed(1):0;
+  const pWtDelta=prevWeighted?((weightedPipe-prevWeighted)/prevWeighted*100).toFixed(1):0;
+  document.getElementById('rvCompare').innerHTML=`<div class="rv-cmp"><div class="rv-cmp-label">This Month Pipeline</div><div class="rv-cmp-val">${lkr(totalPipe)}</div><div class="rv-cmp-sub">${+pTotalDelta>=0?'<span class="rv-delta-up">&#9650; '+Math.abs(pTotalDelta)+'%</span>':'<span class="rv-delta-down">&#9660; '+Math.abs(pTotalDelta)+'%</span>'} vs last month</div></div><div class="rv-cmp"><div class="rv-cmp-label">This Month Weighted</div><div class="rv-cmp-val">${lkr(Math.round(weightedPipe))}</div><div class="rv-cmp-sub">${+pWtDelta>=0?'<span class="rv-delta-up">&#9650; '+Math.abs(pWtDelta)+'%</span>':'<span class="rv-delta-down">&#9660; '+Math.abs(pWtDelta)+'%</span>'} vs last month</div></div>`;
+  animateCounts(document.getElementById('page-revpipeline'));
+}
+function exportRevPipelineXLS(){
+  const mo=document.getElementById('rvMonth').value||'all';
+  const leads=rvFiltered(mo).filter(l=>l.stage!=='delivered');
+  const rows=leads.map(l=>{const st=STAGES.find(s=>s.k===l.stage);return[l.name,l.co,l.type,stageLabel(l.stage),st?st.prob+'%':'',val(l),st?Math.round(val(l)*st.prob/100):0,l.owner];});
+  exportXLS('homedepot-revenue-pipeline.xls',['Customer','Company','Type','Stage','Probability','Raw Value (LKR)','Weighted Value (LKR)','Owner'],rows);
+}
+(function initRVMonth(){
+  const sel=document.getElementById('rvMonth');
+  sel.innerHTML='<option value="all">All months</option>'+MONTHS.map(m=>`<option value="${m[0]}">${m[1]}</option>`).join('');
+  renderRevPipeline();
+})();
 
 /* ── Sales Report ── */
 const SR_COLORS={maroon:'#772820',teal:'#007565',rose:'#DE7878',dark:'#231211',gold:'#DBBC82',amber:'#FFAE00'};
