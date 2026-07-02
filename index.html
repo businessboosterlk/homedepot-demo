@@ -8,6 +8,9 @@
 <meta http-equiv="Expires" content="0">
 <title>Home Depot — Sales & Inquiry System</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
 --red:#E4002B;--red-dark:#b80022;--red-soft:rgba(228,0,43,.08);
@@ -345,6 +348,19 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
  .exp-bar{flex-wrap:wrap}
 }
 @media(max-width:440px){.kpis{grid-template-columns:1fr!important}#greet h1{font-size:21px!important}.col{min-width:88vw;width:88vw}.heroGoal,.heroPipe{padding:4px}}
+
+/* Sales Report */
+.sr-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.sr-kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
+.sr-kpi .sr-kpi-label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.sr-kpi .sr-kpi-val{font-size:28px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+.sr-kpi .sr-kpi-delta{font-size:12px;font-weight:600;margin-top:4px;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px}
+.sr-kpi .sr-kpi-delta.up{color:#16a34a;background:var(--green-soft)}
+.sr-kpi .sr-kpi-delta.down{color:#dc2626;background:var(--red-soft)}
+.sr-kpi .sr-kpi-stripe{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
+.sr-chart-card canvas{width:100%!important}
+@media(max-width:700px){.sr-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.sr-kpis{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -392,6 +408,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-label ceo-only">Management</div>
       <div class="nav-item ceo-only" data-pg="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>Team & Performance</div>
       <div class="nav-item ceo-only" data-pg="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finance</div>
+      <div class="nav-item ceo-only" data-pg="salesreport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Sales Report</div>
       <div class="nav-item ceo-only" data-pg="audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><polyline points="12 6 12 12 16 14"/><path d="M22 6 18 10 14 6"/></svg>Login Audit</div>
     </nav>
     <div class="side-foot">
@@ -442,14 +459,9 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       </div>
       <div class="page" id="page-quotations"><div class="toolbar"><select class="filter" id="quoMonth" onchange="setQuoMonth(this.value)"></select><div class="sp"></div></div><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers">
-        <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,var(--red),var(--red-dark));border:none">
-          <div style="padding:18px 22px;display:flex;align-items:center;gap:16px;color:#fff">
-            <div style="font-family:Poppins;font-size:32px;font-weight:800" id="dueCount">0</div>
-            <div><div style="font-weight:700;font-size:14.5px">customers due for a message today</div><div style="font-size:12px;opacity:.85">Every customer gets a 30-day, 60-day and 90-day touch — the 90-day carries an offer</div></div>
-          </div>
-        </div>
-        <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><span style="font-size:12px;color:var(--muted)">Filter customers by the month they purchased</span></div>
-        <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Purchased</th><th>Last contact</th><th>Cadence</th><th>Next message</th><th>Status</th><th class="tnum">Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
+        <div class="kpis" id="cusKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
+        <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><select class="filter" id="cusType" onchange="setCusType(this.value)"><option value="all">All types</option><option value="B2B">B2B only</option><option value="B2C">B2C only</option></select><span style="font-size:12px;color:var(--muted)">Post-sale customers with 30/60/90 day cadence</span><div class="sp"></div><button class="btn-ghost" onclick="exportCusXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
+        <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>First Purchase</th><th>Last Contact</th><th>Cadence</th><th>Next Action</th><th>Status</th><th class="tnum">Lifetime Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
       <div class="page" id="page-taskbook">
         <div class="toolbar"><span style="font-size:13px;color:var(--muted)">Assign and track tasks across the team</span><div class="sp"></div><button class="btn-red" onclick="openTaskModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div>
@@ -476,6 +488,33 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="toolbar"><select class="filter" id="finMonth" onchange="setFinMonth(this.value)"></select><select class="filter" id="finFilter" onchange="setFinFilter(this.value)"><option value="all">All invoices</option><option value="Outstanding">Outstanding</option><option value="Overdue">Overdue only</option><option value="Paid">Paid</option></select><span style="font-size:12px;color:var(--muted)">Chase outstanding balances, then export</span><div class="sp"></div><button class="btn-ghost" onclick="exportFinanceXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
         <div class="card"><div class="card-h"><h3>Collections — Orders & Invoices</h3><span style="font-size:12px;color:var(--muted)">Balances to collect, oldest first</span></div><table class="tbl"><thead><tr><th>Invoice</th><th>Customer</th><th class="tnum">Invoiced</th><th class="tnum">Balance Due</th><th>Due Date</th><th>Aging</th><th>Status</th><th></th></tr></thead><tbody id="finBody"></tbody></table></div>
       </div>
+
+      <!-- Sales Report -->
+      <div class="page" id="page-salesreport">
+        <div class="toolbar" style="margin-bottom:18px">
+          <select class="filter" id="srMonth" onchange="renderSalesReport()"></select>
+          <div class="sp"></div>
+          <button class="btn-ghost" onclick="exportSalesReportPDF()" id="srExportBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF</button>
+        </div>
+        <div id="srContent">
+          <div class="sr-kpis" id="srKpis"></div>
+          <div class="grid2" style="margin-bottom:20px">
+            <div class="card sr-chart-card"><div class="card-h"><h3>Revenue Trend</h3><span style="font-size:12px;color:var(--muted)">Monthly revenue over time</span></div><div class="card-b" style="padding:12px 16px"><canvas id="srRevChart" height="220"></canvas></div></div>
+            <div class="card sr-chart-card"><div class="card-h"><h3>Revenue by Category</h3><span style="font-size:12px;color:var(--muted)">Where the money comes from</span></div><div class="card-b" style="display:flex;align-items:center;justify-content:center;padding:16px"><canvas id="srCatChart" height="220"></canvas></div></div>
+          </div>
+          <div class="grid2" style="margin-bottom:20px">
+            <div class="card sr-chart-card"><div class="card-h"><h3>Revenue by Channel</h3><span style="font-size:12px;color:var(--muted)">Showroom vs WhatsApp vs B2B</span></div><div class="card-b" style="padding:12px 16px"><canvas id="srChanChart" height="180"></canvas></div></div>
+            <div class="card sr-chart-card"><div class="card-h"><h3>Avg Order Value & Retention</h3><span style="font-size:12px;color:var(--muted)">AOV trend and repeat customer rate</span></div><div class="card-b" style="padding:12px 16px"><canvas id="srAovChart" height="180"></canvas></div></div>
+          </div>
+          <div class="card" style="margin-bottom:20px"><div class="card-h"><h3>Top Products</h3><span style="font-size:12px;color:var(--muted)">Best sellers this month</span></div><table class="tbl"><thead><tr><th>Product</th><th>Category</th><th class="tnum">Units Sold</th><th class="tnum">Revenue (LKR)</th><th class="tnum">Margin</th></tr></thead><tbody id="srProdBody"></tbody></table></div>
+          <div class="card" style="margin-bottom:20px"><div class="card-h"><h3>Recent Large Deals</h3><span style="font-size:12px;color:var(--muted)">Orders above LKR 200,000</span></div><table class="tbl"><thead><tr><th>Customer</th><th>Date</th><th>Channel</th><th class="tnum">Amount (LKR)</th><th>Status</th></tr></thead><tbody id="srDealsBody"></tbody></table></div>
+          <div class="grid2" style="margin-bottom:20px">
+            <div class="card"><div class="card-h"><h3>Key Insights</h3></div><div class="card-b" id="srInsights" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
+            <div class="card"><div class="card-h"><h3>Next Steps</h3></div><div class="card-b" id="srNextSteps" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 </div>
@@ -603,7 +642,15 @@ function generateQuote(id){
  w.document.close();toast(I.check+' Quotation '+qno+' generated for '+l.name);
 }
 function followUp(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.acts.unshift({t:'Follow-up scheduled',m:'Reminder set to follow up',tm:'just now'});openLead(id);toast(I.clock+' Follow-up scheduled for '+l.name);}
-function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});renderBoard();renderDash();renderQueue();renderCus();openLead(id);toast(I.check+' '+l.name+' converted to an order');}
+function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});
+ if(!CUSTOMERS.find(x=>x.name===l.name)){
+  const v=val(l)||150000;
+  CUSTOMERS.push({name:l.name,co:l.co,type:l.type,phone:l.phone||'077 000 0000',email:l.email||(l.name.split(' ')[0].toLowerCase()+'@gmail.com'),sent:0,last:TODAY,address:'',
+   history:[{item:(l.products||[]).join(', ')||'Lighting package',cat:'LED Panels',date:TODAY,value:v}]
+  });
+  document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
+ }
+ renderBoard();renderDash();renderQueue();renderCus();openLead(id);toast(I.check+' '+l.name+' converted to order and added as a Customer');}
 
 const STAGES=[
  {k:'new_inquiry',label:'New Inquiry',color:'#2563eb'},{k:'quoted',label:'Quoted',color:'#7c3aed'},
@@ -767,41 +814,104 @@ const TODAY='2026-06-25';
 const CADENCE=[30,60,90];
 const CAD_LABEL=['30-day check-in','60-day re-engage','90-day offer'];
 const FULLMN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-function purMonth(c){return FULLMN[+c.purchase.split('-')[1]-1];}
+function purMonth(c){return FULLMN[+custPurchase(c).split('-')[1]-1];}
 const CAD_MSG=[
- c=>`Hi ${(c.name.split(' ')[0])}, it's been about a month since your ${purMonth(c)} purchase of ${lkr(c.value)} from Home Depot. We hope your new lighting looks fantastic. If you need anything at all, just reply to this message.`,
- c=>`Hi ${(c.name.split(' ')[0])}, it's been two months since your ${purMonth(c)} purchase of ${lkr(c.value)}. Fresh lighting designs have just arrived in our showroom — there may be a perfect piece for another space.`,
- c=>`Hi ${(c.name.split(' ')[0])}, it's been three months since your ${purMonth(c)} purchase of ${lkr(c.value)}. As a valued customer, here's an exclusive 10% off your next purchase, valid this month. Reply to claim it.`
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been about a month since your ${purMonth(c)} purchase of ${lkr(custLTV(c))} from Home Depot. We hope your new lighting looks fantastic. If you need anything at all, just reply to this message.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been two months since your ${purMonth(c)} purchase of ${lkr(custLTV(c))}. Fresh lighting designs have just arrived in our showroom — there may be a perfect piece for another space.`,
+ c=>`Hi ${(c.name.split(' ')[0])}, it's been three months since your ${purMonth(c)} purchase of ${lkr(custLTV(c))}. As a valued customer, here's an exclusive 10% off your next purchase, valid this month. Reply to claim it.`
 ];
 const CUSTOMERS=[
- {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',products:'Outdoor + restaurant + pool',purchase:'2026-06-18',value:2033000,phone:'034 227 5500',email:'maintenance@araliyaresorts.lk',sent:0,last:'2026-06-18'},
- {name:'Homewood Construction',co:'Builder · Kottawa',type:'B2B',products:'3 model homes fitout',purchase:'2026-05-20',value:855600,phone:'011 275 9080',email:'site@homewood.lk',sent:0,last:'2026-05-20'},
- {name:'Villa Saro',co:'Homeowner · Battaramulla',type:'B2C',products:'Full-home chandeliers',purchase:'2026-04-22',value:420000,phone:'077 200 1145',email:'saro@gmail.com',sent:1,last:'2026-05-22'},
- {name:'Lagoon Hotel',co:'Hotel · Galle',type:'B2B',products:'Lobby + 30 rooms',purchase:'2026-03-25',value:1680000,phone:'091 228 7000',email:'gm@lagoonhotel.lk',sent:2,last:'2026-05-24'},
- {name:'Anver Rahman',co:'Homeowner · Maharagama',type:'B2C',products:'Garden + driveway',purchase:'2026-06-12',value:96000,phone:'071 884 2200',email:'anver@gmail.com',sent:0,last:'2026-06-12'},
- {name:'Niluka Fernando',co:'Homeowner · Nugegoda',type:'B2C',products:'Bath & ceiling fixtures',purchase:'2026-05-24',value:128000,phone:'076 110 3344',email:'niluka@gmail.com',sent:0,last:'2026-05-24'},
- {name:'Skyline Apartments',co:'Developer · Rajagiriya',type:'B2B',products:'Common-area lighting',purchase:'2026-04-26',value:1240000,phone:'011 286 1200',email:'projects@skyline.lk',sent:1,last:'2026-05-26'},
- {name:'Ceylon Cafe',co:'Cafe · Colombo 05',type:'B2B',products:'Pendant + track lights',purchase:'2026-03-28',value:340000,phone:'011 250 9000',email:'hello@ceyloncafe.lk',sent:3,last:'2026-06-26'}
+ {name:'Araliya Resort',co:'Resort · Bentota',type:'B2B',phone:'034 227 5500',email:'maintenance@araliyaresorts.lk',sent:0,last:'2026-06-18',address:'Galle Rd, Bentota',
+  history:[
+   {item:'Outdoor Garden Bollards x40',cat:'Outdoor Lighting',date:'2026-06-18',value:480000},
+   {item:'Restaurant Pendant Cluster x12',cat:'Chandeliers',date:'2026-06-18',value:936000},
+   {item:'Pool Area IP65 Flood Lights x8',cat:'Outdoor Lighting',date:'2026-06-18',value:617000}
+  ]},
+ {name:'Homewood Construction',co:'Builder · Kottawa',type:'B2B',phone:'011 275 9080',email:'site@homewood.lk',sent:0,last:'2026-05-20',address:'42 High Level Rd, Kottawa',
+  history:[
+   {item:'Model Home A: Full LED Package',cat:'LED Panels',date:'2026-05-20',value:320000},
+   {item:'Model Home B: Chandelier + Downlights',cat:'Chandeliers',date:'2026-05-20',value:285600},
+   {item:'Model Home C: Smart Lighting Kit',cat:'Smart Lighting',date:'2026-05-20',value:250000}
+  ]},
+ {name:'Villa Saro',co:'Homeowner · Battaramulla',type:'B2C',phone:'077 200 1145',email:'saro@gmail.com',sent:1,last:'2026-05-22',address:'14 Thalawathugoda Rd, Battaramulla',
+  history:[
+   {item:'Grand Foyer Chandelier',cat:'Chandeliers',date:'2026-04-22',value:185000},
+   {item:'Dining Crystal Chandelier',cat:'Chandeliers',date:'2026-04-22',value:145000},
+   {item:'Bedroom Ceiling Lights x4',cat:'LED Panels',date:'2026-04-22',value:90000}
+  ]},
+ {name:'Lagoon Hotel',co:'Hotel · Galle',type:'B2B',phone:'091 228 7000',email:'gm@lagoonhotel.lk',sent:2,last:'2026-05-24',address:'Light House St, Galle Fort',
+  history:[
+   {item:'Lobby Grand Chandelier',cat:'Chandeliers',date:'2026-03-25',value:420000},
+   {item:'Room LED Panel Lights x30',cat:'LED Panels',date:'2026-03-25',value:540000},
+   {item:'Corridor Wall Sconces x60',cat:'Decorative Wall',date:'2026-03-25',value:480000},
+   {item:'Restaurant Track Lighting',cat:'LED Panels',date:'2026-03-25',value:240000}
+  ]},
+ {name:'Anver Rahman',co:'Homeowner · Maharagama',type:'B2C',phone:'071 884 2200',email:'anver@gmail.com',sent:0,last:'2026-06-12',address:'88 Pagoda Rd, Maharagama',
+  history:[
+   {item:'Garden Solar Bollards x6',cat:'Outdoor Lighting',date:'2026-06-12',value:54000},
+   {item:'Driveway Flood Lights x2',cat:'Outdoor Lighting',date:'2026-06-12',value:42000}
+  ]},
+ {name:'Niluka Fernando',co:'Homeowner · Nugegoda',type:'B2C',phone:'076 110 3344',email:'niluka@gmail.com',sent:0,last:'2026-05-24',address:'22 Stanley Thilakaratne Mw, Nugegoda',
+  history:[
+   {item:'Bathroom Mirror Light x3',cat:'Decorative Wall',date:'2026-05-24',value:48000},
+   {item:'Ceiling Fan with Light x2',cat:'Ceiling Fans',date:'2026-05-24',value:80000}
+  ]},
+ {name:'Skyline Apartments',co:'Developer · Rajagiriya',type:'B2B',phone:'011 286 1200',email:'projects@skyline.lk',sent:1,last:'2026-05-26',address:'Skyline Tower, Parliament Rd, Rajagiriya',
+  history:[
+   {item:'Lobby Pendant Cluster',cat:'Chandeliers',date:'2026-04-26',value:380000},
+   {item:'Corridor LED Panels x120',cat:'LED Panels',date:'2026-04-26',value:600000},
+   {item:'Parking Area Flood Lights x20',cat:'Outdoor Lighting',date:'2026-04-26',value:260000}
+  ]},
+ {name:'Ceylon Cafe',co:'Cafe · Colombo 05',type:'B2B',phone:'011 250 9000',email:'hello@ceyloncafe.lk',sent:3,last:'2026-06-26',address:'12 Havelock Rd, Colombo 05',
+  history:[
+   {item:'Edison Pendant Lights x8',cat:'Chandeliers',date:'2026-03-28',value:160000},
+   {item:'Track Spotlights x6',cat:'LED Panels',date:'2026-03-28',value:108000},
+   {item:'Decorative Wall Sconces x4',cat:'Decorative Wall',date:'2026-03-28',value:72000}
+  ]}
 ];
 const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtD(s){const p=s.split('-');return p[2]+' '+MN[+p[1]-1]+' '+p[0];}
 function addDaysStr(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function toast(msg){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},2800);}
-function custNext(c){return c.sent>=3?null:addDaysStr(c.purchase,CADENCE[c.sent]);}
+function custLTV(c){return c.history.reduce((s,h)=>s+h.value,0);}
+function custPurchase(c){return c.history.length?c.history.reduce((a,h)=>h.date<a?h.date:a,c.history[0].date):c.last;}
+function custProducts(c){return c.history.map(h=>h.item.replace(/ x\d+$/,'')).join(', ');}
+function custLatestDate(c){return c.history.length?c.history.reduce((a,h)=>h.date>a?h.date:a,c.history[0].date):c.last;}
+function custNext(c){if(c.sent>=3)return null;const base=c.snooze||addDaysStr(custPurchase(c),CADENCE[c.sent]);return base;}
 function custDue(c){const n=custNext(c);return !!(n&&n<=TODAY);}
 function dueCustomers(){return CUSTOMERS.filter(custDue).length;}
-let CUS_MONTH='all';function setCusMonth(v){CUS_MONTH=v;renderCus();}
+let CUS_MONTH='all',CUS_TYPE='all';
+function setCusMonth(v){CUS_MONTH=v;renderCus();}
+function setCusType(v){CUS_TYPE=v;renderCus();}
+function exportCusXLS(){exportXLS('homedepot-customers.xls',['Customer','Type','First Purchase','Last Contact','Lifetime Value (LKR)','Items','Status'],CUSTOMERS.map(c=>{const done=c.sent>=3;return[c.name,c.type,custPurchase(c),c.last,custLTV(c),c.history.length+' purchases',done?'Complete':CAD_LABEL[c.sent]];}));}
 function renderCus(){
- const dc=document.getElementById('dueCount');if(dc)dc.textContent=dueCustomers();
- const base=CUSTOMERS.filter(c=>CUS_MONTH==='all'||c.purchase.slice(0,7)===CUS_MONTH);
+ const totalLTV=CUSTOMERS.reduce((s,c)=>s+custLTV(c),0);
+ const avgOV=CUSTOMERS.length?Math.round(totalLTV/CUSTOMERS.reduce((s,c)=>s+c.history.length,0)):0;
+ const dueN=dueCustomers();
+ const kpis=[
+  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',label:'Total Customers',val:CUSTOMERS.length},
+  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',label:'Total Lifetime Value',val:'LKR '+(totalLTV>=1e6?(totalLTV/1e6).toFixed(1)+'M':totalLTV.toLocaleString())},
+  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',label:'Avg Order Value',val:lkr(avgOV)},
+  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+(dueN>0?'var(--red)':'var(--muted)')+'" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',label:'Due Today',val:dueN}
+ ];
+ document.getElementById('cusKpis').innerHTML=kpis.map(k=>`<div class="kpi"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">${k.icon}<span class="kpi-l">${k.label}</span></div><div class="kpi-v">${k.val}</div></div>`).join('');
+ let base=CUSTOMERS.filter(c=>CUS_MONTH==='all'||custPurchase(c).slice(0,7)===CUS_MONTH);
+ if(CUS_TYPE!=='all')base=base.filter(c=>c.type===CUS_TYPE);
  const arr=[...base].sort((a,b)=>(custNext(a)||'9999').localeCompare(custNext(b)||'9999'));
  document.getElementById('cusBody').innerHTML=arr.map(c=>{
-  const done=c.sent>=3,next=custNext(c),due=custDue(c);
+  const done=c.sent>=3,next=custNext(c),due=custDue(c),ltv=custLTV(c);
   const dots='<span style="display:inline-flex;gap:5px;vertical-align:middle">'+[0,1,2].map(i=>`<span title="${CAD_LABEL[i]}" style="width:9px;height:9px;border-radius:50%;background:${c.sent>i?'var(--green)':(c.sent===i&&due?'var(--red)':'var(--line)')}"></span>`).join('')+'</span>';
   const stage=done?['Cadence complete','bdg-green']:due?[CAD_LABEL[c.sent]+' due','bdg-stage']:['Next: '+CAD_LABEL[c.sent],'bdg-grey'];
-  return `<tr onclick="openCustomer('${c.name.replace(/'/g,"")}')" style="cursor:pointer"><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${fmtD(c.purchase)}</td><td class="tm">${fmtD(c.last)}</td><td>${dots}</td><td style="font-weight:600;font-size:12.5px;color:${due?'var(--red)':'var(--muted)'}">${done?'—':fmtD(next)}</td><td><span class="bdg ${stage[1]}">${stage[0]}</span></td><td class="tnum">${lkr(c.value)}</td><td style="text-align:right">${done?'<span class="tm">Done</span>':`<button class="btn-ghost" style="padding:6px 11px" onclick="event.stopPropagation();openMsg('${c.name.replace(/'/g,"")}')">${due?'Send message':'Preview'}</button>`}</td></tr>`;
+  const esc=c.name.replace(/'/g,"");
+  let actions='';
+  if(done){actions='<span class="tm">All done</span>';}
+  else if(due){actions=`<button class="btn-ghost" style="padding:5px 10px;font-size:11.5px" onclick="event.stopPropagation();openMsg('${esc}')">Send</button><button class="btn-ghost" style="padding:5px 8px;font-size:11.5px" onclick="event.stopPropagation();markCadenceDone('${esc}')">Done</button><button class="btn-ghost" style="padding:5px 8px;font-size:11.5px" onclick="event.stopPropagation();snoozeCadence('${esc}')">Snooze</button>`;}
+  else{actions=`<span class="tm">Scheduled</span>`;}
+  return `<tr onclick="openCustomer('${esc}')" style="cursor:pointer"><td><div class="tn">${c.name}</div><div class="tm">${c.co} · ${c.type}</div></td><td class="tm">${fmtD(custPurchase(c))}</td><td class="tm">${fmtD(c.last)}</td><td>${dots}</td><td style="font-weight:600;font-size:12.5px;color:${due?'var(--red)':'var(--muted)'}">${done?'---':fmtD(next)}</td><td><span class="bdg ${stage[1]}">${stage[0]}</span></td><td class="tnum">${lkr(ltv)}</td><td style="text-align:right;white-space:nowrap">${actions}</td></tr>`;
  }).join('');
 }
+function markCadenceDone(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c||c.sent>=3)return;const label=CAD_LABEL[c.sent];c.sent++;c.last=TODAY;delete c.snooze;renderCus();if(document.getElementById('panel').classList.contains('open'))openCustomer(c.name);document.getElementById('nbCus').textContent=dueCustomers();toast(I.check+' '+label+' marked done for '+c.name+(c.sent<3?' · next: '+CAD_LABEL[c.sent]:' · cadence complete'));}
+function snoozeCadence(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c||c.sent>=3)return;c.snooze=addDaysStr(TODAY,7);renderCus();if(document.getElementById('panel').classList.contains('open'))openCustomer(c.name);toast(I.check+' Snoozed '+CAD_LABEL[c.sent]+' for '+c.name+' to '+fmtD(c.snooze));}
 let MSG_CUST=null;
 function openMsg(name){const c=CUSTOMERS.find(x=>x.name===name);if(!c||c.sent>=3)return;MSG_CUST=name;document.getElementById('msgTitle').textContent=CAD_LABEL[c.sent];document.getElementById('msgSub').textContent='To '+c.name+' · '+(custDue(c)?'due now':'scheduled '+fmtD(custNext(c)));document.getElementById('msgText').value=CAD_MSG[c.sent](c);document.getElementById('msgModal').classList.add('open');}
 function closeMsg(){document.getElementById('msgModal').classList.remove('open');}
@@ -809,13 +919,24 @@ function sendVia(ch){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;c
 function markSent(){const c=CUSTOMERS.find(x=>x.name===MSG_CUST);if(!c)return;const label=CAD_LABEL[c.sent];c.sent++;c.last=TODAY;closeMsg();renderCus();if(document.getElementById('panel').classList.contains('open'))openCustomer(c.name);if(typeof renderDash==='function')renderDash();document.getElementById('nbCus').textContent=dueCustomers();toast(I.check+' '+label+' sent to '+c.name+(c.sent<3?' · next: '+CAD_LABEL[c.sent]:' · cadence complete'));}
 function openCustomer(name){
  const c=CUSTOMERS.find(x=>x.name===name);if(!c)return;const done=c.sent>=3,due=custDue(c);
- const steps=['30-day check-in','60-day re-engage','90-day offer'].map((lbl,i)=>{const st=c.sent>i?'done':(c.sent===i?(due?'due':'next'):'pending');const col=st==='done'?'var(--green)':(st==='due'?'var(--red)':'var(--line)');const txt=st==='done'?'Sent':(st==='due'?'Due now':(st==='next'?'Scheduled '+fmtD(custNext(c)):'Upcoming'));return `<div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line2)"><div style="width:26px;height:26px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${st==='done'?'✓':i+1}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${lbl}</div></div><div style="font-size:11.5px;font-weight:600;color:${st==='due'?'var(--red)':'var(--muted)'}">${txt}</div></div>`;}).join('');
+ const esc=c.name.replace(/'/g,"");
+ const ltv=custLTV(c);
+ const steps=['30-day check-in','60-day re-engage','90-day offer'].map((lbl,i)=>{
+  const st=c.sent>i?'done':(c.sent===i?(due?'due':'next'):'pending');
+  const col=st==='done'?'var(--green)':(st==='due'?'var(--red)':'var(--line)');
+  const txt=st==='done'?'Sent':(st==='due'?'Due now':(st==='next'?'Scheduled '+fmtD(custNext(c)):'Upcoming'));
+  let btns='';
+  if(st==='due'){btns=`<div style="display:flex;gap:6px;margin-top:6px"><button class="btn-ghost" style="padding:4px 10px;font-size:11px" onclick="openMsg('${esc}')">Send Message</button><button class="btn-ghost" style="padding:4px 10px;font-size:11px" onclick="markCadenceDone('${esc}')">Mark Done</button><button class="btn-ghost" style="padding:4px 10px;font-size:11px" onclick="snoozeCadence('${esc}')">Snooze 7d</button></div>`;}
+  return `<div style="display:flex;align-items:flex-start;gap:12px;padding:11px 0;border-bottom:1px solid var(--line2)"><div style="width:26px;height:26px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px">${st==='done'?'&#10003;':i+1}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${lbl}</div>${btns}</div><div style="font-size:11.5px;font-weight:600;color:${st==='due'?'var(--red)':'var(--muted)'}; white-space:nowrap">${txt}</div></div>`;
+ }).join('');
+ const historyRows=c.history.map(h=>`<tr><td style="font-size:12.5px">${h.item}</td><td class="tm">${h.cat}</td><td class="tm">${fmtD(h.date)}</td><td class="tnum" style="font-size:12.5px">${lkr(h.value)}</td></tr>`).join('');
  const wa=c.phone.replace(/[^0-9]/g,'').replace(/^0/,'94');
  const panel=document.getElementById('panel');
- panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${c.name}</div><div class="pn-co">${c.co}</div><div class="pn-badges"><span class="bdg ${c.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${c.type}</span><span class="bdg ${done?'bdg-green':due?'bdg-stage':'bdg-grey'}">${done?'Cadence complete':due?CAD_LABEL[c.sent]+' due':'Next: '+CAD_LABEL[c.sent]}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${c.phone}">${c.phone}</a></span><span>${I.mail} <a href="mailto:${c.email}">${c.email}</a></span></div></div>
-  <div class="pn-actions">${done?'':`<button class="pa primary" onclick="openMsg('${c.name.replace(/'/g,"")}')">${I.doc} ${due?'Send message':'Preview message'}</button>`}<a class="pa" href="https://wa.me/${wa}" target="_blank">${I.phone} WhatsApp</a></div>
+ panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">&#10005;</button><div class="pn-nm">${c.name}</div><div class="pn-co">${c.co}</div><div class="pn-badges"><span class="bdg ${c.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${c.type}</span><span class="bdg ${done?'bdg-green':due?'bdg-stage':'bdg-grey'}">${done?'Cadence complete':due?CAD_LABEL[c.sent]+' due':'Next: '+CAD_LABEL[c.sent]}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${c.phone}">${c.phone}</a></span><span>${I.mail} <a href="mailto:${c.email}">${c.email}</a></span>${c.address?'<span style="font-size:12px;color:var(--muted)">&#128205; '+c.address+'</span>':''}</div></div>
+  <div class="pn-actions">${done?'':`<button class="pa primary" onclick="openMsg('${esc}')">${I.doc} ${due?'Send message':'Preview message'}</button>`}<a class="pa" href="https://wa.me/${wa}" target="_blank">${I.phone} WhatsApp</a></div>
   <div class="pn-body">
-   <div class="sec"><div class="sec-t">Customer Summary</div><div class="info-grid"><div class="info"><div class="il">Total spent</div><div class="iv" style="color:var(--green)">${lkr(c.value)}</div></div><div class="info"><div class="il">Purchased</div><div class="iv">${fmtD(c.purchase)}</div></div><div class="info"><div class="il">Last contact</div><div class="iv">${fmtD(c.last)}</div></div><div class="info"><div class="il">Bought</div><div class="iv">${c.products}</div></div></div></div>
+   <div class="sec"><div class="sec-t">Customer Summary</div><div class="info-grid"><div class="info"><div class="il">Lifetime Value</div><div class="iv" style="color:var(--green);font-size:16px;font-weight:800">${lkr(ltv)}</div></div><div class="info"><div class="il">Purchases</div><div class="iv">${c.history.length} orders</div></div><div class="info"><div class="il">First Purchase</div><div class="iv">${fmtD(custPurchase(c))}</div></div><div class="info"><div class="il">Last Contact</div><div class="iv">${fmtD(c.last)}</div></div></div></div>
+   <div class="sec"><div class="sec-t">Purchase History</div><table class="tbl" style="font-size:12.5px"><thead><tr><th>Item</th><th>Category</th><th>Date</th><th class="tnum">Value</th></tr></thead><tbody>${historyRows}</tbody><tfoot><tr style="font-weight:700;border-top:2px solid var(--line)"><td colspan="3">Total</td><td class="tnum">${lkr(ltv)}</td></tr></tfoot></table></div>
    <div class="sec"><div class="sec-t">Message Cadence</div>${steps}</div>
   </div>`;
  document.getElementById('overlay').classList.add('open');panel.classList.add('open');
@@ -955,7 +1076,7 @@ function renderFinance(){
 }
 function markPaid(ref){const o=ORDERS.find(x=>x.ref===ref);if(!o)return;o.paid=o.amount;renderFinance();toast(I.check+' '+o.ref+' marked fully paid · '+o.cust);}
 function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Invoiced (LKR)','Paid (LKR)','Balance (LKR)','Due date','Days overdue','Method'],finRows().map(o=>[o.ref,o.cust,o.amount,o.paid,balance(o),o.due,Math.max(0,daysOver(o)),o.method]));}
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],audit:['Login Audit','Who signed in, where and when']};
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
 function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -966,9 +1087,152 @@ document.getElementById('nbCus').textContent=dueCustomers();
 ['ownerFilter','ownerFilter2'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All team members</option>'+owners().map(o=>`<option value="${o}">${o}</option>`).join('');});
 ['monthFilterP','monthFilterI'].forEach(id=>{document.getElementById(id).innerHTML='<option value="all">All months</option>'+MONTHS.map(m=>`<option value="${m[0]}">${m[1]}</option>`).join('');});
 document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.length).map(l=>MONTH[l.id]));
-document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>c.purchase.slice(0,7)));
+document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
 document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
 renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
+
+/* ── Sales Report ── */
+const SR_COLORS={maroon:'#772820',teal:'#007565',rose:'#DE7878',dark:'#231211',gold:'#DBBC82',amber:'#FFAE00'};
+const SR_CATS=['Chandeliers','LED Panels','Outdoor Lighting','Decorative Wall','Smart Lighting','Ceiling Fans'];
+const SR_CHANNELS=['Showroom','WhatsApp','B2B Projects'];
+const SR_PRODUCTS=[
+  {name:'Crystal Chandelier XL',cat:'Chandeliers'},{name:'LED Downlight 12W',cat:'LED Panels'},{name:'Garden Bollard Solar',cat:'Outdoor Lighting'},
+  {name:'Wall Sconce Brass',cat:'Decorative Wall'},{name:'Smart RGB Strip 5m',cat:'Smart Lighting'},{name:'Ceiling Fan Blade 52"',cat:'Ceiling Fans'},
+  {name:'Pendant Globe Mini',cat:'Chandeliers'},{name:'Panel Light 600x600',cat:'LED Panels'},{name:'Flood Light 100W',cat:'Outdoor Lighting'},
+  {name:'Mirror Light LED',cat:'Decorative Wall'},{name:'WiFi Bulb E27',cat:'Smart Lighting'},{name:'Industrial Fan 48"',cat:'Ceiling Fans'}
+];
+const SR_CUSTOMERS=['Cinnamon Grand','Shangri-La Colombo','Nuga Best','Arch. Perera & Co','Jayasuriya Residence','Hotel Kingsbury','Blue Magpie Lodge','De Silva Interiors','MAS Holdings','Lanka Tiles HQ','Paradise Beach Resort','Havelock City'];
+
+function srSeed(ym){
+  const[y,m]=ym.split('-').map(Number),rng=(s)=>{s=s*9301+49297;return(s%233280)/233280;};
+  let seed=y*100+m;
+  const r=()=>{seed++;return rng(seed);};
+  const base=1800000+r()*600000;
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const mm=new Date(y,m-1-i,1);
+    const key=mm.getFullYear()+'-'+String(mm.getMonth()+1).padStart(2,'0');
+    months.push({key,label:mm.toLocaleDateString('en-US',{month:'short',year:'2-digit'}),rev:Math.round(base*(0.8+r()*0.5))});
+  }
+  const thisMonth=months[5];
+  const lastMonth=months[4];
+  const revDelta=((thisMonth.rev-lastMonth.rev)/lastMonth.rev*100).toFixed(1);
+  const orders=Math.round(38+r()*30);
+  const ordDelta=((r()-.4)*20).toFixed(1);
+  const aov=Math.round(thisMonth.rev/orders);
+  const aovDelta=((r()-.3)*15).toFixed(1);
+  const retention=Math.round(22+r()*30);
+  const retDelta=((r()-.35)*18).toFixed(1);
+  const catData=SR_CATS.map(()=>Math.round(thisMonth.rev/SR_CATS.length*(0.4+r()*1.2)));
+  const chanData=SR_CHANNELS.map(()=>Math.round(thisMonth.rev/SR_CHANNELS.length*(0.5+r()*1)));
+  const products=SR_PRODUCTS.map(p=>({...p,units:Math.round(3+r()*25),rev:Math.round(30000+r()*350000),margin:Math.round(18+r()*32)})).sort((a,b)=>b.rev-a.rev).slice(0,8);
+  const deals=SR_CUSTOMERS.slice(0,Math.round(3+r()*4)).map(c=>({cust:c,date:y+'-'+String(m).padStart(2,'0')+'-'+String(Math.round(1+r()*27)).padStart(2,'0'),chan:SR_CHANNELS[Math.floor(r()*3)],amt:Math.round(200000+r()*800000),status:r()>.3?'Completed':'Pending'}));
+  const aovTrend=months.map(mm=>Math.round(mm.rev/(30+r()*20)));
+  const retTrend=months.map(()=>Math.round(18+r()*35));
+  return{months,thisMonth,revDelta,orders,ordDelta,aov,aovDelta,retention,retDelta,catData,chanData,products,deals,aovTrend,retTrend};
+}
+
+let srCharts={};
+function destroySRCharts(){Object.values(srCharts).forEach(c=>{if(c&&c.destroy)c.destroy()});srCharts={};}
+
+function renderSalesReport(){
+  const ym=document.getElementById('srMonth').value;if(!ym)return;
+  const d=srSeed(ym);
+  const fmt=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?Math.round(n/1000)+'K':n.toLocaleString();
+  const fmtFull=n=>'LKR '+n.toLocaleString();
+  const kpis=[
+    {label:'Total Revenue',val:fmtFull(d.thisMonth.rev),delta:d.revDelta,color:SR_COLORS.maroon},
+    {label:'Orders',val:d.orders,delta:d.ordDelta,color:SR_COLORS.teal},
+    {label:'Avg Order Value',val:fmtFull(d.aov),delta:d.aovDelta,color:SR_COLORS.gold},
+    {label:'Retention Rate',val:d.retention+'%',delta:d.retDelta,color:SR_COLORS.rose}
+  ];
+  document.getElementById('srKpis').innerHTML=kpis.map(k=>`<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:${k.color}"></div><div class="sr-kpi-label">${k.label}</div><div class="sr-kpi-val">${k.val}</div><div class="sr-kpi-delta ${+k.delta>=0?'up':'down'}">${+k.delta>=0?'&#9650;':'&#9660;'} ${Math.abs(k.delta)}% vs last month</div></div>`).join('');
+
+  destroySRCharts();
+  const isDark=document.body.classList.contains('dark');
+  const gridColor=isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
+  const txtColor=isDark?'#9aa0a8':'#6b7280';
+  Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
+
+  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.maroon,backgroundColor:'rgba(119,40,32,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.maroon}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
+
+  srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS,datasets:[{data:d.catData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.dark],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11}}}}}});
+
+  srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:[{label:'Revenue',data:d.chanData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:32}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
+
+  srCharts.aov=new Chart(document.getElementById('srAovChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'AOV',data:d.aovTrend,borderColor:SR_COLORS.teal,backgroundColor:'rgba(0,117,101,.1)',fill:true,tension:.35,yAxisID:'y'},{label:'Retention %',data:d.retTrend,borderColor:SR_COLORS.amber,borderDash:[5,3],tension:.35,yAxisID:'y1',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{y:{position:'left',ticks:{callback:v=>'LKR '+fmt(v)},grid:{color:gridColor}},y1:{position:'right',min:0,max:100,ticks:{callback:v=>v+'%'},grid:{display:false}},x:{grid:{display:false}}}}});
+
+  document.getElementById('srProdBody').innerHTML=d.products.map(p=>`<tr><td>${p.name}</td><td>${p.cat}</td><td class="tnum">${p.units}</td><td class="tnum">${fmtFull(p.rev)}</td><td class="tnum">${p.margin}%</td></tr>`).join('');
+  document.getElementById('srDealsBody').innerHTML=d.deals.map(dl=>`<tr><td>${dl.cust}</td><td>${dl.date}</td><td>${dl.chan}</td><td class="tnum">${fmtFull(dl.amt)}</td><td><span class="pill ${dl.status==='Completed'?'pill-green':'pill-amber'}">${dl.status}</span></td></tr>`).join('');
+
+  const insights=[
+    d.revDelta>=0?`Revenue grew ${d.revDelta}% month-over-month, driven by strong ${SR_CATS[d.catData.indexOf(Math.max(...d.catData))]} sales.`:`Revenue dipped ${Math.abs(d.revDelta)}% vs last month. Review pricing and promotions.`,
+    `Top channel: ${SR_CHANNELS[d.chanData.indexOf(Math.max(...d.chanData))]} contributing LKR ${Math.max(...d.chanData).toLocaleString()}.`,
+    `${d.products[0].name} leads product sales with ${d.products[0].units} units (LKR ${d.products[0].rev.toLocaleString()}).`,
+    d.retention>=35?`Retention at ${d.retention}% is healthy. Keep nurturing repeat buyers.`:`Retention at ${d.retention}% needs attention. Consider loyalty programs.`
+  ];
+  document.getElementById('srInsights').innerHTML=insights.map(i=>`<div style="margin-bottom:8px;padding-left:14px;border-left:3px solid ${SR_COLORS.maroon}">&#8226; ${i}</div>`).join('');
+
+  const steps=[
+    'Review underperforming categories and adjust inventory allocation.',
+    'Follow up on pending large deals to close within the month.',
+    d.retention<35?'Launch a repeat-customer discount or loyalty program.':'Maintain retention efforts and track referral sources.',
+    'Prepare next month forecast based on pipeline and seasonal trends.'
+  ];
+  document.getElementById('srNextSteps').innerHTML=steps.map((s,i)=>`<div style="margin-bottom:8px;padding-left:14px;border-left:3px solid ${SR_COLORS.teal}">${i+1}. ${s}</div>`).join('');
+}
+
+(function initSRMonth(){
+  const sel=document.getElementById('srMonth');
+  const now=new Date();
+  for(let i=0;i<12;i++){
+    const dt=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const ym=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
+    const label=dt.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    sel.innerHTML+=`<option value="${ym}">${label}</option>`;
+  }
+  renderSalesReport();
+})();
+
+async function exportSalesReportPDF(){
+  const btn=document.getElementById('srExportBtn');btn.disabled=true;btn.textContent='Generating...';
+  try{
+    const el=document.getElementById('srContent');
+    const canvas=await html2canvas(el,{scale:2,backgroundColor:getComputedStyle(document.body).getPropertyValue('--bg').trim()||'#f4f5f7',useCORS:true,logging:false});
+    const imgData=canvas.toDataURL('image/png');
+    const{jsPDF}=window.jspdf;
+    const pWidth=210,margin=10;
+    const contentW=pWidth-margin*2;
+    const imgH=canvas.height*contentW/canvas.width;
+    const pdf=new jsPDF('p','mm','a4');
+    pdf.setFillColor(119,40,32);pdf.rect(0,0,210,28,'F');
+    pdf.setTextColor(255,255,255);pdf.setFontSize(16);pdf.setFont(undefined,'bold');
+    pdf.text('HOME DEPOT SRI LANKA',margin,14);
+    pdf.setFontSize(10);pdf.setFont(undefined,'normal');
+    const ym=document.getElementById('srMonth');
+    pdf.text('Monthly Sales Report  |  '+ym.options[ym.selectedIndex].text,margin,22);
+    let yPos=34;
+    const pageH=297;
+    const availH=pageH-yPos-margin;
+    if(imgH<=availH){pdf.addImage(imgData,'PNG',margin,yPos,contentW,imgH);}
+    else{
+      let srcY=0;const srcH=canvas.height;
+      while(srcY<srcH){
+        const sliceH=Math.min((availH/contentW)*canvas.width, srcH-srcY);
+        const sliceCanvas=document.createElement('canvas');sliceCanvas.width=canvas.width;sliceCanvas.height=sliceH;
+        sliceCanvas.getContext('2d').drawImage(canvas,0,srcY,canvas.width,sliceH,0,0,canvas.width,sliceH);
+        const sliceImg=sliceCanvas.toDataURL('image/png');
+        const printH=sliceH*contentW/canvas.width;
+        pdf.addImage(sliceImg,'PNG',margin,yPos,contentW,printH);
+        srcY+=sliceH;
+        if(srcY<srcH){pdf.addPage();yPos=margin;}
+      }
+    }
+    const sel=document.getElementById('srMonth');
+    pdf.save('HomeDepot-SalesReport-'+sel.value+'.pdf');
+  }catch(e){console.error('PDF export failed',e);toast('PDF export failed');}
+  btn.disabled=false;btn.innerHTML='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF';
+}
 </script>
 </body>
 </html>
