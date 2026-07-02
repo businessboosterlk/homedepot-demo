@@ -363,7 +363,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 @media(max-width:440px){.sr-kpis{grid-template-columns:1fr}}
 
 /* Revenue Pipeline */
-.rv-hero{display:grid;grid-template-columns:1fr 1fr;gap:0;background:linear-gradient(135deg,#772820 0%,#4a1812 100%);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;color:#fff}
+.rv-hero{display:grid;grid-template-columns:1fr 1fr;gap:0;background:linear-gradient(135deg,#E4002B 0%,#b80022 100%);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;color:#fff}
 .rv-hero-cell{padding:28px 32px}
 .rv-hero-cell+.rv-hero-cell{border-left:1px solid rgba(255,255,255,.15)}
 .rv-hero-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;opacity:.7;font-weight:600;margin-bottom:8px}
@@ -982,7 +982,7 @@ function renderCus(){
  const avgOV=CUSTOMERS.length?Math.round(totalLTV/CUSTOMERS.reduce((s,c)=>s+c.history.length,0)):0;
  const dueN=dueCustomers();
  const kpis=[
-  {label:'Total Customers',val:CUSTOMERS.length,color:'#772820'},
+  {label:'Total Customers',val:CUSTOMERS.length,color:'#E4002B'},
   {label:'Total Lifetime Value',val:'LKR '+(totalLTV>=1e6?(totalLTV/1e6).toFixed(1)+'M':totalLTV.toLocaleString()),color:'#007565'},
   {label:'Avg Order Value',val:lkr(avgOV),color:'#DBBC82'},
   {label:'Due Today',val:dueN,color:dueN>0?'#E4002B':'#9ca3af'}
@@ -1215,7 +1215,7 @@ function renderRevPipeline(){
     {label:'Open Deals',val:dealCount,delta:dealCount-(prevOpen.length||dealCount),color:'#2563eb',fmt:'int'},
     {label:'Avg Deal Size',val:lkr(avgDeal),delta:prevOpen.length?Math.round(((avgDeal-(prevTotal/(prevOpen.length||1)))/(prevTotal/(prevOpen.length||1)))*100):0,color:'#007565',fmt:'pct'},
     {label:'Win Rate',val:winRate+'%',delta:0,color:'#d97706',fmt:'pct'},
-    {label:'Revenue Won',val:lkr(wonVal),delta:prevTotal?Math.round(((wonVal-prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0))/(prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0)||1))*100):0,color:'#772820',fmt:'pct'}
+    {label:'Revenue Won',val:lkr(wonVal),delta:prevTotal?Math.round(((wonVal-prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0))/(prev.filter(l=>['order_confirmed','delivered'].includes(l.stage)).reduce((s,l)=>s+val(l),0)||1))*100):0,color:'#E4002B',fmt:'pct'}
   ];
   document.getElementById('rvKpis').innerHTML=kpis.map(k=>{
     const dv=k.delta;const arrow=dv>=0?'&#9650;':'&#9660;';const cls=dv>=0?'up':'down';
@@ -1262,7 +1262,7 @@ function exportRevPipelineXLS(){
 })();
 
 /* ── Sales Report ── */
-const SR_COLORS={maroon:'#772820',teal:'#007565',rose:'#DE7878',dark:'#231211',gold:'#DBBC82',amber:'#FFAE00'};
+const SR_COLORS={maroon:'#E4002B',teal:'#007565',rose:'#DE7878',dark:'#231211',gold:'#DBBC82',amber:'#FFAE00'};
 const SR_CATS=['Chandeliers','LED Panels','Outdoor Lighting','Decorative Wall','Smart Lighting','Ceiling Fans'];
 const SR_CHANNELS=['Showroom','WhatsApp','B2B Projects'];
 const SR_PRODUCTS=[
@@ -1324,7 +1324,7 @@ function renderSalesReport(){
   const txtColor=isDark?'#9aa0a8':'#6b7280';
   Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
 
-  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.maroon,backgroundColor:'rgba(119,40,32,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.maroon}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
+  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.maroon,backgroundColor:'rgba(228,0,43,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.maroon}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
 
   const catTotal=d.catData.reduce((s,v)=>s+v,0);
   srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS.map((c,i)=>c+' ('+Math.round(d.catData[i]/catTotal*100)+'%)'),datasets:[{data:d.catData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.dark],borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11},generateLabels:function(chart){return chart.data.labels.map(function(label,i){return{text:label,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i};});}}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': LKR '+ctx.parsed.toLocaleString();}}}}}});
