@@ -359,7 +359,19 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .sr-kpi .sr-kpi-delta.down{color:#dc2626;background:var(--red-soft)}
 .sr-kpi .sr-kpi-stripe{position:absolute;top:0;left:0;width:4px;height:100%;border-radius:4px 0 0 4px}
 .sr-chart-card canvas{width:100%!important}
-@media(max-width:700px){.sr-kpis{grid-template-columns:repeat(2,1fr)}}
+.sr-cmp{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px}
+.sr-cmp-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.sr-cmp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.sr-cmp-item{text-align:center}
+.sr-cmp-label{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px}
+.sr-cmp-row{display:flex;align-items:baseline;justify-content:center;gap:8px}
+.sr-cmp-val{font-size:14px;font-weight:700;color:var(--ink)}
+.sr-cmp-arrow{font-size:18px;color:var(--faint)}
+.sr-cmp-val2{font-size:14px;font-weight:700;color:var(--ink)}
+.sr-cmp-delta{font-size:11px;font-weight:700;margin-top:4px;display:inline-block;padding:2px 8px;border-radius:20px}
+.sr-cmp-delta.up{color:#16a34a;background:var(--green-soft)}
+.sr-cmp-delta.down{color:#dc2626;background:var(--red-soft)}
+@media(max-width:700px){.sr-kpis{grid-template-columns:repeat(2,1fr)}.sr-cmp-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:440px){.sr-kpis{grid-template-columns:1fr}}
 
 /* Revenue Pipeline */
@@ -555,9 +567,12 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="page" id="page-salesreport">
         <div class="toolbar" style="margin-bottom:18px">
           <select class="filter" id="srMonth" onchange="renderSalesReport()"></select>
+          <span style="font-size:12px;color:var(--muted);font-weight:600">vs</span>
+          <select class="filter" id="srCompare" onchange="renderSalesReport()"><option value="">No comparison</option></select>
           <div class="sp"></div>
           <button class="btn-ghost" onclick="exportSalesReportPDF()" id="srExportBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF</button>
         </div>
+        <div id="srCompareBanner" style="display:none"></div>
         <div id="srContent">
           <div class="sr-kpis" id="srKpis"></div>
           <div class="grid2" style="margin-bottom:20px">
@@ -1311,8 +1326,24 @@ function srSeed(ym){
 let srCharts={};
 function destroySRCharts(){Object.values(srCharts).forEach(c=>{if(c&&c.destroy)c.destroy()});srCharts={};}
 
+function srQuarterData(qKey){
+  const[yr,qn]=qKey.split('-Q').map(Number);
+  const months=[];
+  for(let m=(qn-1)*3+1;m<=(qn-1)*3+3;m++){
+    const ym=yr+'-'+String(m).padStart(2,'0');
+    months.push(srSeed(ym));
+  }
+  const rev=months.reduce((s,d)=>s+d.thisMonth.rev,0);
+  const orders=months.reduce((s,d)=>s+d.orders,0);
+  const aov=Math.round(rev/orders);
+  const retention=Math.round(months.reduce((s,d)=>s+d.retention,0)/3);
+  const catData=SR_CATS.map((_,i)=>months.reduce((s,d)=>s+d.catData[i],0));
+  const chanData=SR_CHANNELS.map((_,i)=>months.reduce((s,d)=>s+d.chanData[i],0));
+  return{rev,orders,aov,retention,catData,chanData,label:'Q'+qn+' '+yr};
+}
 function renderSalesReport(){
   const ym=document.getElementById('srMonth').value;if(!ym)return;
+  const cmpVal=document.getElementById('srCompare').value;
   const d=srSeed(ym);
   const fmt=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?Math.round(n/1000)+'K':n.toLocaleString();
   const fmtFull=n=>'LKR '+n.toLocaleString();
@@ -1323,6 +1354,47 @@ function renderSalesReport(){
     {label:'Retention Rate',val:d.retention+'%',delta:d.retDelta,color:SR_COLORS.rose}
   ];
   document.getElementById('srKpis').innerHTML=kpis.map(k=>`<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:${k.color}"></div><div class="sr-kpi-label">${k.label}</div><div class="sr-kpi-val">${k.val}</div><div class="sr-kpi-delta ${+k.delta>=0?'up':'down'}">${+k.delta>=0?'&#9650;':'&#9660;'} ${Math.abs(k.delta)}% vs last month</div></div>`).join('');
+  // Comparison banner
+  const banner=document.getElementById('srCompareBanner');
+  if(cmpVal){
+    const isQ=cmpVal.includes('-Q');
+    let cRev,cOrders,cAov,cRet,cLabel,cCatData,cChanData;
+    if(isQ){
+      const q=srQuarterData(cmpVal);
+      cRev=q.rev;cOrders=q.orders;cAov=q.aov;cRet=q.retention;cLabel=q.label;cCatData=q.catData;cChanData=q.chanData;
+    } else {
+      const c=srSeed(cmpVal);
+      cRev=c.thisMonth.rev;cOrders=c.orders;cAov=c.aov;cRet=c.retention;
+      const cDate=new Date(+cmpVal.split('-')[0],+cmpVal.split('-')[1]-1,1);
+      cLabel=cDate.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+      cCatData=c.catData;cChanData=c.chanData;
+    }
+    const curDate=new Date(+ym.split('-')[0],+ym.split('-')[1]-1,1);
+    const curLabel=curDate.toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    const pct=(a,b)=>b?((a-b)/b*100).toFixed(1):0;
+    const cRevCmp=isQ?Math.round(cRev/3):cRev;
+    const cOrdCmp=isQ?Math.round(cOrders/3):cOrders;
+    const cRetCmp=isQ?Math.round(cRet):cRet;
+    const revD=pct(d.thisMonth.rev,cRevCmp);
+    const ordD=pct(d.orders,cOrdCmp);
+    const aovD=pct(d.aov,cAov);
+    const retD=(d.retention-cRetCmp).toFixed(1);
+    const arrow=(v)=>+v>=0?'&#9650;':'&#9660;';
+    const cls=(v)=>+v>=0?'up':'down';
+    const items=[
+      {label:'Revenue',cur:fmtFull(d.thisMonth.rev),prev:isQ?fmtFull(Math.round(cRev/3)):fmtFull(cRev),delta:revD,suffix:'%'},
+      {label:'Orders',cur:d.orders,prev:isQ?Math.round(cOrders/3):cOrders,delta:ordD,suffix:'%'},
+      {label:'Avg Order Value',cur:fmtFull(d.aov),prev:fmtFull(cAov),delta:aovD,suffix:'%'},
+      {label:'Retention',cur:d.retention+'%',prev:cRet+'%',delta:retD,suffix:'pp'}
+    ];
+    banner.style.display='';
+    banner.innerHTML=`<div class="sr-cmp"><div class="sr-cmp-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>${curLabel} vs ${cLabel}${isQ?' (monthly avg)':''}</div><div class="sr-cmp-grid">${items.map(it=>`<div class="sr-cmp-item"><div class="sr-cmp-label">${it.label}</div><div class="sr-cmp-row"><div class="sr-cmp-val">${it.cur}</div><div class="sr-cmp-arrow">vs</div><div class="sr-cmp-val2" style="opacity:.6">${it.prev}</div></div><div class="sr-cmp-delta ${cls(it.delta)}">${arrow(it.delta)} ${Math.abs(it.delta)}${it.suffix}</div></div>`).join('')}</div></div>`;
+    // Store comparison data for charts
+    window._srCmp={cRev,cOrders,cAov,cRet,cLabel,cCatData,cChanData,isQ};
+  } else {
+    banner.style.display='none';
+    window._srCmp=null;
+  }
 
   destroySRCharts();
   const isDark=document.body.classList.contains('dark');
@@ -1330,12 +1402,25 @@ function renderSalesReport(){
   const txtColor=isDark?'#9aa0a8':'#6b7280';
   Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
 
-  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.red,backgroundColor:'rgba(228,0,43,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.red}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
+  const revDatasets=[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.red,backgroundColor:'rgba(228,0,43,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.red}];
+  if(window._srCmp){
+    const c=window._srCmp;
+    if(!c.isQ){
+      const cd=srSeed(cmpVal);
+      revDatasets.push({label:c.cLabel,data:cd.months.map(m=>m.rev),borderColor:SR_COLORS.slate,backgroundColor:'rgba(100,116,139,.08)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.slate,borderDash:[5,3]});
+    }
+  }
+  srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:revDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:revDatasets.length>1,labels:{boxWidth:12,font:{size:11}}}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
 
   const catTotal=d.catData.reduce((s,v)=>s+v,0);
   srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS.map((c,i)=>c+' ('+Math.round(d.catData[i]/catTotal*100)+'%)'),datasets:[{data:d.catData,backgroundColor:[SR_COLORS.red,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.slate],borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11},generateLabels:function(chart){return chart.data.labels.map(function(label,i){return{text:label,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i};});}}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': LKR '+ctx.parsed.toLocaleString();}}}}}});
 
-  srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:[{label:'Revenue',data:d.chanData,backgroundColor:[SR_COLORS.red,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:32}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
+  const chanDatasets=[{label:'Current',data:d.chanData,backgroundColor:[SR_COLORS.red,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:window._srCmp?20:32}];
+  if(window._srCmp){
+    const ccd=window._srCmp.isQ?window._srCmp.cChanData.map(v=>Math.round(v/3)):window._srCmp.cChanData;
+    chanDatasets.push({label:window._srCmp.cLabel,data:ccd,backgroundColor:['rgba(228,0,43,.3)','rgba(0,117,101,.3)','rgba(219,188,130,.3)'],borderRadius:6,barThickness:20});
+  }
+  srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:chanDatasets},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:chanDatasets.length>1,labels:{boxWidth:12,font:{size:11}}}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
 
   srCharts.aov=new Chart(document.getElementById('srAovChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'AOV',data:d.aovTrend,borderColor:SR_COLORS.teal,backgroundColor:'rgba(0,117,101,.1)',fill:true,tension:.35,yAxisID:'y'},{label:'Retention %',data:d.retTrend,borderColor:SR_COLORS.amber,borderDash:[5,3],tension:.35,yAxisID:'y1',pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}}},scales:{y:{position:'left',ticks:{callback:v=>'LKR '+fmt(v)},grid:{color:gridColor}},y1:{position:'right',min:0,max:100,ticks:{callback:v=>v+'%'},grid:{display:false}},x:{grid:{display:false}}}}});
 
@@ -1361,12 +1446,26 @@ function renderSalesReport(){
 
 (function initSRMonth(){
   const sel=document.getElementById('srMonth');
+  const cmp=document.getElementById('srCompare');
   const now=new Date();
+  const opts=[];
   for(let i=0;i<12;i++){
     const dt=new Date(now.getFullYear(),now.getMonth()-i,1);
     const ym=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');
     const label=dt.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    opts.push({ym,label});
     sel.innerHTML+=`<option value="${ym}">${label}</option>`;
+  }
+  cmp.innerHTML='<option value="">No comparison</option>'+opts.map(o=>`<option value="${o.ym}">${o.label}</option>`).join('');
+  // Add quarter options
+  const qLabels=['Q1','Q2','Q3','Q4'];
+  const yr=now.getFullYear();
+  for(let q=3;q>=0;q--){
+    const qStart=yr+'-Q'+(q+1);
+    cmp.innerHTML+=`<option value="${qStart}">${qLabels[q]} ${yr}</option>`;
+  }
+  for(let q=3;q>=0;q--){
+    cmp.innerHTML+=`<option value="${yr-1}-Q${q+1}">${qLabels[q]} ${yr-1}</option>`;
   }
   renderSalesReport();
 })();
