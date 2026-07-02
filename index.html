@@ -480,6 +480,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
           <div class="card"><div class="card-h"><h3>Pipeline by stage</h3><span class="lk" data-go="pipeline">View board →</span></div><div class="card-b" id="funnel"></div></div>
           <div class="card"><div class="card-h"><h3>Tasks</h3><button class="btn-ghost" onclick="openTaskModal()" style="padding:6px 12px"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div><div class="card-b" id="taskList"></div></div>
         </div>
+        <div class="card" style="margin-top:20px;display:none" id="lostInsightsCard"><div class="card-h"><h3>Lost Deal Insights</h3><span style="font-size:12px;color:var(--muted)">Why deals were lost</span></div><div class="card-b" id="lostInsights"></div></div>
         <div class="card" style="margin-top:20px"><div class="card-h"><h3>Latest inquiries</h3><span class="lk" data-go="inquiries">See all →</span></div><div class="card-b" id="latest"></div></div>
       </div>
       <div class="page" id="page-pipeline">
@@ -700,7 +701,27 @@ function generateQuote(id){
  '</body></html>');
  w.document.close();toast(I.check+' Quotation '+qno+' generated for '+l.name);
 }
-function followUp(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.acts.unshift({t:'Follow-up scheduled',m:'Reminder set to follow up',tm:'just now'});openLead(id);toast(I.clock+' Follow-up scheduled for '+l.name);}
+function followUp(id){const l=LEADS.find(x=>x.id===id);if(!l)return;
+ const d=prompt('Follow-up date for '+l.name+' (YYYY-MM-DD):',TODAY);if(!d||!/^\d{4}-\d{2}-\d{2}$/.test(d))return;
+ l.followUp=d;l.acts.unshift({t:'Follow-up set',m:'Follow up on '+fmtD(d),tm:'just now'});
+ openLead(id);renderBoard();renderDash();renderQueue();toast(I.clock+' Follow-up set for '+l.name+' on '+fmtD(d));}
+function waLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;
+ const ph=(l.phone||'').replace(/\D/g,'').replace(/^0/,'94');
+ const prods=(l.products||[]).join(', ')||'lighting';
+ const msg=encodeURIComponent('Hi '+l.name.split(' ')[0]+', following up on your inquiry for '+prods+' from Home Depot. Happy to help with pricing or arrange a visit.');
+ window.open('https://wa.me/'+ph+'?text='+msg,'_blank');
+ l.acts.unshift({t:'WhatsApped',m:'WhatsApped on '+fmtD(TODAY),tm:'just now'});
+ openLead(id);toast(I.phone+' WhatsApp opened for '+l.name);}
+const LOST_REASONS=['Price too high','Went with competitor','Project cancelled','No budget','Timeline mismatch','No response','Other'];
+function markLost(id){const l=LEADS.find(x=>x.id===id);if(!l)return;
+ if(l.stage==='lost'){toast('Already marked lost');return;}
+ const sel=LOST_REASONS.map((r,i)=>(i+1)+'. '+r).join('\n');
+ const pick=prompt('Why was this deal lost?\n'+sel+'\n\nEnter number (1-'+LOST_REASONS.length+'):');
+ if(!pick)return;const idx=parseInt(pick)-1;if(idx<0||idx>=LOST_REASONS.length)return;
+ l.stage='lost';l.lostReason=LOST_REASONS[idx];
+ l.acts.unshift({t:'Marked lost',m:'Lost: '+LOST_REASONS[idx],tm:'just now'});
+ renderBoard();renderDash();renderQueue();renderRevPipeline();openLead(id);
+ toast('Deal lost: '+l.name+' ('+LOST_REASONS[idx]+')');}
 function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});
  if(!CUSTOMERS.find(x=>x.name===l.name)){
   const v=val(l)||150000;
@@ -714,7 +735,8 @@ function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['ord
 const STAGES=[
  {k:'new_inquiry',label:'New Inquiry',color:'#2563eb',prob:10},{k:'quoted',label:'Quoted',color:'#7c3aed',prob:30},
  {k:'site_visit',label:'Site Visit',color:'#d97706',prob:50},{k:'negotiation',label:'Negotiation',color:'#0891b2',prob:60},
- {k:'order_confirmed',label:'Order Confirmed',color:'#16a34a',prob:90},{k:'delivered',label:'Delivered / Installed',color:'#15803d',prob:100}
+ {k:'order_confirmed',label:'Order Confirmed',color:'#16a34a',prob:90},{k:'delivered',label:'Delivered / Installed',color:'#15803d',prob:100},
+ {k:'lost',label:'Lost',color:'#9ca3af',prob:0}
 ];
 const stageLabel=k=>(STAGES.find(s=>s.k===k)||{}).label||k;
 const lkr=n=>'LKR '+n.toLocaleString('en-LK');
@@ -828,7 +850,7 @@ function exportQuotesXLS(){const rows=[];LEADS.filter(l=>l.quote.length).forEach
 
 function greetSub(){
  if(CURRENT_ROLE==='Sales'){
-  const own=LEADS.filter(l=>l.owner===CURRENT_NAME&&l.stage!=='delivered');
+  const own=LEADS.filter(l=>l.owner===CURRENT_NAME&&!['delivered','lost'].includes(l.stage));
   const need=own.filter(l=>['quoted','negotiation','site_visit'].includes(l.stage));
   const myTasks=TASKS.filter(t=>!t.d&&t.w.indexOf(CURRENT_NAME)>-1).length;
   const top=[...own].sort((a,b)=>val(b)-val(a))[0];
@@ -841,7 +863,7 @@ function greetSub(){
  return `Team won <b>${lkr(wmVal)}</b> in June (<b style="color:var(--red)">${pct}%</b> of target) · <b style="color:var(--red)">${due} customers</b> due for follow-up${neg?` · watch: <b>${neg.name}</b> closing ${lkr(val(neg))}`:''}`;
 }
 function renderDash(){
- const open=LEADS.filter(l=>l.stage!=='delivered');
+ const open=LEADS.filter(l=>!['delivered','lost'].includes(l.stage));
  const pv=open.reduce((s,l)=>s+val(l),0);
  const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
  const wonMonthVal=wonMonth.reduce((s,l)=>s+val(l),0);
@@ -858,10 +880,22 @@ function renderDash(){
  const maxC=Math.max(...STAGES.map(s=>LEADS.filter(l=>l.stage===s.k).length),1);
  document.getElementById('funnel').innerHTML=STAGES.map(s=>{const it=LEADS.filter(l=>l.stage===s.k);const v=it.reduce((a,l)=>a+val(l),0);return `<div class="fn-row"><div class="fn-name">${s.label}</div><div class="fn-bar"><div class="fn-fill" style="width:${it.length/maxC*100}%;background:${s.color}"></div></div><div class="fn-c">${it.length}</div><div class="fn-v">${v?lkr(v):'—'}</div></div>`;}).join('');
  document.getElementById('latest').innerHTML=[...LEADS].sort((a,b)=>b.id-a.id).slice(0,6).map(rowHTML).join('');
+ renderLostInsights();
+}
+function renderLostInsights(){
+ const lost=LEADS.filter(l=>l.stage==='lost'&&l.lostReason);
+ const card=document.getElementById('lostInsightsCard');
+ if(!lost.length){card.style.display='none';return;}
+ card.style.display='';
+ const counts={};lost.forEach(l=>{counts[l.lostReason]=(counts[l.lostReason]||0)+1;});
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const maxC=sorted[0][1];
+ const lostVal=lost.reduce((s,l)=>s+val(l),0);
+ document.getElementById('lostInsights').innerHTML='<div style="padding:14px 18px"><div style="display:flex;gap:16px;margin-bottom:14px"><div style="font-size:24px;font-weight:800;color:var(--red,#E4002B)">'+lost.length+'</div><div><div style="font-size:12px;font-weight:600">deals lost</div><div style="font-size:11px;color:var(--muted)">'+lkr(lostVal)+' total value</div></div></div>'+sorted.map(([r,c])=>'<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+r+'</span><span style="font-weight:700">'+c+'</span></div><div style="height:6px;border-radius:3px;background:var(--line)"><div style="height:100%;border-radius:3px;background:var(--red,#E4002B);width:'+Math.round(c/maxC*100)+'%"></div></div></div>').join('')+'</div>';
 }
 function renderBoard(){
  const data=filtered();
- document.getElementById('board').innerHTML=STAGES.map(s=>{const it=data.filter(l=>l.stage===s.k);return `<div class="col" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="drop(event,'${s.k}')"><div class="col-h"><div class="ct"><span class="dot" style="background:${s.color}"></span>${s.label}</div><span class="cn">${it.length}</span></div><div class="col-b">${it.map(cardHTML).join('')||'<div style="color:var(--faint);font-size:12px;text-align:center;padding:14px">—</div>'}</div></div>`;}).join('');
+ document.getElementById('board').innerHTML=STAGES.filter(s=>s.k!=='lost').map(s=>{const it=data.filter(l=>l.stage===s.k);return `<div class="col" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="drop(event,'${s.k}')"><div class="col-h"><div class="ct"><span class="dot" style="background:${s.color}"></span>${s.label}</div><span class="cn">${it.length}</span></div><div class="col-b">${it.map(cardHTML).join('')||'<div style="color:var(--faint);font-size:12px;text-align:center;padding:14px">—</div>'}</div></div>`;}).join('');
 }
 function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart="dragStart(event,${l.id})" ondragend="dragEnd(event)" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
 function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
@@ -1016,9 +1050,14 @@ function gamePlan(l){
 }
 function renderQueue(){
  const SIG={new_inquiry:['Send quotation','#2563eb','New inquiry, no quote sent yet'],quoted:['Follow up','#d97706','Quote sent, awaiting their response'],site_visit:['Confirm visit','#7c3aed','Site visit pending'],negotiation:['Close the deal','#E4002B','In negotiation, needs a push'],order_confirmed:['Schedule delivery','#16a34a','Order won, arrange delivery']};
- let data=LEADS.filter(l=>l.stage!=='delivered');if(CURRENT_ROLE==='Sales')data=data.filter(l=>l.owner===CURRENT_NAME);
- const open=data.sort((a,b)=>val(b)-val(a)).slice(0,6);
- document.getElementById('queue').innerHTML=open.map(l=>{const s=SIG[l.stage]||SIG.new_inquiry;return `<div class="aq-item" onclick="openLead(${l.id})"><span class="aq-dot" style="background:${s[1]}"></span><div class="aq-main"><div class="aq-nm">${l.name}</div><div class="aq-why">${s[2]}</div></div><span class="aq-act">${s[0]}</span><div class="aq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}).join('')||'<div style="color:var(--faint);font-size:13px;padding:12px">Nothing needs your attention right now.</div>';
+ let data=LEADS.filter(l=>!['delivered','lost'].includes(l.stage));if(CURRENT_ROLE==='Sales')data=data.filter(l=>l.owner===CURRENT_NAME);
+ const fuToday=data.filter(l=>l.followUp&&l.followUp<=TODAY);
+ const rest=data.filter(l=>!l.followUp||l.followUp>TODAY).sort((a,b)=>val(b)-val(a));
+ const open=[...fuToday,...rest].slice(0,8);
+ let html='';
+ if(fuToday.length)html+='<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--red,#E4002B);padding:4px 0 2px;letter-spacing:.5px">'+I.clock+' Follow-ups due today ('+fuToday.length+')</div>';
+ html+=open.map(l=>{const s=SIG[l.stage]||SIG.new_inquiry;const fu=l.followUp&&l.followUp<=TODAY;return `<div class="aq-item${fu?' aq-fu':''}" onclick="openLead(${l.id})"><span class="aq-dot" style="background:${fu?'#E4002B':s[1]}"></span><div class="aq-main"><div class="aq-nm">${l.name}${fu?' <span style="font-size:10px;color:var(--red,#E4002B)">'+I.clock+' DUE</span>':''}</div><div class="aq-why">${fu?'Follow-up due '+fmtD(l.followUp):s[2]}</div></div><span class="aq-act">${fu?'Call now':s[0]}</span><div class="aq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}).join('')||'<div style="color:var(--faint);font-size:13px;padding:12px">Nothing needs your attention right now.</div>';
+ document.getElementById('queue').innerHTML=html;
 }
 function exportCSV(name,headers,rows){
  const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
@@ -1044,7 +1083,7 @@ function openLead(id){
  const quoteHTML=quoteEditor(l);
  const panel=document.getElementById('panel');
  panel.innerHTML=`<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">${l.name}</div><div class="pn-co">${l.co}</div><div class="pn-badges"><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><span class="bdg bdg-grey">${l.lead}</span><span class="bdg bdg-stage">${stageLabel(l.stage)}</span></div><div class="pn-contact"><span>${I.phone} <a href="tel:${l.phone}">${l.phone}</a></span><span>${I.mail} <a href="mailto:${l.email}">${l.email}</a></span><span>${I.user} ${l.owner}</span></div></div>
-  <div class="pn-actions"><button class="pa primary" onclick="logActivity(${id})">${I.phone} Log Activity</button><button class="pa" onclick="generateQuote(${id})">${I.doc} Generate Quote</button><button class="pa" onclick="followUp(${id})">${I.clock} Follow-Up</button><button class="pa" onclick="convertOrder(${id})">${I.check} Convert to Order</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
+  <div class="pn-actions"><button class="pa primary" onclick="waLead(${id})">${I.phone} WhatsApp</button><button class="pa" onclick="logActivity(${id})">${I.phone} Log Activity</button><button class="pa" onclick="generateQuote(${id})">${I.doc} Generate Quote</button><button class="pa" onclick="followUp(${id})">${I.clock} Follow-Up</button><button class="pa" onclick="convertOrder(${id})">${I.check} Won</button><button class="pa" style="color:var(--red)" onclick="markLost(${id})">✕ Lost</button><button class="pa" onclick="exportLead(${id})">${I.download} Export</button></div>
   <div class="pn-body">
    <div class="sec"><div class="sec-t">Next Best Action</div>${gamePlan(l)}</div>
    <div class="sec"><div class="sec-t">Quotation</div>${quoteHTML}</div>
@@ -1066,7 +1105,7 @@ const AUDIT=[
  {u:'Yasitha',r:'Manager',d:'Desktop · Edge',loc:'Office',t:'Yesterday, 05:40 PM'},
  {u:'Ushan',r:'Sales',d:'iPhone · Safari',loc:'On site · Bentota',t:'Yesterday, 09:03 AM'}
 ];
-function perf(name,mo){const owned=LEADS.filter(l=>l.owner===name&&(!mo||MONTH[l.id]===mo));const won=owned.filter(l=>['order_confirmed','delivered'].includes(l.stage));return{owned,quotes:owned.filter(l=>l.quote.length).length,won,wonVal:won.reduce((s,l)=>s+val(l),0),pipe:owned.filter(l=>l.stage!=='delivered').reduce((s,l)=>s+val(l),0),conv:owned.length?Math.round(won.length/owned.length*100):0};}
+function perf(name,mo){const owned=LEADS.filter(l=>l.owner===name&&(!mo||MONTH[l.id]===mo));const won=owned.filter(l=>['order_confirmed','delivered'].includes(l.stage));return{owned,quotes:owned.filter(l=>l.quote.length).length,won,wonVal:won.reduce((s,l)=>s+val(l),0),pipe:owned.filter(l=>!['delivered','lost'].includes(l.stage)).reduce((s,l)=>s+val(l),0),conv:owned.length?Math.round(won.length/owned.length*100):0};}
 function setMonth(v){TEAM_MONTH=v;renderTeam();}
 function renderTeam(){
  const mo=TEAM_MONTH;
@@ -1160,8 +1199,8 @@ function renderRevPipeline(){
   const mo=document.getElementById('rvMonth').value||'all';
   const leads=rvFiltered(mo);
   const prev=rvFiltered(rvPrevMonth(mo));
-  const open=leads.filter(l=>l.stage!=='delivered');
-  const prevOpen=prev.filter(l=>l.stage!=='delivered');
+  const open=leads.filter(l=>!['delivered','lost'].includes(l.stage));
+  const prevOpen=prev.filter(l=>!['delivered','lost'].includes(l.stage));
   const totalPipe=open.reduce((s,l)=>s+val(l),0);
   const weightedPipe=open.reduce((s,l)=>{const st=STAGES.find(x=>x.k===l.stage);return s+val(l)*(st?st.prob:0)/100;},0);
   const prevTotal=prevOpen.reduce((s,l)=>s+val(l),0);
@@ -1171,7 +1210,7 @@ function renderRevPipeline(){
   const winRate=leads.length?Math.round(wonLeads.length/leads.length*100):0;
   const avgDeal=open.length?Math.round(totalPipe/open.length):0;
   const dealCount=open.length;
-  document.getElementById('rvHero').innerHTML=`<div class="rv-hero"><div class="rv-hero-cell"><div class="rv-hero-label">Total Pipeline Value</div><div class="rv-hero-val"><span data-to="${(totalPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(totalPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">${dealCount} open deal${dealCount===1?'':'s'} across ${STAGES.length-1} stages</div></div><div class="rv-hero-cell"><div class="rv-hero-label">Weighted Expected Value</div><div class="rv-hero-val"><span data-to="${(weightedPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(weightedPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">Probability-adjusted forecast</div></div></div>`;
+  document.getElementById('rvHero').innerHTML=`<div class="rv-hero"><div class="rv-hero-cell"><div class="rv-hero-label">Total Pipeline Value</div><div class="rv-hero-val"><span data-to="${(totalPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(totalPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">${dealCount} open deal${dealCount===1?'':'s'} across ${STAGES.filter(s=>!['delivered','lost'].includes(s.k)).length} stages</div></div><div class="rv-hero-cell"><div class="rv-hero-label">Weighted Expected Value</div><div class="rv-hero-val"><span data-to="${(weightedPipe/1e6).toFixed(2)}" data-fmt="m">LKR ${(weightedPipe/1e6).toFixed(2)}M</span></div><div class="rv-hero-sub">Probability-adjusted forecast</div></div></div>`;
   const kpis=[
     {label:'Open Deals',val:dealCount,delta:dealCount-(prevOpen.length||dealCount),color:'#2563eb',fmt:'int'},
     {label:'Avg Deal Size',val:lkr(avgDeal),delta:prevOpen.length?Math.round(((avgDeal-(prevTotal/(prevOpen.length||1)))/(prevTotal/(prevOpen.length||1)))*100):0,color:'#007565',fmt:'pct'},
@@ -1183,8 +1222,9 @@ function renderRevPipeline(){
     const dvShow=Math.min(Math.abs(dv),999);
     return `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:${k.color}"></div><div class="sr-kpi-label">${k.label}</div><div class="sr-kpi-val">${k.val}</div>${dv!==0?`<div class="sr-kpi-delta ${cls}">${arrow} ${dvShow}${k.fmt==='pct'?'%':''} vs last month</div>`:''}</div>`;
   }).join('');
-  const maxVal=Math.max(...STAGES.filter(s=>s.k!=='delivered').map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0)),1);
-  document.getElementById('rvStages').innerHTML='<div class="rv-stages">'+STAGES.filter(s=>s.k!=='delivered').map(s=>{
+  const rvStages=STAGES.filter(s=>!['delivered','lost'].includes(s.k));
+  const maxVal=Math.max(...rvStages.map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0)),1);
+  document.getElementById('rvStages').innerHTML='<div class="rv-stages">'+rvStages.map(s=>{
     const stLeads=leads.filter(l=>l.stage===s.k);
     const raw=stLeads.reduce((a,l)=>a+val(l),0);
     const wt=Math.round(raw*s.prob/100);
@@ -1197,7 +1237,7 @@ function renderRevPipeline(){
   const gridColor=isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)';
   const txtColor=isDark?'#9aa0a8':'#6b7280';
   Chart.defaults.color=txtColor;Chart.defaults.borderColor=gridColor;
-  const activeStages=STAGES.filter(s=>s.k!=='delivered');
+  const activeStages=STAGES.filter(s=>!['delivered','lost'].includes(s.k));
   const rawData=activeStages.map(s=>leads.filter(l=>l.stage===s.k).reduce((a,l)=>a+val(l),0));
   const wtData=activeStages.map((s,i)=>Math.round(rawData[i]*s.prob/100));
   rvCharts.bar=new Chart(document.getElementById('rvBarChart'),{type:'bar',data:{labels:activeStages.map(s=>s.label),datasets:[{label:'Raw Value',data:rawData,backgroundColor:activeStages.map(s=>s.color+'33'),borderColor:activeStages.map(s=>s.color),borderWidth:2,borderRadius:6,barThickness:18},{label:'Weighted',data:wtData,backgroundColor:activeStages.map(s=>s.color),borderRadius:6,barThickness:18}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': LKR '+ctx.parsed.x.toLocaleString()}}},scales:{x:{ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?Math.round(v/1e3)+'K':v},grid:{color:gridColor}},y:{grid:{display:false}}}}});
@@ -1211,7 +1251,7 @@ function renderRevPipeline(){
 }
 function exportRevPipelineXLS(){
   const mo=document.getElementById('rvMonth').value||'all';
-  const leads=rvFiltered(mo).filter(l=>l.stage!=='delivered');
+  const leads=rvFiltered(mo).filter(l=>!['delivered','lost'].includes(l.stage));
   const rows=leads.map(l=>{const st=STAGES.find(s=>s.k===l.stage);return[l.name,l.co,l.type,stageLabel(l.stage),st?st.prob+'%':'',val(l),st?Math.round(val(l)*st.prob/100):0,l.owner];});
   exportXLS('homedepot-revenue-pipeline.xls',['Customer','Company','Type','Stage','Probability','Raw Value (LKR)','Weighted Value (LKR)','Owner'],rows);
 }
