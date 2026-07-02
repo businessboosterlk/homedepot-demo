@@ -459,7 +459,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       </div>
       <div class="page" id="page-quotations"><div class="toolbar"><select class="filter" id="quoMonth" onchange="setQuoMonth(this.value)"></select><div class="sp"></div></div><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers">
-        <div class="kpis" id="cusKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
+        <div class="sr-kpis" id="cusKpis" style="margin-bottom:18px"></div>
         <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><select class="filter" id="cusType" onchange="setCusType(this.value)"><option value="all">All types</option><option value="B2B">B2B only</option><option value="B2C">B2C only</option></select><span style="font-size:12px;color:var(--muted)">Post-sale customers with 30/60/90 day cadence</span><div class="sp"></div><button class="btn-ghost" onclick="exportCusXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
         <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>First Purchase</th><th>Last Contact</th><th>Cadence</th><th>Next Action</th><th>Status</th><th class="tnum">Lifetime Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
@@ -889,12 +889,12 @@ function renderCus(){
  const avgOV=CUSTOMERS.length?Math.round(totalLTV/CUSTOMERS.reduce((s,c)=>s+c.history.length,0)):0;
  const dueN=dueCustomers();
  const kpis=[
-  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',label:'Total Customers',val:CUSTOMERS.length},
-  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',label:'Total Lifetime Value',val:'LKR '+(totalLTV>=1e6?(totalLTV/1e6).toFixed(1)+'M':totalLTV.toLocaleString())},
-  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',label:'Avg Order Value',val:lkr(avgOV)},
-  {icon:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="'+(dueN>0?'var(--red)':'var(--muted)')+'" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',label:'Due Today',val:dueN}
+  {label:'Total Customers',val:CUSTOMERS.length,color:'#772820'},
+  {label:'Total Lifetime Value',val:'LKR '+(totalLTV>=1e6?(totalLTV/1e6).toFixed(1)+'M':totalLTV.toLocaleString()),color:'#007565'},
+  {label:'Avg Order Value',val:lkr(avgOV),color:'#DBBC82'},
+  {label:'Due Today',val:dueN,color:dueN>0?'#E4002B':'#9ca3af'}
  ];
- document.getElementById('cusKpis').innerHTML=kpis.map(k=>`<div class="kpi"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">${k.icon}<span class="kpi-l">${k.label}</span></div><div class="kpi-v">${k.val}</div></div>`).join('');
+ document.getElementById('cusKpis').innerHTML=kpis.map(k=>`<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:${k.color}"></div><div class="sr-kpi-label">${k.label}</div><div class="sr-kpi-val">${k.val}</div></div>`).join('');
  let base=CUSTOMERS.filter(c=>CUS_MONTH==='all'||custPurchase(c).slice(0,7)===CUS_MONTH);
  if(CUS_TYPE!=='all')base=base.filter(c=>c.type===CUS_TYPE);
  const arr=[...base].sort((a,b)=>(custNext(a)||'9999').localeCompare(custNext(b)||'9999'));
@@ -1156,7 +1156,8 @@ function renderSalesReport(){
 
   srCharts.rev=new Chart(document.getElementById('srRevChart'),{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:'Revenue',data:d.months.map(m=>m.rev),borderColor:SR_COLORS.maroon,backgroundColor:'rgba(119,40,32,.12)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:SR_COLORS.maroon}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},x:{grid:{display:false}}}}});
 
-  srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS,datasets:[{data:d.catData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.dark],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11}}}}}});
+  const catTotal=d.catData.reduce((s,v)=>s+v,0);
+  srCharts.cat=new Chart(document.getElementById('srCatChart'),{type:'doughnut',data:{labels:SR_CATS.map((c,i)=>c+' ('+Math.round(d.catData[i]/catTotal*100)+'%)'),datasets:[{data:d.catData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.rose,SR_COLORS.gold,SR_COLORS.amber,SR_COLORS.dark],borderWidth:2,borderColor:isDark?'#16181d':'#ffffff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,padding:10,font:{size:11},generateLabels:function(chart){return chart.data.labels.map(function(label,i){return{text:label,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i};});}}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': LKR '+ctx.parsed.toLocaleString();}}}}}});
 
   srCharts.chan=new Chart(document.getElementById('srChanChart'),{type:'bar',data:{labels:SR_CHANNELS,datasets:[{label:'Revenue',data:d.chanData,backgroundColor:[SR_COLORS.maroon,SR_COLORS.teal,SR_COLORS.gold],borderRadius:6,barThickness:32}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>fmt(v)},grid:{color:gridColor}},y:{grid:{display:false}}}}});
 
