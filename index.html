@@ -638,9 +638,9 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
             <div class="card"><div class="card-h"><h3>Key Insights</h3></div><div class="card-b" id="srInsights" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
             <div class="card"><div class="card-h"><h3>Next Steps</h3></div><div class="card-b" id="srNextSteps" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
           </div>
-          <div style="margin-top:32px;padding:24px 0;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-            <div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border:2px solid var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center"><span style="font-weight:800;font-size:10px;color:var(--red)">Hd</span></div><div><div style="font-size:13px;font-weight:700;color:var(--ink)">Home Depot Sri Lanka</div><div style="font-size:11px;color:var(--muted)">213 Nawala Rd, Nugegoda, Colombo</div></div></div>
-            <div style="text-align:right"><div style="font-size:11px;color:var(--faint)">Sales Operating System</div><div style="font-size:10px;color:var(--faint);margin-top:2px">Powered by Business Booster</div></div>
+          <div style="margin-top:32px;padding:22px 4px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+            <div style="display:flex;align-items:center;gap:14px"><img id="srFootLogo" alt="Home Depot Sri Lanka" style="height:42px;width:auto;display:block"><div style="border-left:1px solid var(--line);padding-left:14px"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">Home Depot Sri Lanka</div><div style="font-size:11px;color:var(--muted);margin-top:2px">213 Nawala Rd, Nugegoda, Colombo</div></div></div>
+            <div style="text-align:right"><div style="font-size:11px;color:var(--faint);font-weight:600">Sales Operating System</div><div style="font-size:10px;color:var(--faint);margin-top:2px">Powered by Business Booster</div></div>
           </div>
         </div>
       </div>
@@ -697,7 +697,8 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 <script>
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
-function applyTheme(t){document.body.classList.toggle('dark',t==='dark');document.getElementById('themeBtn').innerHTML=t==='dark'?SUN:MOON;try{localStorage.setItem('hd_theme',t)}catch(e){}}
+function setReportLogo(){const f=document.getElementById('srFootLogo');if(!f)return;const dark=document.body.classList.contains('dark');const src=dark?document.querySelector('.side-logo')?.src:document.querySelector('.login-logo')?.src;if(src)f.src=src;}
+function applyTheme(t){document.body.classList.toggle('dark',t==='dark');document.getElementById('themeBtn').innerHTML=t==='dark'?SUN:MOON;setReportLogo();try{localStorage.setItem('hd_theme',t)}catch(e){}}
 function toggleTheme(){applyTheme(document.body.classList.contains('dark')?'light':'dark');}
 (function(){let t='light';try{t=localStorage.getItem('hd_theme')||'light'}catch(e){}applyTheme(t);})();
 
@@ -1394,6 +1395,7 @@ function srQuarterData(qKey){
 }
 function renderSalesReport(){
   const ym=document.getElementById('srMonth').value;if(!ym)return;
+  setReportLogo();
   const cmpVal=document.getElementById('srCompare').value;
   const d=srSeed(ym);
   const fmt=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?Math.round(n/1000)+'K':n.toLocaleString();
@@ -1521,42 +1523,72 @@ function renderSalesReport(){
   renderSalesReport();
 })();
 
+function hexToRgb(h){h=(h||'').trim().replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h||'f5f5f7',16);return[(n>>16)&255,(n>>8)&255,n&255];}
 async function exportSalesReportPDF(){
   const btn=document.getElementById('srExportBtn');btn.disabled=true;btn.textContent='Generating...';
   try{
-    const el=document.getElementById('srContent');
-    const canvas=await html2canvas(el,{scale:2,backgroundColor:getComputedStyle(document.body).getPropertyValue('--bg').trim()||'#f4f5f7',useCORS:true,logging:false});
-    const imgData=canvas.toDataURL('image/png');
     const{jsPDF}=window.jspdf;
-    const pWidth=210,margin=10;
-    const contentW=pWidth-margin*2;
-    const imgH=canvas.height*contentW/canvas.width;
+    const pageW=210,pageH=297,margin=10,contentW=pageW-margin*2;
+    const contentTop=30,contentBottom=286,gap=5;
+    const usable=contentBottom-contentTop;
+    const bgHex=getComputedStyle(document.body).getPropertyValue('--bg').trim()||'#f5f5f7';
+    const bgRgb=hexToRgb(bgHex);
+    const ymSel=document.getElementById('srMonth');
+    const monthLabel=ymSel.options[ymSel.selectedIndex].text;
+    const cmpSel=document.getElementById('srCompare');
+    const cmpLabel=cmpSel.value?('  vs  '+cmpSel.options[cmpSel.selectedIndex].text):'';
+    // Collect whole blocks so nothing gets split mid-card
+    const blocks=[];
+    const banner=document.getElementById('srCompareBanner');
+    if(banner&&banner.style.display!=='none'&&banner.offsetHeight>0)blocks.push(banner);
+    [...document.getElementById('srContent').children].forEach(c=>{if(c.offsetHeight>0)blocks.push(c);});
+    // Pre-render every block to its own canvas
+    const rendered=[];
+    for(const b of blocks){
+      const cv=await html2canvas(b,{scale:2,backgroundColor:bgHex,useCORS:true,logging:false});
+      rendered.push(cv);
+    }
     const pdf=new jsPDF('p','mm','a4');
-    pdf.setFillColor(119,40,32);pdf.rect(0,0,210,28,'F');
-    pdf.setTextColor(255,255,255);pdf.setFontSize(16);pdf.setFont(undefined,'bold');
-    pdf.text('HOME DEPOT SRI LANKA',margin,14);
-    pdf.setFontSize(10);pdf.setFont(undefined,'normal');
-    const ym=document.getElementById('srMonth');
-    pdf.text('Monthly Sales Report  |  '+ym.options[ym.selectedIndex].text,margin,22);
-    let yPos=34;
-    const pageH=297;
-    const availH=pageH-yPos-margin;
-    if(imgH<=availH){pdf.addImage(imgData,'PNG',margin,yPos,contentW,imgH);}
-    else{
-      let srcY=0;const srcH=canvas.height;
-      while(srcY<srcH){
-        const sliceH=Math.min((availH/contentW)*canvas.width, srcH-srcY);
-        const sliceCanvas=document.createElement('canvas');sliceCanvas.width=canvas.width;sliceCanvas.height=sliceH;
-        sliceCanvas.getContext('2d').drawImage(canvas,0,srcY,canvas.width,sliceH,0,0,canvas.width,sliceH);
-        const sliceImg=sliceCanvas.toDataURL('image/png');
-        const printH=sliceH*contentW/canvas.width;
-        pdf.addImage(sliceImg,'PNG',margin,yPos,contentW,printH);
-        srcY+=sliceH;
-        if(srcY<srcH){pdf.addPage();yPos=margin;}
+    const drawHeader=()=>{
+      pdf.setFillColor(bgRgb[0],bgRgb[1],bgRgb[2]);pdf.rect(0,0,pageW,pageH,'F');
+      pdf.setFillColor(228,0,43);pdf.rect(0,0,pageW,24,'F');
+      pdf.setTextColor(255,255,255);pdf.setFont('helvetica','bold');pdf.setFontSize(15);
+      pdf.text('HOME DEPOT SRI LANKA',margin,11);
+      pdf.setFont('helvetica','normal');pdf.setFontSize(9.5);
+      pdf.text('Monthly Sales Report  |  '+monthLabel+cmpLabel,margin,18);
+    };
+    drawHeader();
+    let y=contentTop;
+    for(const cv of rendered){
+      const hmm=cv.height*contentW/cv.width;
+      if(hmm<=usable){
+        if(y+hmm>contentBottom){pdf.addPage();drawHeader();y=contentTop;}
+        pdf.addImage(cv.toDataURL('image/png'),'PNG',margin,y,contentW,hmm);
+        y+=hmm+gap;
+      }else{
+        // block taller than a full page: slice only this block, on its own pages
+        if(y>contentTop){pdf.addPage();drawHeader();y=contentTop;}
+        let srcY=0;
+        while(srcY<cv.height){
+          const availMm=contentBottom-y;
+          const sliceHpx=Math.min((availMm/contentW)*cv.width,cv.height-srcY);
+          const sc=document.createElement('canvas');sc.width=cv.width;sc.height=sliceHpx;
+          sc.getContext('2d').drawImage(cv,0,srcY,cv.width,sliceHpx,0,0,cv.width,sliceHpx);
+          const printH=sliceHpx*contentW/cv.width;
+          pdf.addImage(sc.toDataURL('image/png'),'PNG',margin,y,contentW,printH);
+          srcY+=sliceHpx;
+          if(srcY<cv.height){pdf.addPage();drawHeader();y=contentTop;}else{y+=printH+gap;}
+        }
       }
     }
-    const sel=document.getElementById('srMonth');
-    pdf.save('HomeDepot-SalesReport-'+sel.value+'.pdf');
+    // Stamp a page number on every page
+    const total=pdf.internal.getNumberOfPages();
+    for(let p=1;p<=total;p++){
+      pdf.setPage(p);
+      pdf.setTextColor(150,150,150);pdf.setFont('helvetica','normal');pdf.setFontSize(8);
+      pdf.text('Page '+p+' of '+total,pageW-margin,291,{align:'right'});
+    }
+    pdf.save('HomeDepot-SalesReport-'+ymSel.value+'.pdf');
   }catch(e){console.error('PDF export failed',e);toast('PDF export failed');}
   btn.disabled=false;btn.innerHTML='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF';
 }
