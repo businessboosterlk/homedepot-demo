@@ -472,6 +472,11 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
  .rv-cmp-val{font-size:20px}
 }
 
+/* Pipeline / Forecast segmented toggle */
+.rv-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.rv-seg button{padding:8px 15px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--muted);background:transparent;white-space:nowrap;transition:background .15s,color .15s}
+.rv-seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs)}
+.rv-seg button:hover:not(.on){color:var(--ink)}
 /* Revenue Forecast grid */
 .rf-grid{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:1220px}
 .rf-grid th,.rf-grid td{padding:12px 13px;border-bottom:1px solid var(--line2);white-space:nowrap}
@@ -543,7 +548,6 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-item active" data-pg="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</div>
       <div class="nav-item" data-pg="pipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>Sales Pipeline</div>
       <div class="nav-item ceo-only" data-pg="revpipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Revenue Pipeline</div>
-      <div class="nav-item ceo-only" data-pg="revenue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="20"/></svg>Revenue Forecast</div>
       <div class="nav-item" data-pg="inquiries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Inquiries<span class="badge" id="nbEnq"></span></div>
       <div class="nav-item" data-pg="quotations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Quotations<span class="badge" id="nbQuo"></span></div>
       <div class="nav-item" data-pg="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Customers<span class="badge" id="nbCus"></span></div>
@@ -597,31 +601,34 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="board" id="board"></div>
       </div>
 
-      <!-- Revenue Pipeline -->
+      <!-- Revenue Pipeline (with Pipeline / Forecast toggle) -->
       <div class="page" id="page-revpipeline">
         <div class="toolbar">
+          <div class="rv-seg"><button id="rvSegPipe" class="on" onclick="rvView('pipeline')">Pipeline</button><button id="rvSegFc" onclick="rvView('forecast')">Month-by-Month Forecast</button></div>
           <select class="filter" id="rvMonth" onchange="renderRevPipeline()"></select>
           <div class="sp"></div>
-          <button class="btn-ghost" onclick="exportRevPipelineXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
+          <button class="btn-ghost" id="rvExportBtn" onclick="exportRevPipelineXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
         </div>
-        <div id="rvHero"></div>
-        <div class="sr-kpis" id="rvKpis" style="margin-bottom:4px"></div>
-        <div id="rvStages"></div>
-        <div class="rv-charts" id="rvChartsRow">
-          <div class="rv-chart-card"><div class="rv-chart-title">Raw vs Weighted Value by Stage</div><div style="height:260px"><canvas id="rvBarChart"></canvas></div></div>
-          <div class="rv-chart-card"><div class="rv-chart-title">Pipeline Value Distribution</div><div style="position:relative;height:320px"><canvas id="rvDonutChart"></canvas></div></div>
+        <!-- Pipeline view -->
+        <div id="rvPipelineView">
+          <div id="rvHero"></div>
+          <div class="sr-kpis" id="rvKpis" style="margin-bottom:4px"></div>
+          <div id="rvStages"></div>
+          <div class="rv-charts" id="rvChartsRow">
+            <div class="rv-chart-card"><div class="rv-chart-title">Raw vs Weighted Value by Stage</div><div style="height:260px"><canvas id="rvBarChart"></canvas></div></div>
+            <div class="rv-chart-card"><div class="rv-chart-title">Pipeline Value Distribution</div><div style="position:relative;height:320px"><canvas id="rvDonutChart"></canvas></div></div>
+          </div>
+          <div class="rv-compare" id="rvCompare"></div>
         </div>
-        <div class="rv-compare" id="rvCompare"></div>
-      </div>
-
-      <!-- Revenue Forecast (month-by-month recognition grid) -->
-      <div class="page" id="page-revenue">
-        <div class="sr-kpis" id="rfKpis" style="margin-bottom:18px"></div>
-        <div class="card">
-          <div class="card-h"><h3>Revenue Recognition — Jul to Dec 2026</h3><span style="font-size:12px;color:var(--muted)">Tap any month cell to edit. Soft months are flagged.</span></div>
-          <div class="card-b" style="padding:0;overflow-x:auto"><div id="rfGridWrap"></div></div>
+        <!-- Forecast view (month-by-month recognition grid) -->
+        <div id="rvForecastView" style="display:none">
+          <div class="sr-kpis" id="rfKpis" style="margin-bottom:18px"></div>
+          <div class="card">
+            <div class="card-h"><h3>Revenue Recognition — Jul to Dec 2026</h3><span style="font-size:12px;color:var(--muted)">Tap any month cell to edit. Soft months are flagged.</span></div>
+            <div class="card-b" style="padding:0;overflow-x:auto"><div id="rfGridWrap"></div></div>
+          </div>
+          <div id="rfNote" style="margin-top:14px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px"></div>
         </div>
-        <div id="rfNote" style="margin-top:14px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px"></div>
       </div>
 
       <div class="page" id="page-inquiries">
@@ -780,7 +787,7 @@ function signIn(name,role){
 function signOut(){document.getElementById('app').classList.add('hide');document.getElementById('login').classList.remove('hide');closePanel();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open');}
-function updateClock(){const d=new Date();const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let h=d.getHours();const m=('0'+d.getMinutes()).slice(-2);const ap=h>=12?'PM':'AM';h=h%12||12;const el=document.getElementById('sbClock');if(el)el.innerHTML='<div class="t">'+h+':'+m+' '+ap+'</div><div class="d">'+days[d.getDay()]+' '+d.getDate()+' '+mo[d.getMonth()]+'</div>';}
+function updateClock(){const d=AS_OF;const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let h=d.getHours();const m=('0'+d.getMinutes()).slice(-2);const ap=h>=12?'PM':'AM';h=h%12||12;const el=document.getElementById('sbClock');if(el)el.innerHTML='<div class="t">'+h+':'+m+' '+ap+'</div><div class="d">'+days[d.getDay()]+' '+d.getDate()+' '+mo[d.getMonth()]+'</div>';}
 function doSearch(q){const el=document.getElementById('searchResults');q=(q||'').trim().toLowerCase();if(!q){el.classList.remove('open');return;}
  const lh=LEADS.filter(l=>l.name.toLowerCase().indexOf(q)>-1||(l.co||'').toLowerCase().indexOf(q)>-1).slice(0,6);
  const ch=(typeof CUSTOMERS!=='undefined'?CUSTOMERS:[]).filter(c=>c.name.toLowerCase().indexOf(q)>-1).slice(0,4);
@@ -794,7 +801,7 @@ function logActivity(id){const l=LEADS.find(x=>x.id===id);if(!l)return;const not
 function generateQuote(id){
  const l=LEADS.find(x=>x.id===id);if(!l)return;
  if(!l.quote||!l.quote.length){toast(I.doc+' Add products and a value first to generate a quotation');return;}
- const MN2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const d=new Date();const fdt=x=>String(x.getDate()).padStart(2,'0')+' '+MN2[x.getMonth()]+' '+x.getFullYear();const vd=new Date();vd.setDate(vd.getDate()+14);
+ const MN2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const d=new Date(AS_OF);const fdt=x=>String(x.getDate()).padStart(2,'0')+' '+MN2[x.getMonth()]+' '+x.getFullYear();const vd=new Date(AS_OF);vd.setDate(vd.getDate()+14);
  const qno='HD-QTN-'+String(1000+l.id).slice(1).padStart(4,'0');const total=qTotal(l);const disc=l.discount||0;const net=Math.max(0,total-disc);
  const logo=(document.querySelector('.login-logo')||{}).src||'';
  const rows=l.quote.map((r,i)=>'<tr><td class="ta-c">'+(i+1)+'</td><td class="desc"><div class="p">'+r.p+'</div>'+(r.n?'<div class="code">'+r.n+'</div>':'')+'</td><td class="ta-c">'+r.q+'</td><td class="ta-c">Nos</td><td class="ta-r">'+r.u.toLocaleString()+'</td><td class="ta-r amt">'+(r.q*r.u).toLocaleString()+'</td></tr>').join('');
@@ -904,10 +911,17 @@ const qTotal=l=>l.quote.reduce((s,r)=>s+r.q*r.u,0);
 const val=l=>qTotal(l);
 
 function rowHTML(l){return `<div class="eq-row" onclick="openLead(${l.id})"><div class="eq-av">${init(l.name)}</div><div class="eq-main"><div class="eq-nm">${l.name}</div><div class="eq-mt">${l.co} · ${stageLabel(l.stage)}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span><div class="eq-val">${val(l)?lkr(val(l)):'—'}</div></div>`;}
+/* ── Single demo "as of" reference — every screen (clock, greeting, month labels, targets) reads from this ── */
+const AS_OF=new Date(2026,5,25,14,30);            // Thu 25 Jun 2026, 2:30 PM — the demo's "today"
+const AS_OF_MONTH='2026-06';                       // the current month everything counts against
+const MN_FULL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DY_FULL=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const AS_OF_MONTHNAME=MN_FULL[AS_OF.getMonth()];   // "June"
+const greetWord=h=>h<12?'Good morning':(h<17?'Good afternoon':'Good evening');
 /* month each lead belongs to */
 const MONTH={1:'2026-06',2:'2026-06',3:'2026-06',4:'2026-06',5:'2026-05',6:'2026-06',7:'2026-06',8:'2026-05'};
 const MONTHS=[['2026-06','June 2026'],['2026-05','May 2026']];
-let TEAM_MONTH='2026-06';
+let TEAM_MONTH=AS_OF_MONTH;
 /* filter */
 let FILTER_OWNER='all';
 function owners(){return [...new Set(LEADS.map(l=>l.owner))];}
@@ -975,7 +989,7 @@ function saveInquiry(){
  // Capture revenue recognition at creation (fixes revenue = 0 on new inquiry)
  nl.rev={est:value,ct,start,end,proj:name,legal:name,months:evenSplit(value,ct,start,end)};
  LEADS.push(nl);
- MONTH[id]='2026-06';
+ MONTH[id]=AS_OF_MONTH;
  closeInqModal();renderBoard();renderAll();renderDash();renderQueue();renderQuo();renderRevenue();
  document.getElementById('nbEnq').textContent=LEADS.length;
  go('pipeline');toast(I.check+' Inquiry added: '+name);
@@ -999,25 +1013,25 @@ function greetSub(){
   const top=[...own].sort((a,b)=>val(b)-val(a))[0];
   return `<b style="color:var(--red)">${need.length} of your deals</b> need attention${myTasks?` · <b style="color:var(--red)">${myTasks} task${myTasks===1?'':'s'}</b> to do`:''}${top?` · your top open deal: <b>${top.name}</b> (${lkr(val(top))})`:''}`;
  }
- const wm=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
+ const wm=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]===AS_OF_MONTH);
  const wmVal=wm.reduce((s,l)=>s+val(l),0);const pct=Math.round(wmVal/5000000*100);
  const due=(typeof dueCustomers==='function')?dueCustomers():0;
  const neg=[...LEADS.filter(l=>l.stage==='negotiation')].sort((a,b)=>val(b)-val(a))[0];
- return `Team won <b>${lkr(wmVal)}</b> in June (<b style="color:var(--red)">${pct}%</b> of target) · <b style="color:var(--red)">${due} customers</b> due for follow-up${neg?` · watch: <b>${neg.name}</b> closing ${lkr(val(neg))}`:''}`;
+ return `Team won <b>${lkr(wmVal)}</b> in ${AS_OF_MONTHNAME} (<b style="color:var(--red)">${pct}%</b> of target) · <b style="color:var(--red)">${due} customers</b> due for follow-up${neg?` · watch: <b>${neg.name}</b> closing ${lkr(val(neg))}`:''}`;
 }
 function renderDash(){
  const open=LEADS.filter(l=>!['delivered','lost'].includes(l.stage));
  const pv=open.reduce((s,l)=>s+val(l),0);
- const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]==='2026-06');
+ const wonMonth=LEADS.filter(l=>['order_confirmed','delivered'].includes(l.stage)&&MONTH[l.id]===AS_OF_MONTH);
  const wonMonthVal=wonMonth.reduce((s,l)=>s+val(l),0);
  const dueCust=(typeof dueCustomers==='function')?dueCustomers():0;
  const todo=TASKS.filter(t=>!t.d).length;
  const TARGET=5000000;const pct=Math.min(100,Math.round(wonMonthVal/TARGET*100));
- document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">Thursday, 25 June</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">Good afternoon, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)">${greetSub()}</div>`;
+ document.getElementById('greet').innerHTML=`<div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase">${DY_FULL[AS_OF.getDay()]}, ${AS_OF.getDate()} ${AS_OF_MONTHNAME}</div><h1 style="font-size:30px;font-weight:800;margin:5px 0 5px">${greetWord(AS_OF.getHours())}, ${CURRENT_NAME}.</h1><div style="font-size:14px;color:var(--muted)">${greetSub()}</div>`;
  document.getElementById('heroPipe').innerHTML=`<div style="padding:24px"><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">Open Pipeline</div><div style="font-family:Poppins;font-size:40px;font-weight:800;margin:8px 0 8px"><span data-to="${(pv/1e6).toFixed(1)}" data-fmt="m1">LKR ${(pv/1e6).toFixed(1)}M</span></div><div style="font-size:13.5px;color:var(--muted);line-height:1.55">Across <b>${open.length}</b> active deals. Push quoted deals into negotiation to build momentum and close the month strong.</div></div>`;
  const CIR=2*Math.PI*54;const off=CIR*(1-pct/100);
- document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800"><span data-to="${pct}" data-fmt="pct">${pct}%</span></div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">June Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px"><span data-to="${(wonMonthVal/1e6).toFixed(2)}" data-fmt="m">LKR ${(wonMonthVal/1e6).toFixed(2)}M</span></div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
- const stats=[{ic:I.clock,c:'var(--amber)',bg:'var(--amber-soft)',v:todo,l:'Tasks to do',s:'across the team'},{ic:I.bolt,c:'var(--blue)',bg:'var(--blue-soft)',v:open.length,l:'Active deals',s:'in the pipeline'},{ic:I.check,c:'var(--green)',bg:'var(--green-soft)',v:wonMonth.length,l:'Won in June',s:lkr(wonMonthVal)},{ic:I.user,c:'var(--red)',bg:'var(--red-soft)',v:dueCust,l:'Customers to follow up',s:'reconnect now'}];
+ document.getElementById('heroGoal').innerHTML=`<div style="padding:22px 24px;display:flex;align-items:center;gap:22px"><div style="position:relative;width:128px;height:128px;flex-shrink:0"><svg width="128" height="128" viewBox="0 0 128 128"><circle cx="64" cy="64" r="54" fill="none" stroke="var(--line)" stroke-width="12"/><circle cx="64" cy="64" r="54" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${CIR}" stroke-dashoffset="${off}" transform="rotate(-90 64 64)"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:Poppins;font-size:27px;font-weight:800"><span data-to="${pct}" data-fmt="pct">${pct}%</span></div><div style="font-size:10px;color:var(--muted)">of goal</div></div></div><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600">${AS_OF_MONTHNAME} Target</div><div style="font-family:Poppins;font-size:23px;font-weight:800;margin:6px 0 4px"><span data-to="${(wonMonthVal/1e6).toFixed(2)}" data-fmt="m">LKR ${(wonMonthVal/1e6).toFixed(2)}M</span></div><div style="font-size:12.5px;color:var(--muted)">won of <b>LKR 5.0M</b> target</div></div></div>`;
+ const stats=[{ic:I.clock,c:'var(--amber)',bg:'var(--amber-soft)',v:todo,l:'Tasks to do',s:'across the team'},{ic:I.bolt,c:'var(--blue)',bg:'var(--blue-soft)',v:open.length,l:'Active deals',s:'in the pipeline'},{ic:I.check,c:'var(--green)',bg:'var(--green-soft)',v:wonMonth.length,l:'Won in '+AS_OF_MONTHNAME,s:lkr(wonMonthVal)},{ic:I.user,c:'var(--red)',bg:'var(--red-soft)',v:dueCust,l:'Customers to follow up',s:'reconnect now'}];
  document.getElementById('statCards').innerHTML=stats.map(s=>`<div class="kpi"><div style="width:36px;height:36px;border-radius:10px;background:${s.bg};color:${s.c};display:flex;align-items:center;justify-content:center;margin-bottom:12px">${s.ic}</div><div class="val"><span data-to="${s.v}" data-fmt="int">${s.v}</span></div><div style="font-size:12.5px;font-weight:600;margin:6px 0 2px">${s.l}</div><div class="sub">${s.s}</div></div>`).join('');
  document.getElementById('revChart').innerHTML=barChart([{label:'Jan',v:1.2},{label:'Feb',v:0.9},{label:'Mar',v:1.8},{label:'Apr',v:2.4},{label:'May',v:1.3},{label:'Jun',v:+(wonMonthVal/1e6).toFixed(2),hi:true}]);
  const maxC=Math.max(...STAGES.map(s=>LEADS.filter(l=>l.stage===s.k).length),1);
@@ -1382,8 +1396,9 @@ function rfEdit(el){
  l.rev.months[el.dataset.m]=v;
  renderRevenue();
 }
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted deal value across every stage'],revenue:['Revenue Forecast','Month-by-month recognised revenue, editable'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revenue')renderRevenue();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+function rvView(which){const fc=which==='forecast';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';document.getElementById('rvExportBtn').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 
@@ -1635,7 +1650,7 @@ function renderSalesReport(){
 (function initSRMonth(){
   const sel=document.getElementById('srMonth');
   const cmp=document.getElementById('srCompare');
-  const now=new Date();
+  const now=AS_OF;
   const opts=[];
   for(let i=0;i<12;i++){
     const dt=new Date(now.getFullYear(),now.getMonth()-i,1);
