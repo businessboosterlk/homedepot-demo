@@ -471,6 +471,37 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
  .rv-charts,.rv-compare{grid-template-columns:1fr}
  .rv-cmp-val{font-size:20px}
 }
+
+/* Revenue Forecast grid */
+.rf-grid{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;min-width:1220px}
+.rf-grid th,.rf-grid td{padding:12px 13px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.rf-grid th.rf-num,.rf-grid td.rf-num{min-width:98px}
+.rf-grid th.rf-txt:first-child,.rf-grid td.rf-sticky{min-width:210px}
+.rf-grid thead th{position:sticky;top:0;background:var(--surface-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);font-weight:700;text-align:right;z-index:2}
+.rf-grid thead th.rf-txt{text-align:left}
+.rf-grid td.rf-num,.rf-grid th.rf-num{text-align:right;font-variant-numeric:tabular-nums}
+.rf-grid .rf-proj{font-weight:700;color:var(--ink)}
+.rf-grid .rf-legal{font-size:11.5px;color:var(--muted);margin-top:1px}
+.rf-ctype{display:inline-flex;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.3px}
+.rf-ctype.svc{background:var(--blue-soft);color:var(--blue)}
+.rf-ctype.prod{background:var(--amber-soft);color:var(--amber)}
+.rf-grid tbody tr:hover{background:var(--surface-2)}
+.rf-grid .rf-sticky{position:sticky;left:0;background:var(--surface);z-index:1}
+.rf-grid tbody tr:hover .rf-sticky{background:var(--surface-2)}
+.rf-cell{width:100%;min-width:82px;border:1px solid transparent;background:transparent;border-radius:8px;padding:7px 9px;font-size:13px;font-weight:600;color:var(--ink);text-align:right;font-variant-numeric:tabular-nums;font-family:inherit;transition:border-color .12s,background .12s;cursor:text}
+.rf-cell:hover{border-color:var(--line)}
+.rf-cell:focus{outline:none;border-color:var(--red);background:var(--surface);box-shadow:0 0 0 3px var(--red-soft)}
+.rf-cell.zero{color:var(--faint);font-weight:500}
+.rf-totrow td{border-top:2px solid var(--line);border-bottom:none;font-weight:800;background:var(--surface-2)}
+.rf-totrow .rf-tot-lbl{text-transform:uppercase;font-size:11px;letter-spacing:.6px;color:var(--muted)}
+.rf-mtot{font-family:'Poppins',sans-serif;font-variant-numeric:tabular-nums}
+.rf-soft{color:var(--amber)!important}
+.rf-strong{color:var(--green)!important}
+.rf-flag{display:block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.rf-flag.soft{color:var(--amber)}
+.rf-flag.strong{color:var(--green)}
+.rf-legend{display:inline-flex;align-items:center;gap:6px}
+.rf-dot{width:9px;height:9px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -512,6 +543,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-item active" data-pg="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</div>
       <div class="nav-item" data-pg="pipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>Sales Pipeline</div>
       <div class="nav-item ceo-only" data-pg="revpipeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Revenue Pipeline</div>
+      <div class="nav-item ceo-only" data-pg="revenue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="20"/></svg>Revenue Forecast</div>
       <div class="nav-item" data-pg="inquiries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Inquiries<span class="badge" id="nbEnq"></span></div>
       <div class="nav-item" data-pg="quotations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Quotations<span class="badge" id="nbQuo"></span></div>
       <div class="nav-item" data-pg="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Customers<span class="badge" id="nbCus"></span></div>
@@ -580,6 +612,16 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
           <div class="rv-chart-card"><div class="rv-chart-title">Pipeline Value Distribution</div><div style="position:relative;height:320px"><canvas id="rvDonutChart"></canvas></div></div>
         </div>
         <div class="rv-compare" id="rvCompare"></div>
+      </div>
+
+      <!-- Revenue Forecast (month-by-month recognition grid) -->
+      <div class="page" id="page-revenue">
+        <div class="sr-kpis" id="rfKpis" style="margin-bottom:18px"></div>
+        <div class="card">
+          <div class="card-h"><h3>Revenue Recognition — Jul to Dec 2026</h3><span style="font-size:12px;color:var(--muted)">Tap any month cell to edit. Soft months are flagged.</span></div>
+          <div class="card-b" style="padding:0;overflow-x:auto"><div id="rfGridWrap"></div></div>
+        </div>
+        <div id="rfNote" style="margin-top:14px;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:8px"></div>
       </div>
 
       <div class="page" id="page-inquiries">
@@ -688,7 +730,12 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div>
         <input id="iq_other" placeholder="Describe the other product…" style="display:none;margin-top:10px"></div>
       <div class="fld"><label>Item codes <span style="color:var(--faint);font-weight:400">(optional · links to your stock system)</span></label><input id="iq_codes" placeholder="e.g. CH-800, PD-22, OG-05"></div>
-      <div class="fld"><label>Estimated value (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
+      <div class="fld"><label>Estimated revenue — total (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div class="fld"><label>Contract type</label><select id="iq_ctype" onchange="iqCtypeChange()"><option>Product</option><option>Project</option><option>Retainer</option></select></div>
+        <div class="fld"><label>Start month</label><select id="iq_start"></select></div>
+        <div class="fld" id="iq_endWrap"><label>End month</label><select id="iq_end"></select></div>
+      </div>
     </div>
     <div class="modal-f"><button class="btn-ghost" onclick="closeInqModal()">Cancel</button><button class="btn-red" onclick="saveInquiry()">Add Inquiry</button></div>
   </div>
@@ -902,8 +949,9 @@ function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=o
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
 const PRODUCTS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
-function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=[...PRODUCTS,'Other'].map(p=>`<span class="tag iq-prod" data-prod="${p}" onclick="toggleProd(this)">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');const o=document.getElementById('iq_other');o.value='';o.style.display='none';document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=[...PRODUCTS,'Other'].map(p=>`<span class="tag iq-prod" data-prod="${p}" onclick="toggleProd(this)">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');const o=document.getElementById('iq_other');o.value='';o.style.display='none';const mopt=REV_MONTHS.map(m=>`<option value="${m}">${moLabel(m)}</option>`).join('');document.getElementById('iq_start').innerHTML=mopt;document.getElementById('iq_end').innerHTML=mopt;document.getElementById('iq_end').value=REV_MONTHS[REV_MONTHS.length-1];document.getElementById('iq_ctype').value='Product';iqCtypeChange();document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
 function toggleProd(el){el.classList.toggle('sel');if(el.dataset.prod==='Other'){const o=document.getElementById('iq_other'),on=el.classList.contains('sel');o.style.display=on?'':'none';if(on){setTimeout(()=>o.focus(),40);}else{o.value='';}}}
+function iqCtypeChange(){const svc=document.getElementById('iq_ctype').value!=='Product';document.getElementById('iq_endWrap').style.opacity=svc?'1':'.4';document.getElementById('iq_end').disabled=!svc;}
 function prodSelectAll(){document.querySelectorAll('#iq_prods .iq-prod').forEach(t=>t.classList.add('sel'));document.getElementById('iq_other').style.display='';}
 function prodClearAll(){document.querySelectorAll('#iq_prods .iq-prod').forEach(t=>t.classList.remove('sel'));const o=document.getElementById('iq_other');o.style.display='none';o.value='';}
 function closeInqModal(){document.getElementById('inqModal').classList.remove('open');}
@@ -917,11 +965,18 @@ function saveInquiry(){
  const otherTxt=document.getElementById('iq_other').value.trim();
  if(prods.indexOf('Other')>-1){prods=prods.filter(p=>p!=='Other');if(otherTxt)prods.push(otherTxt);}
  const codes=document.getElementById('iq_codes').value.split(',').map(s=>s.trim()).filter(Boolean);
+ const ct=document.getElementById('iq_ctype').value;
+ const start=document.getElementById('iq_start').value;
+ let end=document.getElementById('iq_end').value;
+ if(!isService(ct)||REV_MONTHS.indexOf(end)<REV_MONTHS.indexOf(start))end=start;
  const id=Math.max.apply(null,LEADS.map(l=>l.id))+1;
  const q=value?[{p:codes.length?'Items: '+codes.join(', '):'Estimated requirement',n:codes[0]||'EST',q:1,u:value}]:[];
- LEADS.push({id,name,co,type,lead,stage:'new_inquiry',owner,phone:'',email:'',source,products:prods.length?prods:['Other'],codes,project:lead==='Project'?{type:co,fixtures:0}:null,quote:q,acts:[{t:'Inquiry added',m:'New inquiry created'+(codes.length?' · items: '+codes.join(', '):''),tm:'just now'}]});
+ const nl={id,name,co,type,lead,stage:'new_inquiry',owner,phone:'',email:'',source,products:prods.length?prods:['Other'],codes,project:lead==='Project'?{type:co,fixtures:0}:null,quote:q,acts:[{t:'Inquiry added',m:'New inquiry created'+(codes.length?' · items: '+codes.join(', '):''),tm:'just now'}]};
+ // Capture revenue recognition at creation (fixes revenue = 0 on new inquiry)
+ nl.rev={est:value,ct,start,end,proj:name,legal:name,months:evenSplit(value,ct,start,end)};
+ LEADS.push(nl);
  MONTH[id]='2026-06';
- closeInqModal();renderBoard();renderAll();renderDash();renderQueue();renderQuo();
+ closeInqModal();renderBoard();renderAll();renderDash();renderQueue();renderQuo();renderRevenue();
  document.getElementById('nbEnq').textContent=LEADS.length;
  go('pipeline');toast(I.check+' Inquiry added: '+name);
 }
@@ -1265,8 +1320,70 @@ function renderFinance(){
 }
 function markPaid(ref){const o=ORDERS.find(x=>x.ref===ref);if(!o)return;o.paid=o.amount;renderFinance();toast(I.check+' '+o.ref+' marked fully paid · '+o.cust);}
 function exportFinanceXLS(){exportXLS('homedepot-finance.xls',['Invoice','Customer','Invoiced (LKR)','Paid (LKR)','Balance (LKR)','Due date','Days overdue','Method'],finRows().map(o=>[o.ref,o.cust,o.amount,o.paid,balance(o),o.due,Math.max(0,daysOver(o)),o.method]));}
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted deal value across every stage'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+/* ═══════════ Revenue Forecast — month-by-month recognition ═══════════ */
+const REV_MONTHS=['2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
+const MNAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function moLabel(m){const p=m.split('-');return MNAMES[+p[1]-1]+" '"+p[0].slice(2);}
+function isService(ct){return ct==='Project'||ct==='Retainer';}
+// Realistic per-deal recognition seed: project name, legal entity, contract type, window, and (for no-quote leads) an estimate.
+const REVSEED={
+ 1:{proj:'Living Room Chandelier',legal:'Nuwan Perera',ct:'Product',start:'2026-07',end:'2026-07'},
+ 2:{proj:'Lobby + 40 Suites Relight',legal:'Cinnamon Grand Hotels PLC',ct:'Project',start:'2026-07',end:'2026-12'},
+ 3:{proj:'Highrise Common Areas',legal:'Ascon Developers (Pvt) Ltd',ct:'Project',start:'2026-09',end:'2026-12',est:3200000},
+ 4:{proj:'Private Villa · Nawala',legal:'Shanika Fernando Studio',ct:'Project',start:'2026-08',end:'2026-10'},
+ 5:{proj:'Garden + Driveway Lighting',legal:'Rajitha Silva',ct:'Product',start:'2026-08',end:'2026-08'},
+ 6:{proj:'Restaurant + Pool + Walkways',legal:'Araliya Resorts (Pvt) Ltd',ct:'Retainer',start:'2026-07',end:'2026-12'},
+ 7:{proj:'Bathroom + Ceiling Fixtures',legal:'Dilani Jayawardena',ct:'Product',start:'2026-09',end:'2026-09',est:95000},
+ 8:{proj:'3 Model Homes',legal:'Homewood Construction (Pvt) Ltd',ct:'Project',start:'2026-07',end:'2026-07'}
+};
+function evenSplit(est,ct,start,end){
+ const months={};REV_MONTHS.forEach(m=>months[m]=0);
+ if(!isService(ct)){months[start]=est;return months;}
+ const si=REV_MONTHS.indexOf(start),ei=REV_MONTHS.indexOf(end);
+ const span=REV_MONTHS.slice(Math.max(0,si),(ei<0?REV_MONTHS.length-1:ei)+1);
+ if(!span.length){months[start]=est;return months;}
+ const per=Math.round(est/span.length);let acc=0;
+ span.forEach((m,i)=>{if(i===span.length-1){months[m]=est-acc;}else{months[m]=per;acc+=per;}});
+ return months;
+}
+function seedRevModels(){LEADS.forEach(l=>{if(l.rev)return;const s=REVSEED[l.id]||{};const est=(s.est!=null?s.est:val(l))||0;const ct=s.ct||(l.lead==='Project'?'Project':'Product');const start=s.start||'2026-07';const end=s.end||start;l.rev={est,ct,start,end,proj:s.proj||l.name,legal:s.legal||l.name,months:evenSplit(est,ct,start,end)};});}
+function rfActive(){return LEADS.filter(l=>l.stage!=='lost'&&l.rev&&l.rev.est>0);}
+function rfMonthTotals(){const t={};REV_MONTHS.forEach(m=>t[m]=0);rfActive().forEach(l=>REV_MONTHS.forEach(m=>t[m]+=(+l.rev.months[m]||0)));return t;}
+function renderRevenue(){
+ seedRevModels();
+ const rows=rfActive();
+ const tot=rfMonthTotals();
+ const vals=REV_MONTHS.map(m=>tot[m]);
+ const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+ const maxV=Math.max(...vals,1);
+ const grand=vals.reduce((a,b)=>a+b,0);
+ // KPIs: total forecast, strongest month, softest month
+ let softM=REV_MONTHS[0],strongM=REV_MONTHS[0];
+ REV_MONTHS.forEach(m=>{if(tot[m]<tot[softM])softM=m;if(tot[m]>tot[strongM])strongM=m;});
+ document.getElementById('rfKpis').innerHTML=
+  `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:var(--red)"></div><div class="sr-kpi-label">Forecast · Jul–Dec</div><div class="sr-kpi-val"><span data-to="${(grand/1e6).toFixed(2)}" data-fmt="m">LKR ${(grand/1e6).toFixed(2)}M</span></div></div>`+
+  `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:var(--green)"></div><div class="sr-kpi-label">Strongest month</div><div class="sr-kpi-val" style="font-size:20px">${moLabel(strongM)}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">${lkr(tot[strongM])}</div></div>`+
+  `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:var(--amber)"></div><div class="sr-kpi-label">Softest month</div><div class="sr-kpi-val" style="font-size:20px;color:var(--amber)">${moLabel(softM)}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">${lkr(tot[softM])} · plan a promo</div></div>`+
+  `<div class="sr-kpi"><div class="sr-kpi-stripe" style="background:var(--blue)"></div><div class="sr-kpi-label">Deals in forecast</div><div class="sr-kpi-val">${rows.length}</div></div>`;
+ const head='<thead><tr><th class="rf-txt rf-sticky">Project</th><th class="rf-txt">Client legal name</th><th class="rf-txt">Type</th><th class="rf-txt">Stage</th>'+REV_MONTHS.map(m=>`<th class="rf-num">${moLabel(m)}</th>`).join('')+'<th class="rf-num">Deal total</th></tr></thead>';
+ const body=rows.map(l=>{
+  const dealTot=REV_MONTHS.reduce((s,m)=>s+(+l.rev.months[m]||0),0);
+  const cells=REV_MONTHS.map(m=>{const v=+l.rev.months[m]||0;return `<td class="rf-num"><input class="rf-cell${v?'':' zero'}" inputmode="numeric" value="${v?v.toLocaleString('en-LK'):'—'}" data-id="${l.id}" data-m="${m}" onfocus="rfFocus(this)" onblur="rfEdit(this)" onkeydown="if(event.key==='Enter')this.blur()"></td>`;}).join('');
+  return `<tr><td class="rf-sticky"><div class="rf-proj">${l.rev.proj}</div><div class="rf-legal">${l.co}</div></td><td>${l.rev.legal}</td><td><span class="rf-ctype ${isService(l.rev.ct)?'svc':'prod'}">${l.rev.ct}</span></td><td><span class="bdg bdg-grey">${stageLabel(l.stage)}</span></td>${cells}<td class="rf-num" style="font-weight:800">${lkr(dealTot)}</td></tr>`;
+ }).join('');
+ const totRow='<tr class="rf-totrow"><td class="rf-sticky rf-tot-lbl">Monthly total</td><td></td><td></td><td></td>'+REV_MONTHS.map(m=>{const v=tot[m];const soft=v<avg*0.8;const strong=v>avg*1.12;const cls=soft?'rf-soft':(strong?'rf-strong':'');const flag=soft?'<span class="rf-flag soft">Soft</span>':(strong?'<span class="rf-flag strong">Strong</span>':'');return `<td class="rf-num"><span class="rf-mtot ${cls}">${(v/1e6).toFixed(2)}M</span>${flag}</td>`;}).join('')+`<td class="rf-num rf-mtot">${(grand/1e6).toFixed(2)}M</td></tr>`;
+ document.getElementById('rfGridWrap').innerHTML=`<table class="rf-grid">${head}<tbody>${body}${totRow}</tbody></table>`;
+ document.getElementById('rfNote').innerHTML=`<span class="rf-legend"><span class="rf-dot" style="background:var(--amber)"></span> Soft month (below 80% of the 6-month average) — a good target for a promo.</span> &nbsp;·&nbsp; <span class="rf-legend"><span class="rf-dot" style="background:var(--blue)"></span> Service deals split evenly across their months; edit any cell to recognise more in a busy month.</span>`;
+}
+function rfFocus(el){const v=el.value.replace(/[^0-9]/g,'');el.value=v;el.select();}
+function rfEdit(el){
+ const l=LEADS.find(x=>x.id===+el.dataset.id);if(!l)return;
+ const v=Math.max(0,parseInt(el.value.replace(/[^0-9]/g,''),10)||0);
+ l.rev.months[el.dataset.m]=v;
+ renderRevenue();
+}
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted deal value across every stage'],revenue:['Revenue Forecast','Month-by-month recognised revenue, editable'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revenue')renderRevenue();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 
@@ -1278,7 +1395,7 @@ document.getElementById('nbCus').textContent=dueCustomers();
 document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.length).map(l=>MONTH[l.id]));
 document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
 document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
-renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
+seedRevModels();renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
 
 /* ── Revenue Pipeline ── */
 let rvCharts={};
