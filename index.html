@@ -272,6 +272,8 @@ input{font-family:inherit;color:var(--ink)}
 .tp-av{width:44px;height:44px;border-radius:12px;background:var(--sidebar);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
 .tp-nm{font-size:15px;font-weight:700}.tp-rl{font-size:12px;color:var(--muted)}
 .tp-pill{margin-left:auto;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--green-soft);color:var(--green)}
+.tp-me{border-color:var(--red);box-shadow:0 0 0 1px var(--red),var(--shadow)}
+.tp-you{font-size:10px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--red);background:var(--red-soft);padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
 .tp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .tp-stat{text-align:center;background:var(--surface-2);border-radius:9px;padding:9px 4px}
 .tp-stat .v{font-family:'Poppins';font-size:18px;font-weight:800;line-height:1}
@@ -340,6 +342,9 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .ivl{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:11.5px;font-weight:600;color:var(--ink);outline:none;cursor:pointer;margin-right:8px}
 .iq-prod{cursor:pointer;user-select:none}
 .iq-prod.sel{background:var(--red);color:#fff;border-color:var(--red)}
+.prod-mini{font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);transition:border-color .15s,color .15s,transform .12s var(--ease,cubic-bezier(.16,1,.3,1))}
+.prod-mini:hover{border-color:var(--red);color:var(--red)}
+.prod-mini:active{transform:scale(.96)}
 .search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;width:300px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow2);max-height:360px;overflow-y:auto;z-index:80;display:none;padding:6px}
 .search-results.open{display:block}
 .sr-h{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:700;padding:8px 11px 4px}
@@ -678,7 +683,10 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="fld"><label>Segment</label><select id="iq_lead"><option>Retail</option><option>Project</option></select></div>
         <div class="fld"><label>Source</label><select id="iq_source"><option>Showroom walk-in</option><option>Website enquiry</option><option>WhatsApp</option><option>Phone</option><option>Referral</option><option>Interior designer</option></select></div>
       </div>
-      <div class="fld"><label>Products of interest <span style="color:var(--faint);font-weight:400">(tap to select)</span></label><div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div></div>
+      <div class="fld"><label>Products of interest <span style="color:var(--faint);font-weight:400">(tap to select)</span></label>
+        <div style="display:flex;gap:8px;margin-bottom:9px"><button type="button" class="prod-mini" onclick="prodSelectAll()">Select all</button><button type="button" class="prod-mini" onclick="prodClearAll()">Clear all</button></div>
+        <div id="iq_prods" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        <input id="iq_other" placeholder="Describe the other product…" style="display:none;margin-top:10px"></div>
       <div class="fld"><label>Item codes <span style="color:var(--faint);font-weight:400">(optional · links to your stock system)</span></label><input id="iq_codes" placeholder="e.g. CH-800, PD-22, OG-05"></div>
       <div class="fld"><label>Estimated value (LKR)</label><input id="iq_value" type="number" placeholder="e.g. 250000"></div>
     </div>
@@ -894,7 +902,10 @@ function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=o
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
 const PRODUCTS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
-function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=PRODUCTS.map(p=>`<span class="tag iq-prod" onclick="this.classList.toggle('sel')">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=[...PRODUCTS,'Other'].map(p=>`<span class="tag iq-prod" data-prod="${p}" onclick="toggleProd(this)">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');const o=document.getElementById('iq_other');o.value='';o.style.display='none';document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+function toggleProd(el){el.classList.toggle('sel');if(el.dataset.prod==='Other'){const o=document.getElementById('iq_other'),on=el.classList.contains('sel');o.style.display=on?'':'none';if(on){setTimeout(()=>o.focus(),40);}else{o.value='';}}}
+function prodSelectAll(){document.querySelectorAll('#iq_prods .iq-prod').forEach(t=>t.classList.add('sel'));document.getElementById('iq_other').style.display='';}
+function prodClearAll(){document.querySelectorAll('#iq_prods .iq-prod').forEach(t=>t.classList.remove('sel'));const o=document.getElementById('iq_other');o.style.display='none';o.value='';}
 function closeInqModal(){document.getElementById('inqModal').classList.remove('open');}
 function saveInquiry(){
  const name=document.getElementById('iq_name').value.trim();if(!name){document.getElementById('iq_name').focus();return;}
@@ -902,7 +913,9 @@ function saveInquiry(){
  const type=document.getElementById('iq_type').value,lead=document.getElementById('iq_lead').value;
  const source=document.getElementById('iq_source').value,owner=document.getElementById('iq_owner').value;
  const value=+document.getElementById('iq_value').value||0;
- const prods=[].slice.call(document.querySelectorAll('#iq_prods .iq-prod.sel')).map(b=>b.textContent);
+ let prods=[].slice.call(document.querySelectorAll('#iq_prods .iq-prod.sel')).map(b=>b.dataset.prod);
+ const otherTxt=document.getElementById('iq_other').value.trim();
+ if(prods.indexOf('Other')>-1){prods=prods.filter(p=>p!=='Other');if(otherTxt)prods.push(otherTxt);}
  const codes=document.getElementById('iq_codes').value.split(',').map(s=>s.trim()).filter(Boolean);
  const id=Math.max.apply(null,LEADS.map(l=>l.id))+1;
  const q=value?[{p:codes.length?'Items: '+codes.join(', '):'Estimated requirement',n:codes[0]||'EST',q:1,u:value}]:[];
@@ -1171,7 +1184,9 @@ function openLead(id){
 }
 function closePanel(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open');}
 
-const TEAM=[{n:'Raashid',r:'Manager'},{n:'Yasitha',r:'Manager'},{n:'Shafna',r:'Manager'},{n:'Ushan',r:'Sales'}];
+const TEAM=[{n:'Nihla',r:'Director'},{n:'Raashid',r:'Manager'},{n:'Yasitha',r:'Manager'},{n:'Shafna',r:'Manager'},{n:'Ushan',r:'Sales'}];
+// Always show the logged-in viewer, even if not in the base roster.
+function teamRoster(){return TEAM.some(p=>p.n===CURRENT_NAME)?TEAM:[{n:CURRENT_NAME,r:CURRENT_ROLE},...TEAM];}
 const AUDIT=[
  {u:'Nihla',r:'Director',d:'MacBook · Chrome',loc:'Colombo',t:'Today, 08:42 AM'},
  {u:'Ushan',r:'Sales',d:'iPhone · Safari',loc:'Nawala showroom',t:'Today, 08:15 AM'},
@@ -1184,14 +1199,15 @@ function perf(name,mo){const owned=LEADS.filter(l=>l.owner===name&&(!mo||MONTH[l
 function setMonth(v){TEAM_MONTH=v;renderTeam();}
 function renderTeam(){
  const mo=TEAM_MONTH;
- const totDeals=TEAM.reduce((s,p)=>s+perf(p.n,mo).won.length,0);
- const totWon=TEAM.reduce((s,p)=>s+perf(p.n,mo).wonVal,0);
- const totPipe=TEAM.reduce((s,p)=>s+perf(p.n,mo).pipe,0);
+ const roster=teamRoster();
+ const totDeals=roster.reduce((s,p)=>s+perf(p.n,mo).won.length,0);
+ const totWon=roster.reduce((s,p)=>s+perf(p.n,mo).wonVal,0);
+ const totPipe=roster.reduce((s,p)=>s+perf(p.n,mo).pipe,0);
  const msel=document.getElementById('monthSel');if(msel)msel.value=mo;
  document.getElementById('teamKpis').innerHTML=`<div class="kpi accent"><div class="lbl">Revenue Brought In</div><div class="val"><span data-to="${(totWon/1e6).toFixed(2)}" data-fmt="m">LKR ${(totWon/1e6).toFixed(2)}M</span></div><div class="sub">closed orders, all team</div></div><div class="kpi"><div class="lbl">Deals Closed</div><div class="val"><span data-to="${totDeals}" data-fmt="int">${totDeals}</span></div><div class="sub">orders confirmed + delivered</div></div><div class="kpi"><div class="lbl">Open Pipeline</div><div class="val"><span data-to="${(totPipe/1e6).toFixed(1)}" data-fmt="m1">LKR ${(totPipe/1e6).toFixed(1)}M</span></div><div class="sub">value still in play</div></div>`;
- document.getElementById('teamGrid').innerHTML=TEAM.map(p=>{
-  const d=perf(p.n,mo);
-  return `<div class="tp-card" onclick="openEmployee('${p.n}','${p.r}')"><div class="tp-head"><div class="tp-av">${init(p.n)}</div><div><div class="tp-nm">${p.n}</div><div class="tp-rl">${p.r}</div></div>${d.won.length?`<span class="tp-pill">${d.won.length} won</span>`:''}</div>
+ document.getElementById('teamGrid').innerHTML=roster.map(p=>{
+  const d=perf(p.n,mo);const me=p.n===CURRENT_NAME;
+  return `<div class="tp-card${me?' tp-me':''}" onclick="openEmployee('${p.n}','${p.r}')"><div class="tp-head"><div class="tp-av">${init(p.n)}</div><div><div class="tp-nm">${p.n}${me?' <span class="tp-you">You</span>':''}</div><div class="tp-rl">${p.r}</div></div>${d.won.length?`<span class="tp-pill">${d.won.length} won</span>`:''}</div>
    <div class="tp-stats"><div class="tp-stat"><div class="v">${d.owned.length}</div><div class="l">Leads</div></div><div class="tp-stat"><div class="v">${d.quotes}</div><div class="l">Quotes</div></div><div class="tp-stat"><div class="v">${d.won.length}</div><div class="l">Orders</div></div><div class="tp-stat"><div class="v">${d.conv}%</div><div class="l">Conv.</div></div></div>
    <div class="tp-conv"><span class="cl">Conversion</span><div class="tp-bar"><div class="f" style="width:${d.conv}%"></div></div><span class="cv">${d.conv}%</span></div>
    <div class="tp-conv" style="margin-top:8px"><span class="cl">Money brought in</span><span class="cv" style="margin-left:auto;color:var(--green)">${d.wonVal?lkr(d.wonVal):'—'}</span></div></div>`;
