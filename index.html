@@ -64,6 +64,7 @@ body.dark{
 :is(button,a,select,input):focus-visible{outline:none;box-shadow:var(--ring)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.06s!important;scroll-behavior:auto!important}}
 html,body{overflow-x:clip;max-width:100%;width:100%;position:relative}
 .app{overflow-x:clip;max-width:100vw}
 .main{overflow-x:clip;max-width:100%}
@@ -607,7 +608,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
           <div class="rv-seg"><button id="rvSegPipe" class="on" onclick="rvView('pipeline')">Pipeline</button><button id="rvSegFc" onclick="rvView('forecast')">Month-by-Month Forecast</button></div>
           <select class="filter" id="rvMonth" onchange="renderRevPipeline()"></select>
           <div class="sp"></div>
-          <button class="btn-ghost" id="rvExportBtn" onclick="exportRevPipelineXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
+          <button class="btn-ghost" id="rvExportBtn" onclick="rvExport()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button>
         </div>
         <!-- Pipeline view -->
         <div id="rvPipelineView">
@@ -1396,9 +1397,19 @@ function rfEdit(el){
  l.rev.months[el.dataset.m]=v;
  renderRevenue();
 }
+function exportForecastXLS(){
+ seedRevModels();
+ const rows=rfActive();const tot=rfMonthTotals();
+ const headers=['Project','Client legal name','Type','Stage',...REV_MONTHS.map(moLabel),'Deal total'];
+ const body=rows.map(l=>{const cells=REV_MONTHS.map(m=>+l.rev.months[m]||0);return [l.rev.proj,l.rev.legal,l.rev.ct,stageLabel(l.stage),...cells,cells.reduce((a,b)=>a+b,0)];});
+ body.push(['Monthly total','','','',...REV_MONTHS.map(m=>tot[m]),REV_MONTHS.reduce((s,m)=>s+tot[m],0)]);
+ exportXLS('homedepot-revenue-forecast.xls',headers,body);
+}
 const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
 function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
-function rvView(which){const fc=which==='forecast';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';document.getElementById('rvExportBtn').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
+let RV_VIEW='pipeline';
+function rvView(which){const fc=which==='forecast';RV_VIEW=fc?'forecast':'pipeline';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
+function rvExport(){RV_VIEW==='forecast'?exportForecastXLS():exportRevPipelineXLS();}
 document.querySelectorAll('.nav-item[data-pg]').forEach(n=>n.onclick=()=>go(n.dataset.pg));
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
 
