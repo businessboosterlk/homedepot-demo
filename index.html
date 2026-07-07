@@ -508,6 +508,73 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .rf-flag.strong{color:var(--green)}
 .rf-legend{display:inline-flex;align-items:center;gap:6px}
 .rf-dot{width:9px;height:9px;border-radius:50%}
+
+/* ── Smart Inventory (ported from master skeleton 9C) ── */
+.inv-alerts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:760px){.inv-alerts{grid-template-columns:1fr}}
+.inv-alert{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;background:var(--surface);box-shadow:var(--shadow-xs);display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .15s var(--ease),box-shadow .15s,border-color .15s;text-align:left}
+.inv-alert:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.inv-alert.on{border-color:var(--red);box-shadow:0 0 0 1px var(--red),var(--shadow-xs)}
+.inv-alert .ia-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.inv-alert .ia-ic svg{width:19px;height:19px}
+.inv-alert.low .ia-ic{background:var(--amber-soft);color:var(--amber)}
+.inv-alert.out .ia-ic{background:var(--red-soft);color:var(--red)}
+.inv-alert.dead .ia-ic{background:var(--blue-soft);color:var(--blue)}
+.inv-alert .ia-v{font-family:'Poppins';font-size:22px;font-weight:800;line-height:1}
+.inv-alert .ia-l{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:3px}
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.prod-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-xs);cursor:pointer;transition:transform .15s var(--ease),box-shadow .15s,border-color .15s;display:flex;flex-direction:column}
+.prod-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:color-mix(in srgb,var(--red) 40%,var(--line))}
+.prod-photo{aspect-ratio:16/10;background:var(--surface-2);position:relative;overflow:hidden;display:grid;place-items:center}
+.prod-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.prod-photo .ph-ph{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--faint)}
+.prod-photo .ph-ph svg{width:30px;height:30px}
+.prod-photo .ph-ph span{font-size:10px;font-weight:600;letter-spacing:.3px}
+.prod-photo .stock-tag{position:absolute;top:8px;left:8px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.stock-tag.ok{background:color-mix(in srgb,var(--green) 90%,transparent);color:#fff}
+.stock-tag.low{background:color-mix(in srgb,var(--amber) 92%,transparent);color:#fff}
+.stock-tag.out{background:color-mix(in srgb,var(--red) 92%,transparent);color:#fff}
+.prod-body{padding:12px 14px 14px;flex:1;display:flex;flex-direction:column}
+.prod-nm{font-size:13.5px;font-weight:700;line-height:1.25}
+.prod-code{font-size:11px;color:var(--faint);font-weight:600;margin-top:2px;font-variant-numeric:tabular-nums}
+.prod-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px}
+.prod-price{font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.prod-qty{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.prod-dead{margin-top:8px;font-size:10.5px;font-weight:700;color:var(--blue);background:var(--blue-soft);padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:5px;align-self:flex-start;white-space:nowrap}
+.prod-dead svg{width:12px;height:12px;flex-shrink:0}
+.stock-hist{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:12.5px}.stock-hist:last-child{border:none}
+.stock-hist .sh-q{font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
+.stock-hist .sh-q.pos{color:var(--green)}.stock-hist .sh-q.neg{color:var(--red)}
+.bdg-amber{background:var(--amber-soft);color:var(--amber)}
+.bdg-blue{background:var(--blue-soft);color:var(--blue)}
+.photo-drop{aspect-ratio:16/10;border:2px dashed var(--line);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;color:var(--muted);cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .15s}
+.photo-drop:hover{border-color:var(--red);background:var(--red-soft)}
+.photo-drop.has{padding:0;border-style:solid;overflow:hidden}
+.photo-drop img{width:100%;height:100%;object-fit:cover}
+.fld-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── Bulk Import (ported from master skeleton 9D) ── */
+.imp-steps{display:flex;gap:6px;margin-bottom:16px}
+.imp-step{flex:1;height:4px;border-radius:99px;background:var(--line)}
+.imp-step.on{background:var(--red)}
+.imp-drop{border:2px dashed var(--line);border-radius:var(--r-md);padding:30px 18px;text-align:center;background:var(--surface-2);cursor:pointer;transition:border-color .15s,background .15s}
+.imp-drop:hover{border-color:var(--red);background:var(--red-soft)}
+.imp-drop svg{width:34px;height:34px;color:var(--faint);margin-bottom:10px}
+.imp-drop .id-t{font-size:14px;font-weight:700}
+.imp-drop .id-s{font-size:12px;color:var(--muted);margin-top:4px}
+.imp-note{margin-top:12px;font-size:11.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 11px;display:none}
+.imp-map{display:grid;gap:8px}
+.imp-map-row{display:grid;grid-template-columns:1fr 20px 1fr;gap:8px;align-items:center}
+.imp-map-row .imf{font-size:12.5px;font-weight:600}
+.imp-map-row .imf .req{color:var(--red);margin-left:2px}
+.imp-map-row .arw{color:var(--faint);text-align:center}
+.imp-prev{border:1px solid var(--line);border-radius:var(--r-md);overflow:auto;max-height:230px;margin-top:6px}
+.imp-prev table{width:100%;border-collapse:collapse;font-size:12px;min-width:420px}
+.imp-prev th{background:var(--surface-2);color:var(--faint);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;padding:8px 10px;text-align:left;position:sticky;top:0}
+.imp-prev td{padding:7px 10px;border-top:1px solid var(--line2);white-space:nowrap}
+.imp-prev tr.bad td{background:var(--red-soft);color:var(--red)}
+.imp-summary{text-align:center;padding:18px 8px}
+.imp-summary .is-big{font-family:'Poppins';font-size:34px;font-weight:800;color:var(--green)}
+.imp-summary .is-sub{font-size:13px;color:var(--muted);margin-top:4px}
 </style>
 </head>
 <body>
@@ -552,6 +619,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-item" data-pg="inquiries"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>All Inquiries<span class="badge" id="nbEnq"></span></div>
       <div class="nav-item" data-pg="quotations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Quotations<span class="badge" id="nbQuo"></span></div>
       <div class="nav-item" data-pg="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>Customers<span class="badge" id="nbCus"></span></div>
+      <div class="nav-item" data-pg="inventory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Inventory<span class="badge" id="nbInv"></span></div>
       <div class="nav-item" data-pg="taskbook"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Task Book<span class="badge" id="nbTask"></span></div>
       <div class="nav-label ceo-only">Management</div>
       <div class="nav-item ceo-only" data-pg="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>Team & Performance</div>
@@ -633,16 +701,31 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       </div>
 
       <div class="page" id="page-inquiries">
-        <div class="toolbar"><select class="filter" id="monthFilterI" onchange="setLeadMonth(this.value)"></select><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
+        <div class="toolbar"><select class="filter" id="monthFilterI" onchange="setLeadMonth(this.value)"></select><select class="filter" id="ownerFilter2" onchange="setFilter(this.value)"><option value="all">All team members</option></select><div class="sp"></div><button class="btn-ghost" onclick="openImport('leads')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn-ghost" onclick="exportInquiriesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportInquiries()">Export CSV</button></div>
         <div class="scope-stats" id="inqStats"></div>
         <div class="card"><div class="card-b" id="allList" style="padding-top:6px"></div></div>
       </div>
       <div class="page" id="page-quotations"><div class="toolbar"><select class="filter" id="quoMonth" onchange="setQuoMonth(this.value)"></select><div class="sp"></div></div><div class="exp-bar" style="gap:10px"><button class="btn-ghost" onclick="exportQuotesXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button><button class="btn-ghost" onclick="exportQuotes()">Export CSV</button></div><div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>Type</th><th>Products</th><th>Stage</th><th class="tnum">Quote Total</th></tr></thead><tbody id="quoBody"></tbody></table></div></div>
       <div class="page" id="page-customers">
         <div class="sr-kpis" id="cusKpis" style="margin-bottom:18px"></div>
-        <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><select class="filter" id="cusType" onchange="setCusType(this.value)"><option value="all">All types</option><option value="B2B">B2B only</option><option value="B2C">B2C only</option></select><span style="font-size:12px;color:var(--muted)">Post-sale customers with 30/60/90 day cadence</span><div class="sp"></div><button class="btn-ghost" onclick="exportCusXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
+        <div class="toolbar"><select class="filter" id="cusMonth" onchange="setCusMonth(this.value)"></select><select class="filter" id="cusType" onchange="setCusType(this.value)"><option value="all">All types</option><option value="B2B">B2B only</option><option value="B2C">B2C only</option></select><span style="font-size:12px;color:var(--muted)">Post-sale customers with 30/60/90 day cadence</span><div class="sp"></div><button class="btn-ghost" onclick="openImport('customers')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button><button class="btn-ghost" onclick="exportCusXLS()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Excel</button></div>
         <div class="card"><table class="tbl"><thead><tr><th>Customer</th><th>First Purchase</th><th>Last Contact</th><th>Cadence</th><th>Next Action</th><th>Status</th><th class="tnum">Lifetime Value</th><th></th></tr></thead><tbody id="cusBody"></tbody></table></div>
       </div>
+
+      <!-- Inventory (Smart stock — ported from master skeleton 9C) -->
+      <div class="page" id="page-inventory">
+        <div class="inv-alerts" id="invAlerts"></div>
+        <div class="toolbar">
+          <input class="search" id="invSearch" placeholder="Search products or codes…" style="width:230px" oninput="INV.setQ(this.value)" aria-label="Search products">
+          <div class="sp"></div>
+          <button class="btn-ghost" onclick="openImport('products')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button>
+          <button class="btn-ghost" onclick="exportInventory()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+          <button class="btn-red" onclick="openProductModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add product</button>
+        </div>
+        <div class="inv-grid" id="invGrid"></div>
+        <div id="invEmpty"></div>
+      </div>
+
       <div class="page" id="page-taskbook">
         <div class="toolbar"><span style="font-size:13px;color:var(--muted)">Assign and track tasks across the team</span><div class="sp"></div><button class="btn-red" onclick="openTaskModal()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Task</button></div>
         <div class="card"><div class="card-b" id="taskBookList" style="padding:8px 20px 16px"></div></div>
@@ -757,6 +840,60 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
     <div class="modal-f"><button class="btn-ghost" onclick="markSent()">Mark as sent</button><button class="btn-ghost" onclick="sendVia('email')">Send email</button><button class="btn-red" onclick="sendVia('wa')">Send on WhatsApp</button></div>
   </div>
 </div>
+
+<!-- PRODUCT modal (Smart Inventory) -->
+<div class="modal-ov" id="productModal">
+  <div class="modal" style="width:520px">
+    <div class="modal-h"><h3 id="pmTitle">Add product</h3><button class="pn-close" onclick="closeProductModal()" style="position:static;width:30px;height:30px">&#10005;</button></div>
+    <div class="modal-b">
+      <div class="fld"><label>Photo</label>
+        <div class="photo-drop" id="pmPhoto" onclick="document.getElementById('pmFile').click()"></div>
+        <input id="pmFile" type="file" accept="image/*" style="display:none" onchange="pmPickPhoto(this)">
+      </div>
+      <div class="fld"><label for="pm_name">Product name</label><input id="pm_name" placeholder="e.g. LED Panel Light 18W"></div>
+      <div class="fld-grid2">
+        <div class="fld"><label for="pm_code">Product code</label><input id="pm_code" placeholder="e.g. LED-18"></div>
+        <div class="fld"><label for="pm_price">Price (LKR)</label><input id="pm_price" inputmode="numeric" placeholder="e.g. 2,200"></div>
+      </div>
+      <div class="fld"><label for="pm_details">Details</label><input id="pm_details" placeholder="Short description"></div>
+      <div class="fld-grid2">
+        <div class="fld"><label for="pm_qty">Quantity in stock</label><input id="pm_qty" inputmode="numeric" placeholder="e.g. 48"></div>
+        <div class="fld"><label for="pm_thr">Low-stock alert at</label><input id="pm_thr" inputmode="numeric" placeholder="e.g. 10"></div>
+      </div>
+    </div>
+    <div class="modal-f"><button class="btn-ghost" onclick="closeProductModal()">Cancel</button><button class="btn-red" onclick="saveProduct()">Save</button></div>
+  </div>
+</div>
+
+<!-- IMPORT modal (bulk Excel/CSV) -->
+<div class="modal-ov" id="importModal">
+  <div class="modal" style="width:560px">
+    <div class="modal-h"><div><h3 id="impTitle">Import</h3><div id="impSub" style="font-size:12px;color:var(--muted);margin-top:2px"></div></div><button class="pn-close" onclick="closeImport()" style="position:static;width:30px;height:30px">&#10005;</button></div>
+    <div class="modal-b">
+      <div class="imp-steps"><div class="imp-step on" id="impStep1"></div><div class="imp-step" id="impStep2"></div><div class="imp-step" id="impStep3"></div></div>
+      <div id="impPane1">
+        <div class="imp-drop" id="impDrop" onclick="document.getElementById('impFile').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="id-t">Drop a .csv or .xlsx here, or tap to choose</div>
+          <div class="id-s">First row must be column headers</div>
+        </div>
+        <input id="impFile" type="file" accept=".csv,.xlsx,.xls" style="display:none" onchange="impFileChosen(this.files[0])">
+        <div class="imp-note" id="impNote"></div>
+        <div style="text-align:center;margin-top:14px;font-size:12.5px;color:var(--muted)">Not sure of the format? <button style="color:var(--red);font-weight:600;background:none;border:none;cursor:pointer;font-family:inherit" onclick="downloadImportTemplate()">Download the import template</button></div>
+      </div>
+      <div id="impPane2" style="display:none">
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Match your columns to the system fields. Required fields are marked.</div>
+        <div class="imp-map" id="impMap"></div>
+        <div class="imp-prev" id="impPrev"></div>
+      </div>
+      <div id="impPane3" style="display:none"><div class="imp-summary" id="impSummary"></div></div>
+    </div>
+    <div class="modal-f" id="impFooter">
+      <button class="btn-ghost" onclick="closeImport()">Cancel</button>
+      <button class="btn-red" id="impNext" onclick="impDoImport()" style="display:none">Import</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -858,15 +995,27 @@ function markLost(id){const l=LEADS.find(x=>x.id===id);if(!l)return;
  l.acts.unshift({t:'Marked lost',m:'Lost: '+LOST_REASONS[idx],tm:'just now'});
  renderBoard();renderDash();renderQueue();renderRevPipeline();openLead(id);
  toast('Deal lost: '+l.name+' ('+LOST_REASONS[idx]+')');}
-function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});
+function convertOrder(id){const l=LEADS.find(x=>x.id===id);if(!l)return;if(['order_confirmed','delivered'].includes(l.stage)){toast(I.check+' '+l.name+' is already an order');return;}
+ const prevStage=l.stage,prevAct=l.acts.length;l.stage='order_confirmed';l.acts.unshift({t:'Converted to order',m:'Deal won and confirmed',tm:'just now'});
+ let newCust=false;
  if(!CUSTOMERS.find(x=>x.name===l.name)){
   const v=val(l)||150000;
   CUSTOMERS.push({name:l.name,co:l.co,type:l.type,phone:l.phone||'077 000 0000',email:l.email||(l.name.split(' ')[0].toLowerCase()+'@gmail.com'),sent:0,last:TODAY,address:'',
    history:[{item:(l.products||[]).join(', ')||'Lighting package',cat:'LED Panels',date:TODAY,value:v}]
-  });
+  });newCust=true;
   document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
  }
- renderBoard();renderDash();renderQueue();renderCus();openLead(id);toast(I.check+' '+l.name+' converted to order and added as a Customer');}
+ // auto-decrement inventory: match quote item codes to products (reversible)
+ const undoStock=decrementForRecord(l);
+ renderBoard();renderDash();renderQueue();renderCus();renderInventory();openLead(id);
+ const soldNote=undoStock?' · stock updated':'';
+ toastUndo(l.name+' converted to order'+soldNote,function(){
+  l.stage=prevStage;l.acts.splice(0,l.acts.length-prevAct);
+  if(newCust){const ix=CUSTOMERS.findIndex(x=>x.name===l.name);if(ix>-1)CUSTOMERS.splice(ix,1);document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));}
+  if(undoStock)undoStock();
+  renderBoard();renderDash();renderQueue();renderCus();renderInventory();if(document.getElementById('panel').classList.contains('open'))openLead(id);
+ });
+}
 
 Chart.register(ChartDataLabels);
 Chart.defaults.plugins.datalabels={display:false};
@@ -889,7 +1038,11 @@ const I={
  download:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
  target:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
  bolt:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
- plus:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+ plus:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+ warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+ x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+ box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+ imgph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'
 };
 /* animated count-up */
 function fmtNum(v,fmt){if(fmt==='m')return 'LKR '+v.toFixed(2)+'M';if(fmt==='m1')return 'LKR '+v.toFixed(1)+'M';if(fmt==='pct')return Math.round(v)+'%';if(fmt==='lkr')return 'LKR '+Math.round(v).toLocaleString('en-LK');if(fmt==='ratio')return v.toFixed(0);return Math.round(v).toLocaleString();}
@@ -963,8 +1116,8 @@ function toggleTask(i){TASKS[i].d=!TASKS[i].d;renderTasks();}
 function openTaskModal(){const s=document.getElementById('tk_who');s.innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('tk_title').value='';document.getElementById('tk_due').value='';document.getElementById('taskModal').classList.add('open');}
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 function saveTask(){const t=document.getElementById('tk_title').value.trim();if(!t)return;const w=document.getElementById('tk_who').value;const d=document.getElementById('tk_due').value;TASKS.unshift({t,w:w+(d?' · '+d:''),d:false});closeTaskModal();renderTasks();}
-const PRODUCTS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
-function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=[...PRODUCTS,'Other'].map(p=>`<span class="tag iq-prod" data-prod="${p}" onclick="toggleProd(this)">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');const o=document.getElementById('iq_other');o.value='';o.style.display='none';const mopt=REV_MONTHS.map(m=>`<option value="${m}">${moLabel(m)}</option>`).join('');document.getElementById('iq_start').innerHTML=mopt;document.getElementById('iq_end').innerHTML=mopt;document.getElementById('iq_end').value=REV_MONTHS[REV_MONTHS.length-1];document.getElementById('iq_ctype').value='Product';iqCtypeChange();document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
+const PROD_TAGS=['Chandeliers','Pendants','Outdoor','Ceiling','Track','Garden','Bath & Vanity','Wall lamps'];
+function openInqModal(){document.getElementById('iq_owner').innerHTML=owners().map(o=>`<option>${o}</option>`).join('');document.getElementById('iq_prods').innerHTML=[...PROD_TAGS,'Other'].map(p=>`<span class="tag iq-prod" data-prod="${p}" onclick="toggleProd(this)">${p}</span>`).join('');['iq_name','iq_co','iq_value','iq_codes'].forEach(id=>document.getElementById(id).value='');const o=document.getElementById('iq_other');o.value='';o.style.display='none';const mopt=REV_MONTHS.map(m=>`<option value="${m}">${moLabel(m)}</option>`).join('');document.getElementById('iq_start').innerHTML=mopt;document.getElementById('iq_end').innerHTML=mopt;document.getElementById('iq_end').value=REV_MONTHS[REV_MONTHS.length-1];document.getElementById('iq_ctype').value='Product';iqCtypeChange();document.getElementById('inqModal').classList.add('open');setTimeout(function(){document.getElementById('iq_name').focus();},60);}
 function toggleProd(el){el.classList.toggle('sel');if(el.dataset.prod==='Other'){const o=document.getElementById('iq_other'),on=el.classList.contains('sel');o.style.display=on?'':'none';if(on){setTimeout(()=>o.focus(),40);}else{o.value='';}}}
 function iqCtypeChange(){const svc=document.getElementById('iq_ctype').value!=='Product';document.getElementById('iq_endWrap').style.opacity=svc?'1':'.4';document.getElementById('iq_end').disabled=!svc;}
 function prodSelectAll(){document.querySelectorAll('#iq_prods .iq-prod').forEach(t=>t.classList.add('sel'));document.getElementById('iq_other').style.display='';}
@@ -1405,8 +1558,221 @@ function exportForecastXLS(){
  body.push(['Monthly total','','','',...REV_MONTHS.map(m=>tot[m]),REV_MONTHS.reduce((s,m)=>s+tot[m],0)]);
  exportXLS('homedepot-revenue-forecast.xls',headers,body);
 }
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+/* ═══════════ SMART INVENTORY (ported from master skeleton 9C) ═══════════ */
+const INV_LOW=10, INV_DEAD_DAYS=30;
+/* ~11 real lighting SKUs. Codes match some quote items so auto-decrement fires on convert.
+   Mix of healthy / low / zero / dead so all three signals show. */
+const PRODUCTS=[
+ {id:1,name:'Crystal Chandelier 800mm',code:'CH-800',details:'8-arm crystal chandelier, warm white',price:145000,qty:12,threshold:5,photo:null,lastSale:'2026-06-18',history:[{t:'Restocked',qty:6,when:'2026-06-01'},{t:'Stock added',qty:12,when:'2026-04-12'}]},
+ {id:2,name:'LED Panel Light 18W',code:'LED-18',details:'600x600 recessed panel, 4000K',price:2200,qty:3,threshold:10,photo:null,lastSale:'2026-06-20',history:[{t:'Sale',qty:-9,when:'2026-06-20'},{t:'Stock added',qty:12,when:'2026-05-02'}]},
+ {id:3,name:'Outdoor Bollard 600mm',code:'OUT-BOL',details:'IP65 aluminium pathway bollard',price:11000,qty:0,threshold:6,photo:null,lastSale:'2026-06-10',history:[{t:'Sale',qty:-8,when:'2026-06-10'},{t:'Stock added',qty:8,when:'2026-05-05'}]},
+ {id:4,name:'Track Spotlight 12W',code:'TRK-SP',details:'Adjustable COB track head, black',price:4800,qty:40,threshold:12,photo:null,lastSale:'2026-06-16',history:[{t:'Restocked',qty:20,when:'2026-06-03'},{t:'Stock added',qty:30,when:'2026-04-20'}]},
+ {id:5,name:'Brass Pendant Light',code:'PD-22',details:'Antique brass dome pendant',price:18500,qty:60,threshold:15,photo:null,lastSale:'2026-06-14',history:[{t:'Stock added',qty:60,when:'2026-05-18'}]},
+ {id:6,name:'Suite Wall Lamp',code:'WL-09',details:'Brushed nickel up-down wall light',price:9800,qty:8,threshold:20,photo:null,lastSale:'2026-06-12',history:[{t:'Sale',qty:-12,when:'2026-06-12'},{t:'Stock added',qty:20,when:'2026-05-08'}]},
+ {id:7,name:'Solar Garden Wall Lamp',code:'OG-05',details:'Solar LED, motion sensor',price:8500,qty:0,threshold:8,photo:null,lastSale:'2026-06-05',history:[{t:'Sale',qty:-10,when:'2026-06-05'},{t:'Stock added',qty:10,when:'2026-04-28'}]},
+ {id:8,name:'Glass Pendant Cluster',code:'PD-CL',details:'3-globe clear glass cluster',price:46000,qty:18,threshold:6,photo:null,lastSale:'2026-05-05',history:[{t:'Stock added',qty:18,when:'2026-04-15'}]},
+ {id:9,name:'LED Ceiling Spot 7W',code:'CL-07',details:'Recessed downlight, dimmable',price:5000,qty:240,threshold:40,photo:null,lastSale:'2026-06-19',history:[{t:'Restocked',qty:100,when:'2026-06-02'},{t:'Stock added',qty:200,when:'2026-04-10'}]},
+ {id:10,name:'Underwater Pool Light',code:'UW-08',details:'IP68 RGB pool light, 24W',price:34000,qty:5,threshold:5,photo:null,lastSale:'2026-06-11',history:[{t:'Sale',qty:-7,when:'2026-06-11'},{t:'Stock added',qty:12,when:'2026-05-01'}]},
+ {id:11,name:'Linear Track Light 1m',code:'TR-10',details:'Surface linear LED, 30W',price:22000,qty:22,threshold:8,photo:null,lastSale:null,history:[{t:'Stock added',qty:22,when:'2026-04-20'}]}
+];
+function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
+function prodStatus(p){if(p.qty<=0)return'out';if(p.qty<=(p.threshold!=null?p.threshold:INV_LOW))return'low';return'ok';}
+function prodDead(p){if(p.qty<=0)return false;const ref=p.lastSale||(p.history&&p.history.length?p.history[p.history.length-1].when:null);if(!ref)return true;return daysBetween(ref,TODAY)>INV_DEAD_DAYS;}
+const INV={q:'',filter:'all',setQ(v){this.q=(v||'').trim().toLowerCase();renderInventory();}};
+function invAlert(f){INV.filter=INV.filter===f?'all':f;renderInventory();}
+function invAlertCard(f,label,n,icon){return '<button class="inv-alert '+f+(INV.filter===f?' on':'')+'" onclick="invAlert(\''+f+'\')"><div class="ia-ic">'+icon+'</div><div><div class="ia-v">'+n+'</div><div class="ia-l">'+label+'</div></div></button>';}
+function renderInventory(){
+ const all=PRODUCTS;
+ const low=all.filter(p=>prodStatus(p)==='low').length,out=all.filter(p=>prodStatus(p)==='out').length,dead=all.filter(prodDead).length;
+ document.getElementById('invAlerts').innerHTML=invAlertCard('low','Running low',low,I.warn)+invAlertCard('out','Out of stock',out,I.x)+invAlertCard('dead','Dead stock ('+INV_DEAD_DAYS+'d+)',dead,I.clock);
+ const nb=document.getElementById('nbInv');if(nb)nb.textContent=low+out;
+ let list=all.filter(p=>!INV.q||p.name.toLowerCase().includes(INV.q)||(p.code||'').toLowerCase().includes(INV.q));
+ if(INV.filter==='low')list=list.filter(p=>prodStatus(p)==='low');else if(INV.filter==='out')list=list.filter(p=>prodStatus(p)==='out');else if(INV.filter==='dead')list=list.filter(prodDead);
+ document.getElementById('invGrid').innerHTML=list.map(p=>{
+  const st=prodStatus(p),dead=prodDead(p);
+  const tag=st==='out'?'<span class="stock-tag out">Out of stock</span>':st==='low'?'<span class="stock-tag low">Low · '+p.qty+'</span>':'<span class="stock-tag ok">'+p.qty+' in stock</span>';
+  const photo=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'">':'<div class="ph-ph">'+I.imgph+'<span>No photo</span></div>';
+  return '<div class="prod-card" onclick="openProduct('+p.id+')"><div class="prod-photo">'+photo+tag+'</div><div class="prod-body"><div class="prod-nm">'+p.name+'</div><div class="prod-code">'+(p.code||'—')+'</div>'+(dead?'<div class="prod-dead">'+I.clock+' No sale in '+INV_DEAD_DAYS+'d</div>':'')+'<div class="prod-foot"><span class="prod-price">'+lkr(p.price)+'</span><span class="prod-qty" style="color:'+(st==='out'?'var(--red)':st==='low'?'var(--amber)':'var(--muted)')+'">'+p.qty+' units</span></div></div></div>';
+ }).join('');
+ document.getElementById('invEmpty').innerHTML=list.length?'':'<div style="text-align:center;padding:48px 20px;color:var(--faint)"><div style="width:44px;height:44px;margin:0 auto 12px;color:var(--faint)">'+I.box+'</div><div style="font-weight:700;color:var(--muted)">No products</div><div style="font-size:12.5px;margin-top:4px">'+(INV.q||INV.filter!=='all'?'Nothing matches this filter.':'Add your first product or import a list.')+'</div></div>';
+}
+function openProduct(id){
+ const p=PRODUCTS.find(x=>x.id===id);if(!p)return;const st=prodStatus(p),dead=prodDead(p);
+ const photo=p.photo?'<img src="'+p.photo+'" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px" alt="">':'<div style="aspect-ratio:16/9;background:var(--surface-2);border:1px dashed var(--line);border-radius:12px;display:grid;place-items:center;color:var(--faint)"><div style="text-align:center">'+I.imgph+'<div style="font-size:11px;margin-top:6px">No photo · add one in Edit</div></div></div>';
+ const badge=st==='out'?'<span class="bdg bdg-stage">Out of stock</span>':st==='low'?'<span class="bdg bdg-amber">Running low</span>':'<span class="bdg bdg-green">In stock</span>';
+ const hist=(p.history||[]).map(h=>'<div class="stock-hist"><span>'+h.t+'</span><span class="tm" style="color:var(--faint)">'+fmtD(h.when)+'</span><span class="sh-q '+(h.qty>=0?'pos':'neg')+'">'+(h.qty>=0?'+':'')+h.qty+'</span></div>').join('')||'<div style="color:var(--faint);font-size:12.5px;padding:8px 0">No stock movements yet.</div>';
+ const panel=document.getElementById('panel');
+ panel.innerHTML='<div class="pn-head"><button class="pn-close" onclick="closePanel()">✕</button><div class="pn-nm">'+p.name+'</div><div class="pn-co">'+(p.code||'')+'</div><div class="pn-badges">'+badge+(dead?'<span class="bdg bdg-blue">No sale in '+INV_DEAD_DAYS+'d</span>':'')+'</div></div>'
+  +'<div class="pn-actions"><button class="pa primary" onclick="recordSale('+id+')">'+I.check+' Record sale</button><button class="pa" onclick="restock('+id+')">Restock</button><button class="pa" onclick="openProductModal('+id+')">Edit</button></div>'
+  +'<div class="pn-body"><div class="sec">'+photo+'</div>'
+  +'<div class="sec"><div class="sec-t">Details</div><div class="info-grid"><div class="info"><div class="il">Price</div><div class="iv">'+lkr(p.price)+'</div></div><div class="info"><div class="il">In stock</div><div class="iv" style="color:'+(st==='out'?'var(--red)':st==='low'?'var(--amber)':'var(--ink)')+'">'+p.qty+' units</div></div><div class="info"><div class="il">Low-stock alert</div><div class="iv">'+(p.threshold!=null?p.threshold:INV_LOW)+'</div></div><div class="info"><div class="il">Last sale</div><div class="iv">'+(p.lastSale?fmtD(p.lastSale):'—')+'</div></div></div>'+(p.details?'<div style="font-size:12.5px;color:var(--muted);margin-top:11px">'+p.details+'</div>':'')+'</div>'
+  +'<div class="sec"><div class="sec-t">Stock history</div>'+hist+'</div></div>';
+ document.getElementById('overlay').classList.add('open');panel.classList.add('open');
+}
+function recordSale(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;if(p.qty<=0){toast('No stock to sell');return;}const n=prompt('How many '+p.name+' sold?','1');if(n===null)return;const q=parseInt(n);if(!q||q<1)return;adjustStock(id,-Math.min(q,p.qty),'Sale');}
+function restock(id){const n=prompt('Add how many units to stock?','10');if(n===null)return;const q=parseInt(n);if(!q||q<1)return;adjustStock(id,q,'Restocked');}
+function adjustStock(id,delta,label){
+ const p=PRODUCTS.find(x=>x.id===id);if(!p)return;const prevQ=p.qty,prevSale=p.lastSale;
+ p.qty=Math.max(0,p.qty+delta);p.history.unshift({t:label,qty:delta,when:TODAY});if(delta<0)p.lastSale=TODAY;
+ renderInventory();if(document.getElementById('panel').classList.contains('open'))openProduct(id);
+ toastUndo((delta<0?'Sold ':'Restocked ')+Math.abs(delta)+' · '+p.name,function(){p.qty=prevQ;p.lastSale=prevSale;p.history.shift();renderInventory();if(document.getElementById('panel').classList.contains('open'))openProduct(id);});
+}
+/* auto-decrement on won deal: match HD quote items (code in .n, name in .p, qty .q) to products.
+   returns an undo fn that restores the touched products (so winning is reversible). */
+function decrementForRecord(r){
+ if(!r.quote||!r.quote.length)return null;const touched=[];
+ r.quote.forEach(it=>{const code=(it.n||'').toLowerCase(),nm=(it.p||'').toLowerCase();if(!it.q)return;
+  const p=PRODUCTS.find(x=>(code&&(x.code||'').toLowerCase()===code)||x.name.toLowerCase()===nm);
+  if(!p)return;touched.push({p:p,q:p.qty,s:p.lastSale});p.qty=Math.max(0,p.qty-it.q);p.lastSale=TODAY;p.history.unshift({t:'Sold — '+r.name,qty:-it.q,when:TODAY});});
+ if(!touched.length)return null;
+ return function(){touched.forEach(t=>{t.p.qty=t.q;t.p.lastSale=t.s;t.p.history.shift();});};
+}
+/* product modal */
+let PM_EDIT=null,PM_PHOTO=null;
+const PM_PLACEHOLDER='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" style="margin-bottom:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div style="font-size:12px;font-weight:600">Tap to add a photo</div><div style="font-size:11px;color:var(--faint);margin-top:2px">compressed to ~1200px · stored in Supabase Storage</div>';
+function renderPmPhoto(){const el=document.getElementById('pmPhoto');if(PM_PHOTO){el.classList.add('has');el.innerHTML='<img src="'+PM_PHOTO+'" alt="">';}else{el.classList.remove('has');el.innerHTML=PM_PLACEHOLDER;}}
+function openProductModal(id){
+ PM_EDIT=(typeof id==='number')?id:null;const p=PM_EDIT?PRODUCTS.find(x=>x.id===PM_EDIT):null;
+ document.getElementById('pmTitle').textContent=(PM_EDIT?'Edit':'Add')+' product';
+ document.getElementById('pm_name').value=p?p.name:'';document.getElementById('pm_code').value=p?(p.code||''):'';
+ document.getElementById('pm_details').value=p?(p.details||''):'';document.getElementById('pm_price').value=p&&p.price?p.price.toLocaleString():'';
+ document.getElementById('pm_qty').value=p?p.qty:'';document.getElementById('pm_thr').value=p&&p.threshold!=null?p.threshold:INV_LOW;
+ PM_PHOTO=p?p.photo:null;renderPmPhoto();document.getElementById('productModal').classList.add('open');
+ setTimeout(function(){document.getElementById('pm_name').focus();},60);
+}
+function closeProductModal(){document.getElementById('productModal').classList.remove('open');PM_EDIT=null;PM_PHOTO=null;}
+function pmPickPhoto(input){const f=input.files&&input.files[0];if(!f)return;compressImage(f,1200,function(url){PM_PHOTO=url;renderPmPhoto();});}
+/* compress to ~maxW then hand back a URL. DEMO: object URL of the compressed blob (resets on
+   reload, never base64 in the row). PRODUCTION: c.toBlob → uploadProductPhoto(blob) → Storage URL. */
+function compressImage(file,maxW,cb){
+ const img=new Image(),url=URL.createObjectURL(file);
+ img.onload=function(){const scale=Math.min(1,maxW/img.width);const w=Math.round(img.width*scale),h=Math.round(img.height*scale);
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);
+  c.toBlob(function(blob){cb(URL.createObjectURL(blob));},'image/jpeg',0.82);};
+ img.onerror=function(){URL.revokeObjectURL(url);toast('Could not read that image');};img.src=url;
+}
+/* SUPABASE STORAGE wiring (activates with the client's real Supabase) — NEVER base64 in the row:
+   async function uploadProductPhoto(blob, productId){
+     const key = TENANT_ID + '/' + productId + '.jpg';                    // tenant-isolated folder
+     const { error } = await supabase.storage.from('product-photos')
+        .upload(key, blob, { upsert:true, contentType:'image/jpeg' });
+     if(error) throw error;
+     return supabase.storage.from('product-photos').getPublicUrl(key).data.publicUrl; // store THIS in row.photo
+   } */
+function saveProduct(){
+ const name=document.getElementById('pm_name').value.trim();
+ if(!name){document.getElementById('pm_name').focus();return;}
+ const price=parseInt(document.getElementById('pm_price').value.replace(/[^0-9]/g,''))||0;
+ const qty=parseInt(document.getElementById('pm_qty').value.replace(/[^0-9]/g,''))||0;
+ const data={name:name,code:document.getElementById('pm_code').value.trim(),details:document.getElementById('pm_details').value.trim(),price:price,qty:qty,threshold:parseInt(document.getElementById('pm_thr').value.replace(/[^0-9]/g,''))||INV_LOW,photo:PM_PHOTO};
+ if(PM_EDIT){const p=PRODUCTS.find(x=>x.id===PM_EDIT);const dq=data.qty-p.qty;Object.assign(p,data);if(dq)p.history.unshift({t:'Stock adjusted',qty:dq,when:TODAY});toast(I.check+' '+name+' updated');}
+ else{const nid=Math.max.apply(null,PRODUCTS.map(x=>x.id).concat(0))+1;PRODUCTS.unshift(Object.assign({id:nid},data,{lastSale:null,history:[{t:'Stock added',qty:data.qty,when:TODAY}]}));toast(I.check+' '+name+' added');}
+ closeProductModal();renderInventory();
+}
+function exportCSV(name,headers,rows){const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast(I.check+' CSV exported');}
+function exportInventory(){exportCSV('homedepot-inventory.csv',['Name','Code','Details','Price','In stock','Low alert','Status','Last sale'],PRODUCTS.map(p=>[p.name,p.code,p.details,p.price,p.qty,(p.threshold!=null?p.threshold:INV_LOW),prodStatus(p),p.lastSale||'']));}
+/* toast with an Undo action */
+let UNDO_FN=null;
+function runUndo(){if(UNDO_FN){UNDO_FN();UNDO_FN=null;}const t=document.getElementById('toast');t.classList.remove('show');}
+function toastUndo(msg,fn){UNDO_FN=fn;const t=document.getElementById('toast');t.innerHTML=I.check+' '+msg+'<button onclick="runUndo()" style="margin-left:12px;background:none;border:none;color:#fff;font-weight:800;cursor:pointer;font-family:inherit;text-decoration:underline">Undo</button>';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');UNDO_FN=null;},6000);}
+
+/* ═══════════ BULK EXCEL/CSV IMPORT (ported from master skeleton 9D) ═══════════ */
+const IMPORT_SCHEMAS={
+ leads:{coll:'leads',label:'Inquiries',fields:[{k:'name',l:'Customer name',req:true},{k:'co',l:'Company / detail'},{k:'phone',l:'Phone'},{k:'value',l:'Estimated value',num:true},{k:'stage',l:'Stage'},{k:'source',l:'Source'},{k:'owner',l:'Owner'}]},
+ customers:{coll:'customers',label:'Customers',fields:[{k:'name',l:'Name',req:true},{k:'phone',l:'Phone'},{k:'email',l:'Email'},{k:'type',l:'Type (B2B/B2C)'},{k:'co',l:'Detail'}]},
+ products:{coll:'products',label:'Products',fields:[{k:'name',l:'Product name',req:true},{k:'code',l:'Product code'},{k:'details',l:'Details'},{k:'price',l:'Price',num:true},{k:'qty',l:'Quantity',num:true},{k:'photo',l:'Image URL (optional)'}]}
+};
+const IMPORT={type:null,headers:[],rows:[],map:{},fileName:''};
+function openImport(type){
+ if(!IMPORT_SCHEMAS[type]){toast('Import not available here');return;}
+ IMPORT.type=type;IMPORT.headers=[];IMPORT.rows=[];IMPORT.map={};IMPORT.fileName='';
+ const sc=IMPORT_SCHEMAS[type];
+ document.getElementById('impTitle').textContent='Import '+sc.label;
+ document.getElementById('impSub').textContent='Upload a spreadsheet, then map the columns';
+ document.getElementById('impFile').value='';
+ const note=document.getElementById('impNote');
+ if(type==='products'){note.style.display='';note.innerHTML='Excel imports <b>data only</b>. Product photos are a separate upload in the product editor, or paste a public link in the optional <b>Image URL</b> column.';}
+ else{note.style.display='none';}
+ impGoStep(1);document.getElementById('importModal').classList.add('open');
+}
+function closeImport(){document.getElementById('importModal').classList.remove('open');}
+function impGoStep(n){[1,2,3].forEach(i=>{document.getElementById('impPane'+i).style.display=i===n?'':'none';document.getElementById('impStep'+i).classList.toggle('on',i<=n);});
+ document.getElementById('impNext').style.display=n===2?'':'none';document.getElementById('impFooter').style.display=n===3?'none':'';}
+function impFileChosen(file){if(!file)return;IMPORT.fileName=file.name;const ext=(file.name.split('.').pop()||'').toLowerCase();
+ if(ext==='csv'){const rd=new FileReader();rd.onload=e=>impParsed(parseCSV(e.target.result));rd.readAsText(file);}
+ else if(ext==='xlsx'||ext==='xls')impParseXLSX(file);else toast('Please choose a .csv or .xlsx file');}
+function parseCSV(text){
+ const rows=[];let row=[],cur='',q=false;text=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
+ for(let i=0;i<text.length;i++){const c=text[i];
+  if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}
+  else{if(c==='"')q=true;else if(c===','){row.push(cur);cur='';}else if(c==='\n'){row.push(cur);rows.push(row);row=[];cur='';}else cur+=c;}}
+ if(cur!==''||row.length){row.push(cur);rows.push(row);}
+ const nonEmpty=rows.filter(r=>r.some(c=>String(c).trim()!==''));
+ return {headers:(nonEmpty.shift()||[]).map(h=>String(h).trim()),rows:nonEmpty};
+}
+let _sheetjs=null;
+function loadSheetJS(cb){if(window.XLSX)return cb(true);if(_sheetjs==='fail')return cb(false);
+ const s=document.createElement('script');s.src='https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+ s.onload=function(){cb(!!window.XLSX);};s.onerror=function(){_sheetjs='fail';cb(false);};document.head.appendChild(s);}
+function impParseXLSX(file){toast('Reading spreadsheet…');loadSheetJS(function(ok){
+ if(!ok){toast('For .xlsx, connect to the internet or save the file as .csv');return;}
+ const rd=new FileReader();rd.onload=function(e){try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const arr=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+  impParsed({headers:(arr.shift()||[]).map(h=>String(h).trim()),rows:arr.filter(r=>r.some(c=>String(c).trim()!==''))});}catch(err){toast('Could not read that spreadsheet');}};
+ rd.readAsArrayBuffer(file);});}
+function impParsed(d){
+ if(!d.headers.length){toast('No columns found — is the first row a header?');return;}
+ IMPORT.headers=d.headers;IMPORT.rows=d.rows;const sc=IMPORT_SCHEMAS[IMPORT.type];IMPORT.map={};
+ sc.fields.forEach(f=>{const norm=s=>s.toLowerCase().replace(/[^a-z0-9]/g,'');const gi=d.headers.findIndex(h=>norm(h)===norm(f.k)||norm(h)===norm(f.l)||norm(h).indexOf(norm(f.k))===0);IMPORT.map[f.k]=gi;});
+ renderImpMap();impGoStep(2);
+}
+function renderImpMap(){
+ const sc=IMPORT_SCHEMAS[IMPORT.type];
+ document.getElementById('impMap').innerHTML=sc.fields.map(f=>'<div class="imp-map-row"><div class="imf">'+f.l+(f.req?'<span class="req">*</span>':'')+'</div><div class="arw">→</div><select class="filter" onchange="IMPORT.map[\''+f.k+'\']=+this.value;impPreview()"><option value="-1">— skip —</option>'+IMPORT.headers.map((h,i)=>'<option value="'+i+'"'+(IMPORT.map[f.k]===i?' selected':'')+'>'+h+'</option>').join('')+'</select></div>').join('');
+ impPreview();
+}
+function impRowValid(r,sc){return sc.fields.every(f=>{if(!f.req)return true;const i=IMPORT.map[f.k];return i>=0&&String(r[i]!=null?r[i]:'').trim()!=='';});}
+function impPreview(){
+ const sc=IMPORT_SCHEMAS[IMPORT.type];const mapped=sc.fields.filter(f=>IMPORT.map[f.k]>=0);
+ const head='<tr>'+mapped.map(f=>'<th>'+f.l+'</th>').join('')+'</tr>';
+ const body=IMPORT.rows.slice(0,6).map(r=>{const bad=!impRowValid(r,sc);return '<tr'+(bad?' class="bad"':'')+'>'+mapped.map(f=>'<td>'+(String(r[IMPORT.map[f.k]]!=null?r[IMPORT.map[f.k]]:'').trim()||'—')+'</td>').join('')+'</tr>';}).join('');
+ const okN=IMPORT.rows.filter(r=>impRowValid(r,sc)).length;
+ document.getElementById('impPrev').innerHTML=mapped.length?'<table>'+head+body+'</table>':'<div style="padding:14px;color:var(--faint);font-size:12.5px">Map at least one column to preview.</div>';
+ const btn=document.getElementById('impNext');btn.textContent='Import '+okN+' row'+(okN===1?'':'s');btn.disabled=okN===0;
+}
+function matchStage(v){if(!v)return null;v=String(v).toLowerCase().trim();const s=STAGES.find(x=>x.k===v||x.label.toLowerCase()===v);return s?s.k:null;}
+function impDoImport(){
+ const sc=IMPORT_SCHEMAS[IMPORT.type];let imported=0,skipped=0;
+ IMPORT.rows.forEach(r=>{
+  if(!impRowValid(r,sc)){skipped++;return;}
+  const o={};sc.fields.forEach(f=>{const i=IMPORT.map[f.k];if(i<0)return;let v=String(r[i]!=null?r[i]:'').trim();if(f.num)v=parseInt(v.replace(/[^0-9]/g,''))||0;o[f.k]=v;});
+  if(sc.coll==='leads'){
+   const id=Math.max.apply(null,LEADS.map(l=>l.id).concat(0))+1;
+   const val0=o.value||0;
+   LEADS.push({id:id,name:o.name,co:o.co||'Imported inquiry',type:'B2C',lead:'Retail',stage:matchStage(o.stage)||'new_inquiry',owner:o.owner||'Nihla',phone:o.phone||'',email:'',source:o.source||'Import',products:[],codes:[],project:null,quote:val0?[{p:'Imported estimate',n:'EST',q:1,u:val0}]:[],acts:[{t:'Imported',m:'via bulk import',tm:'just now'}],rev:{est:val0,ct:'Product',start:AS_OF_MONTH,end:AS_OF_MONTH,proj:o.name,legal:o.name,months:evenSplit(val0,'Product',AS_OF_MONTH,AS_OF_MONTH)}});
+   MONTH[id]=AS_OF_MONTH;
+  }else if(sc.coll==='customers'){
+   CUSTOMERS.push({name:o.name,co:o.co||'',type:(o.type||'B2C').toUpperCase().indexOf('B2B')>-1?'B2B':'B2C',phone:o.phone||'',email:o.email||'',sent:0,last:TODAY,address:'',history:[]});
+  }else if(sc.coll==='products'){
+   const nid=Math.max.apply(null,PRODUCTS.map(x=>x.id).concat(0))+1;
+   PRODUCTS.unshift({id:nid,name:o.name,code:o.code||'',details:o.details||'',price:o.price||0,qty:o.qty||0,threshold:INV_LOW,photo:o.photo||null,lastSale:null,history:[{t:'Imported',qty:o.qty||0,when:TODAY}]});
+  }
+  imported++;
+ });
+ impGoStep(3);
+ const pg={leads:'inquiries',customers:'customers',products:'inventory'}[IMPORT.type];
+ document.getElementById('impSummary').innerHTML='<div class="is-big">'+imported+'</div><div class="is-sub">'+sc.label.toLowerCase()+' imported'+(skipped?' · '+skipped+' skipped (missing required)':'')+'</div><button class="btn-red" style="margin-top:18px" onclick="closeImport();go(\''+pg+'\')">View '+sc.label.toLowerCase()+'</button>';
+ // refresh everything the import touched
+ renderBoard();renderAll();renderDash();renderQueue();renderQuo();renderCus();renderInventory();
+ document.getElementById('nbEnq').textContent=LEADS.length;
+}
+function downloadImportTemplate(){
+ const sc=IMPORT_SCHEMAS[IMPORT.type];
+ const ex=sc.fields.map(f=>f.k==='name'?'Example Co':f.num?'1000':f.k==='phone'?'0771234567':f.k==='email'?'name@example.com':f.k==='code'?'EX-01':f.k==='stage'?'new_inquiry':f.k==='type'?'B2C':'');
+ exportCSV(sc.label.toLowerCase().replace(/\s+/g,'-')+'-import-template.csv',sc.fields.map(f=>f.l),[ex]);
+}
+
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],inventory:['Inventory','Smart stock — low, out and dead-stock signals'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');if(pg==='inventory')renderInventory();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 let RV_VIEW='pipeline';
 function rvView(which){const fc=which==='forecast';RV_VIEW=fc?'forecast':'pipeline';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
 function rvExport(){RV_VIEW==='forecast'?exportForecastXLS():exportRevPipelineXLS();}
@@ -1421,7 +1787,7 @@ document.getElementById('nbCus').textContent=dueCustomers();
 document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.length).map(l=>MONTH[l.id]));
 document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
 document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
-seedRevModels();renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
+seedRevModels();renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderInventory();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
 
 /* ── Revenue Pipeline ── */
 let rvCharts={};
