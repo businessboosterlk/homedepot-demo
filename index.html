@@ -545,6 +545,48 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .stock-hist{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2);font-size:12.5px}.stock-hist:last-child{border:none}
 .stock-hist .sh-q{font-weight:700;font-variant-numeric:tabular-nums;margin-left:auto}
 .stock-hist .sh-q.pos{color:var(--green)}.stock-hist .sh-q.neg{color:var(--red)}
+/* inventory list view */
+.inv-list{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-xs)}
+.inv-list th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:700;padding:12px 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.inv-list td{padding:12px 14px;border-bottom:1px solid var(--line2);font-size:13px}
+.inv-list tbody tr{cursor:pointer;transition:background .1s}.inv-list tbody tr:hover{background:var(--surface-2)}
+.inv-list tbody tr:last-child td{border-bottom:none}
+.inv-list .il-nm{font-weight:700}.inv-list .il-code{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+.inv-list .tnum{text-align:right;font-variant-numeric:tabular-nums}
+.st-pill{display:inline-flex;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:99px}
+.st-pill.ok{background:var(--green-soft);color:var(--green)}.st-pill.low{background:var(--amber-soft);color:var(--amber)}.st-pill.out{background:var(--red-soft);color:var(--red)}.st-pill.dead{background:var(--blue-soft);color:var(--blue)}
+@media(max-width:760px){.inv-list{display:block;overflow-x:auto;white-space:nowrap}}
+/* inventory kanban view */
+.inv-kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
+@media(max-width:980px){.inv-kanban{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.inv-kanban{grid-template-columns:1fr}}
+.kb-col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px}
+.kb-head{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;margin-bottom:12px}
+.kb-head .kb-dot{width:9px;height:9px;border-radius:50%}
+.kb-head .kb-n{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);background:var(--surface);padding:2px 8px;border-radius:99px}
+.kb-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:11px 12px;box-shadow:var(--shadow-xs);cursor:pointer;margin-bottom:10px;transition:transform .12s var(--ease),box-shadow .12s}
+.kb-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.kb-card:last-child{margin-bottom:0}
+.kb-nm{font-size:13px;font-weight:700;line-height:1.25}
+.kb-meta{display:flex;align-items:center;justify-content:space-between;margin-top:7px;font-size:11.5px}
+.kb-code{color:var(--faint);font-variant-numeric:tabular-nums}
+.kb-qty{font-weight:700;font-variant-numeric:tabular-nums}
+.kb-empty{font-size:12px;color:var(--faint);padding:6px 2px}
+/* inventory analytics strip */
+.inv-analytics{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+@media(max-width:980px){.inv-analytics{grid-template-columns:1fr}}
+.iaC{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-xs)}
+.iaC-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.iaC-h svg{width:15px;height:15px}
+.iaC-big{font-family:'Poppins';font-size:26px;font-weight:800;line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.iaC-sub{font-size:12px;color:var(--faint);margin-top:6px}
+.ia-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:12.5px}.ia-row:last-child{border:none}
+.ia-row .ia-nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ia-row .ia-v{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--muted)}
+.ia-rank{display:inline-block;width:18px;color:var(--faint);font-weight:700}
+.ia-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px}
+.ia-tag.out{background:var(--red-soft);color:var(--red)}.ia-tag.low{background:var(--amber-soft);color:var(--amber)}
+@media(max-width:860px){#page-inventory #invSearch{flex:1 1 100%;width:100%}#page-inventory #invCat,#page-inventory #invSort{flex:1 1 42%}#page-inventory #invSeg{flex:1 1 100%;margin-left:0}#page-inventory #invSeg button{flex:1}}
 .bdg-amber{background:var(--amber-soft);color:var(--amber)}
 .bdg-blue{background:var(--blue-soft);color:var(--blue)}
 .photo-drop{aspect-ratio:16/10;border:2px dashed var(--line);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;color:var(--muted);cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .15s}
@@ -716,14 +758,24 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="page" id="page-inventory">
         <div class="inv-alerts" id="invAlerts"></div>
         <div class="toolbar">
-          <input class="search" id="invSearch" placeholder="Search products or codes…" style="width:230px" oninput="INV.setQ(this.value)" aria-label="Search products">
+          <input class="filter" id="invSearch" placeholder="Search products or codes…" style="width:200px;font-weight:400" oninput="INV.setQ(this.value)" aria-label="Search products">
+          <select class="filter" id="invCat" onchange="INV.setCat(this.value)"></select>
+          <select class="filter" id="invSort" onchange="INV.setSort(this.value)">
+            <option value="units">Sort: Best sellers</option>
+            <option value="value">Sort: Stock value</option>
+            <option value="qtyAsc">Sort: Qty low to high</option>
+            <option value="price">Sort: Price high to low</option>
+            <option value="name">Sort: Name</option>
+          </select>
+          <div class="rv-seg" id="invSeg" style="margin-left:6px"><button class="on" onclick="INV.setView('grid')">Grid</button><button onclick="INV.setView('list')">List</button><button onclick="INV.setView('kanban')">Kanban</button></div>
           <div class="sp"></div>
           <button class="btn-ghost" onclick="openImport('products')"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import</button>
           <button class="btn-ghost" onclick="exportInventory()"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
           <button class="btn-red" onclick="openProductModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add product</button>
         </div>
-        <div class="inv-grid" id="invGrid"></div>
+        <div id="invBody"></div>
         <div id="invEmpty"></div>
+        <div class="inv-analytics" id="invAnalytics"></div>
       </div>
 
       <div class="page" id="page-taskbook">
@@ -855,7 +907,10 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         <div class="fld"><label for="pm_code">Product code</label><input id="pm_code" placeholder="e.g. LED-18"></div>
         <div class="fld"><label for="pm_price">Price (LKR)</label><input id="pm_price" inputmode="numeric" placeholder="e.g. 2,200"></div>
       </div>
-      <div class="fld"><label for="pm_details">Details</label><input id="pm_details" placeholder="Short description"></div>
+      <div class="fld-grid2">
+        <div class="fld"><label for="pm_details">Details</label><input id="pm_details" placeholder="Short description"></div>
+        <div class="fld"><label for="pm_cat">Category</label><input id="pm_cat" placeholder="e.g. Chandeliers" list="pm_catList"><datalist id="pm_catList"></datalist></div>
+      </div>
       <div class="fld-grid2">
         <div class="fld"><label for="pm_qty">Quantity in stock</label><input id="pm_qty" inputmode="numeric" placeholder="e.g. 48"></div>
         <div class="fld"><label for="pm_thr">Low-stock alert at</label><input id="pm_thr" inputmode="numeric" placeholder="e.g. 10"></div>
@@ -1575,26 +1630,84 @@ const PRODUCTS=[
  {id:10,name:'Underwater Pool Light',code:'UW-08',details:'IP68 RGB pool light, 24W',price:34000,qty:5,threshold:5,photo:null,lastSale:'2026-06-11',history:[{t:'Sale',qty:-7,when:'2026-06-11'},{t:'Stock added',qty:12,when:'2026-05-01'}]},
  {id:11,name:'Linear Track Light 1m',code:'TR-10',details:'Surface linear LED, 30W',price:22000,qty:22,threshold:8,photo:null,lastSale:null,history:[{t:'Stock added',qty:22,when:'2026-04-20'}]}
 ];
+const PROD_CAT={'CH-800':'Chandeliers','LED-18':'LED Panels','OUT-BOL':'Outdoor','TRK-SP':'Track','PD-22':'Pendants','WL-09':'Wall Lamps','OG-05':'Outdoor','PD-CL':'Pendants','CL-07':'Ceiling','UW-08':'Pool','TR-10':'Track'};
+PRODUCTS.forEach(p=>{if(p.cat==null)p.cat=PROD_CAT[p.code]||'Other';});
 function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
 function prodStatus(p){if(p.qty<=0)return'out';if(p.qty<=(p.threshold!=null?p.threshold:INV_LOW))return'low';return'ok';}
 function prodDead(p){if(p.qty<=0)return false;const ref=p.lastSale||(p.history&&p.history.length?p.history[p.history.length-1].when:null);if(!ref)return true;return daysBetween(ref,TODAY)>INV_DEAD_DAYS;}
-const INV={q:'',filter:'all',setQ(v){this.q=(v||'').trim().toLowerCase();renderInventory();}};
+const INV={q:'',filter:'all',cat:'all',sort:'units',view:'grid',
+ setQ(v){this.q=(v||'').trim().toLowerCase();renderInventory();},
+ setCat(v){this.cat=v;renderInventory();},
+ setSort(v){this.sort=v;renderInventory();},
+ setView(v){this.view=v;renderInventory();}};
 function invAlert(f){INV.filter=INV.filter===f?'all':f;renderInventory();}
 function invAlertCard(f,label,n,icon){return '<button class="inv-alert '+f+(INV.filter===f?' on':'')+'" onclick="invAlert(\''+f+'\')"><div class="ia-ic">'+icon+'</div><div><div class="ia-v">'+n+'</div><div class="ia-l">'+label+'</div></div></button>';}
+function unitsSold(p){return (p.history||[]).reduce((s,h)=>s+(h.qty<0?-h.qty:0),0);}
+function stockValue(p){return p.qty*p.price;}
+function kbBucket(p){const st=prodStatus(p);if(st==='out')return'out';if(prodDead(p))return'dead';if(st==='low')return'low';return'ok';}
+function invSortList(list){
+ const s=INV.sort;
+ if(s==='units')return list.sort((a,b)=>unitsSold(b)-unitsSold(a));
+ if(s==='value')return list.sort((a,b)=>stockValue(b)-stockValue(a));
+ if(s==='qtyAsc')return list.sort((a,b)=>a.qty-b.qty);
+ if(s==='price')return list.sort((a,b)=>b.price-a.price);
+ return list.sort((a,b)=>a.name.localeCompare(b.name));
+}
 function renderInventory(){
  const all=PRODUCTS;
  const low=all.filter(p=>prodStatus(p)==='low').length,out=all.filter(p=>prodStatus(p)==='out').length,dead=all.filter(prodDead).length;
  document.getElementById('invAlerts').innerHTML=invAlertCard('low','Running low',low,I.warn)+invAlertCard('out','Out of stock',out,I.x)+invAlertCard('dead','Dead stock ('+INV_DEAD_DAYS+'d+)',dead,I.clock);
  const nb=document.getElementById('nbInv');if(nb)nb.textContent=low+out;
- let list=all.filter(p=>!INV.q||p.name.toLowerCase().includes(INV.q)||(p.code||'').toLowerCase().includes(INV.q));
+ // category filter options + modal datalist
+ const cats=[...new Set(all.map(p=>p.cat||'Other'))].sort();
+ const catSel=document.getElementById('invCat');if(catSel&&catSel.dataset.n!=String(cats.length)){catSel.innerHTML='<option value="all">All categories</option>'+cats.map(c=>'<option value="'+c+'">'+c+'</option>').join('');catSel.value=INV.cat;catSel.dataset.n=String(cats.length);}
+ const dl=document.getElementById('pm_catList');if(dl)dl.innerHTML=cats.map(c=>'<option value="'+c+'">').join('');
+ // view segment active state
+ [...document.querySelectorAll('#invSeg button')].forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===INV.view));
+ // filter
+ let list=all.filter(p=>(!INV.q||p.name.toLowerCase().includes(INV.q)||(p.code||'').toLowerCase().includes(INV.q))&&(INV.cat==='all'||(p.cat||'Other')===INV.cat));
  if(INV.filter==='low')list=list.filter(p=>prodStatus(p)==='low');else if(INV.filter==='out')list=list.filter(p=>prodStatus(p)==='out');else if(INV.filter==='dead')list=list.filter(prodDead);
- document.getElementById('invGrid').innerHTML=list.map(p=>{
-  const st=prodStatus(p),dead=prodDead(p);
-  const tag=st==='out'?'<span class="stock-tag out">Out of stock</span>':st==='low'?'<span class="stock-tag low">Low · '+p.qty+'</span>':'<span class="stock-tag ok">'+p.qty+' in stock</span>';
-  const photo=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'">':'<div class="ph-ph">'+I.imgph+'<span>No photo</span></div>';
-  return '<div class="prod-card" onclick="openProduct('+p.id+')"><div class="prod-photo">'+photo+tag+'</div><div class="prod-body"><div class="prod-nm">'+p.name+'</div><div class="prod-code">'+(p.code||'—')+'</div>'+(dead?'<div class="prod-dead">'+I.clock+' No sale in '+INV_DEAD_DAYS+'d</div>':'')+'<div class="prod-foot"><span class="prod-price">'+lkr(p.price)+'</span><span class="prod-qty" style="color:'+(st==='out'?'var(--red)':st==='low'?'var(--amber)':'var(--muted)')+'">'+p.qty+' units</span></div></div></div>';
- }).join('');
- document.getElementById('invEmpty').innerHTML=list.length?'':'<div style="text-align:center;padding:48px 20px;color:var(--faint)"><div style="width:44px;height:44px;margin:0 auto 12px;color:var(--faint)">'+I.box+'</div><div style="font-weight:700;color:var(--muted)">No products</div><div style="font-size:12.5px;margin-top:4px">'+(INV.q||INV.filter!=='all'?'Nothing matches this filter.':'Add your first product or import a list.')+'</div></div>';
+ list=invSortList(list);
+ const body=document.getElementById('invBody');
+ if(INV.view==='list')body.innerHTML=renderInvList(list);
+ else if(INV.view==='kanban')body.innerHTML=renderInvKanban(list);
+ else body.innerHTML='<div class="inv-grid">'+list.map(invCardHTML).join('')+'</div>';
+ document.getElementById('invEmpty').innerHTML=list.length?'':'<div style="text-align:center;padding:48px 20px;color:var(--faint)"><div style="width:44px;height:44px;margin:0 auto 12px;color:var(--faint)">'+I.box+'</div><div style="font-weight:700;color:var(--muted)">No products</div><div style="font-size:12.5px;margin-top:4px">'+(INV.q||INV.filter!=='all'||INV.cat!=='all'?'Nothing matches this filter.':'Add your first product or import a list.')+'</div></div>';
+ renderInvAnalytics();
+}
+function invCardHTML(p){
+ const st=prodStatus(p),dead=prodDead(p);
+ const tag=st==='out'?'<span class="stock-tag out">Out of stock</span>':st==='low'?'<span class="stock-tag low">Low · '+p.qty+'</span>':'<span class="stock-tag ok">'+p.qty+' in stock</span>';
+ const photo=p.photo?'<img src="'+p.photo+'" alt="'+p.name+'">':'<div class="ph-ph">'+I.imgph+'<span>No photo</span></div>';
+ return '<div class="prod-card" onclick="openProduct('+p.id+')"><div class="prod-photo">'+photo+tag+'</div><div class="prod-body"><div class="prod-nm">'+p.name+'</div><div class="prod-code">'+(p.code||'—')+'</div>'+(dead?'<div class="prod-dead">'+I.clock+' No sale in '+INV_DEAD_DAYS+'d</div>':'')+'<div class="prod-foot"><span class="prod-price">'+lkr(p.price)+'</span><span class="prod-qty" style="color:'+(st==='out'?'var(--red)':st==='low'?'var(--amber)':'var(--muted)')+'">'+p.qty+' units</span></div></div></div>';
+}
+function renderInvList(list){
+ const rows=list.map(p=>{const st=prodStatus(p),dead=prodDead(p);const pill=st==='out'?'<span class="st-pill out">Out</span>':st==='low'?'<span class="st-pill low">Low</span>':(dead?'<span class="st-pill dead">Dead</span>':'<span class="st-pill ok">Healthy</span>');
+  return '<tr onclick="openProduct('+p.id+')"><td><div class="il-nm">'+p.name+'</div><div class="il-code">'+(p.code||'—')+'</div></td><td class="tm" style="color:var(--muted)">'+(p.cat||'Other')+'</td><td class="tnum">'+lkr(p.price)+'</td><td class="tnum" style="color:'+(st==='out'?'var(--red)':st==='low'?'var(--amber)':'var(--ink)')+';font-weight:700">'+p.qty+'</td><td class="tnum">'+unitsSold(p)+'</td><td class="tnum">'+lkr(stockValue(p))+'</td><td>'+pill+'</td></tr>';}).join('');
+ return '<table class="inv-list"><thead><tr><th>Product</th><th>Category</th><th class="tnum">Price</th><th class="tnum">Qty</th><th class="tnum">Sold</th><th class="tnum">Stock value</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function renderInvKanban(list){
+ const cols=[['ok','Healthy','var(--green)'],['low','Running low','var(--amber)'],['out','Out of stock','var(--red)'],['dead','Dead stock','var(--blue)']];
+ return '<div class="inv-kanban">'+cols.map(c=>{
+  const items=list.filter(p=>kbBucket(p)===c[0]);
+  const cards=items.map(p=>'<div class="kb-card" onclick="openProduct('+p.id+')"><div class="kb-nm">'+p.name+'</div><div class="kb-meta"><span class="kb-code">'+(p.code||'—')+'</span><span class="kb-qty" style="color:'+(c[0]==='out'?'var(--red)':c[0]==='low'?'var(--amber)':'var(--muted)')+'">'+p.qty+' units</span></div></div>').join('')||'<div class="kb-empty">Nothing here.</div>';
+  return '<div class="kb-col"><div class="kb-head"><span class="kb-dot" style="background:'+c[2]+'"></span>'+c[1]+'<span class="kb-n">'+items.length+'</span></div>'+cards+'</div>';
+ }).join('')+'</div>';
+}
+function renderInvAnalytics(){
+ const all=PRODUCTS;
+ const onHand=all.reduce((s,p)=>s+stockValue(p),0);
+ const units=all.reduce((s,p)=>s+p.qty,0);
+ const movers=[...all].filter(p=>unitsSold(p)>0).sort((a,b)=>unitsSold(b)-unitsSold(a)).slice(0,5);
+ const deadList=all.filter(prodDead);
+ const deadVal=deadList.reduce((s,p)=>s+stockValue(p),0);
+ const reorder=all.filter(p=>prodStatus(p)!=='ok');
+ const moversH=movers.length?movers.map((p,i)=>'<div class="ia-row"><span class="ia-nm"><span class="ia-rank">'+(i+1)+'</span>'+p.name+'</span><span class="ia-v">'+unitsSold(p)+' sold · '+lkr(unitsSold(p)*p.price)+'</span></div>').join(''):'<div class="ia-row" style="color:var(--faint)">No sales recorded yet.</div>';
+ const reorderH=reorder.length?reorder.map(p=>'<div class="ia-row"><span class="ia-nm">'+p.name+'<span class="ia-tag '+(prodStatus(p)==='out'?'out':'low')+'">'+(prodStatus(p)==='out'?'OUT':'LOW '+p.qty)+'</span></span><span class="ia-v">'+(p.code||'')+'</span></div>').join(''):'<div class="ia-row" style="color:var(--faint)">Nothing to reorder.</div>';
+ document.getElementById('invAnalytics').innerHTML=
+  '<div class="iaC"><div class="iaC-h">'+I.box+'Stock on hand</div><div class="iaC-big">'+lkr(onHand)+'</div><div class="iaC-sub">'+units.toLocaleString()+' units across '+all.length+' SKUs</div></div>'
+  +'<div class="iaC"><div class="iaC-h">'+I.bolt+'Winning products</div>'+moversH+'</div>'
+  +'<div class="iaC"><div class="iaC-h">'+I.clock+'Capital stuck · '+lkr(deadVal)+'</div><div class="iaC-sub" style="margin:0 0 8px">'+deadList.length+' dead-stock SKUs · reorder list below</div>'+reorderH+'</div>';
 }
 function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;const st=prodStatus(p),dead=prodDead(p);
@@ -1637,6 +1750,7 @@ function openProductModal(id){
  document.getElementById('pm_name').value=p?p.name:'';document.getElementById('pm_code').value=p?(p.code||''):'';
  document.getElementById('pm_details').value=p?(p.details||''):'';document.getElementById('pm_price').value=p&&p.price?p.price.toLocaleString():'';
  document.getElementById('pm_qty').value=p?p.qty:'';document.getElementById('pm_thr').value=p&&p.threshold!=null?p.threshold:INV_LOW;
+ document.getElementById('pm_cat').value=p?(p.cat||''):'';
  PM_PHOTO=p?p.photo:null;renderPmPhoto();document.getElementById('productModal').classList.add('open');
  setTimeout(function(){document.getElementById('pm_name').focus();},60);
 }
@@ -1664,13 +1778,13 @@ function saveProduct(){
  if(!name){document.getElementById('pm_name').focus();return;}
  const price=parseInt(document.getElementById('pm_price').value.replace(/[^0-9]/g,''))||0;
  const qty=parseInt(document.getElementById('pm_qty').value.replace(/[^0-9]/g,''))||0;
- const data={name:name,code:document.getElementById('pm_code').value.trim(),details:document.getElementById('pm_details').value.trim(),price:price,qty:qty,threshold:parseInt(document.getElementById('pm_thr').value.replace(/[^0-9]/g,''))||INV_LOW,photo:PM_PHOTO};
+ const data={name:name,code:document.getElementById('pm_code').value.trim(),details:document.getElementById('pm_details').value.trim(),cat:document.getElementById('pm_cat').value.trim()||'Other',price:price,qty:qty,threshold:parseInt(document.getElementById('pm_thr').value.replace(/[^0-9]/g,''))||INV_LOW,photo:PM_PHOTO};
  if(PM_EDIT){const p=PRODUCTS.find(x=>x.id===PM_EDIT);const dq=data.qty-p.qty;Object.assign(p,data);if(dq)p.history.unshift({t:'Stock adjusted',qty:dq,when:TODAY});toast(I.check+' '+name+' updated');}
  else{const nid=Math.max.apply(null,PRODUCTS.map(x=>x.id).concat(0))+1;PRODUCTS.unshift(Object.assign({id:nid},data,{lastSale:null,history:[{t:'Stock added',qty:data.qty,when:TODAY}]}));toast(I.check+' '+name+' added');}
  closeProductModal();renderInventory();
 }
 function exportCSV(name,headers,rows){const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast(I.check+' CSV exported');}
-function exportInventory(){exportCSV('homedepot-inventory.csv',['Name','Code','Details','Price','In stock','Low alert','Status','Last sale'],PRODUCTS.map(p=>[p.name,p.code,p.details,p.price,p.qty,(p.threshold!=null?p.threshold:INV_LOW),prodStatus(p),p.lastSale||'']));}
+function exportInventory(){exportCSV('homedepot-inventory.csv',['Name','Code','Category','Price','In stock','Sold','Stock value','Low alert','Status','Last sale'],PRODUCTS.map(p=>[p.name,p.code,p.cat||'Other',p.price,p.qty,unitsSold(p),stockValue(p),(p.threshold!=null?p.threshold:INV_LOW),prodStatus(p),p.lastSale||'']));}
 /* toast with an Undo action */
 let UNDO_FN=null;
 function runUndo(){if(UNDO_FN){UNDO_FN();UNDO_FN=null;}const t=document.getElementById('toast');t.classList.remove('show');}
@@ -1680,7 +1794,7 @@ function toastUndo(msg,fn){UNDO_FN=fn;const t=document.getElementById('toast');t
 const IMPORT_SCHEMAS={
  leads:{coll:'leads',label:'Inquiries',fields:[{k:'name',l:'Customer name',req:true},{k:'co',l:'Company / detail'},{k:'phone',l:'Phone'},{k:'value',l:'Estimated value',num:true},{k:'stage',l:'Stage'},{k:'source',l:'Source'},{k:'owner',l:'Owner'}]},
  customers:{coll:'customers',label:'Customers',fields:[{k:'name',l:'Name',req:true},{k:'phone',l:'Phone'},{k:'email',l:'Email'},{k:'type',l:'Type (B2B/B2C)'},{k:'co',l:'Detail'}]},
- products:{coll:'products',label:'Products',fields:[{k:'name',l:'Product name',req:true},{k:'code',l:'Product code'},{k:'details',l:'Details'},{k:'price',l:'Price',num:true},{k:'qty',l:'Quantity',num:true},{k:'photo',l:'Image URL (optional)'}]}
+ products:{coll:'products',label:'Products',fields:[{k:'name',l:'Product name',req:true},{k:'code',l:'Product code'},{k:'cat',l:'Category'},{k:'details',l:'Details'},{k:'price',l:'Price',num:true},{k:'qty',l:'Quantity',num:true},{k:'photo',l:'Image URL (optional)'}]}
 };
 const IMPORT={type:null,headers:[],rows:[],map:{},fileName:''};
 function openImport(type){
@@ -1754,7 +1868,7 @@ function impDoImport(){
    CUSTOMERS.push({name:o.name,co:o.co||'',type:(o.type||'B2C').toUpperCase().indexOf('B2B')>-1?'B2B':'B2C',phone:o.phone||'',email:o.email||'',sent:0,last:TODAY,address:'',history:[]});
   }else if(sc.coll==='products'){
    const nid=Math.max.apply(null,PRODUCTS.map(x=>x.id).concat(0))+1;
-   PRODUCTS.unshift({id:nid,name:o.name,code:o.code||'',details:o.details||'',price:o.price||0,qty:o.qty||0,threshold:INV_LOW,photo:o.photo||null,lastSale:null,history:[{t:'Imported',qty:o.qty||0,when:TODAY}]});
+   PRODUCTS.unshift({id:nid,name:o.name,code:o.code||'',cat:o.cat||'Other',details:o.details||'',price:o.price||0,qty:o.qty||0,threshold:INV_LOW,photo:o.photo||null,lastSale:null,history:[{t:'Imported',qty:o.qty||0,when:TODAY}]});
   }
   imported++;
  });
