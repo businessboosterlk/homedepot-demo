@@ -597,6 +597,32 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .ia-catbar-track{height:7px;background:var(--line2);border-radius:99px;overflow:hidden}
 .ia-catbar-fill{height:100%;background:var(--red);border-radius:99px}
 .ia-reorder-q{font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:2px 7px;border-radius:6px;white-space:nowrap}
+/* ── Settings / Customization Studio ── */
+.stu-hero{background:linear-gradient(135deg,var(--red-soft),transparent 70%);border:1px solid var(--line);border-radius:var(--radius);padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.stu-hero .sh-ic{width:42px;height:42px;border-radius:12px;background:var(--accent-grad);color:#fff;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 14px var(--red-glow)}
+.stu-hero .sh-ic svg{width:21px;height:21px}
+.stu-hero .sh-t{font-family:'Poppins';font-size:17px;font-weight:800;letter-spacing:-.3px}
+.stu-hero .sh-s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.stu-sec{max-width:720px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:6px 22px;box-shadow:var(--shadow-xs)}
+.stu-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.stu-row:last-child{border:none}
+.stu-row .sr-l{width:190px;flex-shrink:0}
+.stu-row .sr-l .t{font-size:13px;font-weight:650}
+.stu-row .sr-l .s{font-size:11px;color:var(--faint);margin-top:2px}
+.stu-row input[type=text],.stu-row input[type=number]{flex:1;min-width:140px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--ink);outline:none;font-family:inherit;transition:border-color .15s}
+.stu-row input:focus{border-color:var(--red)}
+.stu-color{display:flex;align-items:center;gap:10px;flex:1;min-width:150px}
+.stu-color input[type=color]{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:3px;cursor:pointer}
+.stu-swatches{display:flex;gap:8px;flex-wrap:wrap}
+.stu-swatch{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);cursor:pointer;transition:transform .12s}
+.stu-swatch:hover{transform:scale(1.1)}
+.sw{position:relative;width:44px;height:26px;border-radius:99px;background:var(--line);border:none;cursor:pointer;transition:background .2s;flex-shrink:0;padding:0;margin-left:auto}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s var(--ease)}
+.sw.on{background:var(--green)}
+.sw.on::after{transform:translateX(18px)}
+.stu-foot{display:flex;align-items:center;gap:10px;padding:14px 0 4px;margin-top:8px;border-top:1px solid var(--line2)}
+.stu-reset{font-size:12px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px}
+.stu-reset:hover{color:var(--red);background:var(--red-soft)}
 .bdg-amber{background:var(--amber-soft);color:var(--amber)}
 .bdg-blue{background:var(--blue-soft);color:var(--blue)}
 .photo-drop{aspect-ratio:16/10;border:2px dashed var(--line);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;color:var(--muted);cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .15s}
@@ -678,6 +704,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
       <div class="nav-item ceo-only" data-pg="finance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Finance</div>
       <div class="nav-item ceo-only" data-pg="salesreport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Sales Report</div>
       <div class="nav-item ceo-only" data-pg="audit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10"/><polyline points="12 6 12 12 16 14"/><path d="M22 6 18 10 14 6"/></svg>Login Audit</div>
+      <div class="nav-item ceo-only" data-pg="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</div>
     </nav>
     <div class="side-foot">
       <div class="av" id="meAv">N</div>
@@ -805,6 +832,16 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
           <table class="tbl"><thead><tr><th>User</th><th>Role</th><th>Device</th><th>Location</th><th class="tnum">Signed in</th></tr></thead><tbody id="auditBody"></tbody></table>
         </div>
       </div>
+
+      <!-- Settings / Customization Studio -->
+      <div class="page" id="page-settings">
+        <div class="stu-hero">
+          <div class="sh-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></div>
+          <div style="flex:1;min-width:200px"><div class="sh-t">Customization Studio</div><div class="sh-s">Make this system yours. Changes apply live for this demo and reset on reload.</div></div>
+        </div>
+        <div class="rv-seg" id="stuTabs" style="margin-bottom:16px"><button class="on" onclick="stuTab('brand')">Brand</button><button onclick="stuTab('business')">Business</button><button onclick="stuTab('modules')">Modules</button><button onclick="stuTab('inventory')">Inventory</button><button onclick="stuTab('system')">System</button></div>
+        <div class="stu-sec" id="stuBody"></div>
+      </div>
       <div class="page" id="page-finance">
         <div class="kpis" id="finKpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px"></div>
         <div class="grid2" style="margin-bottom:20px">
@@ -842,7 +879,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
             <div class="card"><div class="card-h"><h3>Next Steps</h3></div><div class="card-b" id="srNextSteps" style="padding:14px 18px;font-size:13.5px;line-height:1.7"></div></div>
           </div>
           <div style="margin-top:32px;padding:22px 4px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-            <div style="display:flex;align-items:center;gap:14px"><img id="srFootLogo" alt="Home Depot Sri Lanka" style="height:42px;width:auto;display:block"><div style="border-left:1px solid var(--line);padding-left:14px"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">Home Depot Sri Lanka</div><div style="font-size:11px;color:var(--muted);margin-top:2px">213 Nawala Rd, Nugegoda, Colombo</div></div></div>
+            <div style="display:flex;align-items:center;gap:14px"><img id="srFootLogo" alt="Home Depot Sri Lanka" style="height:42px;width:auto;display:block"><div style="border-left:1px solid var(--line);padding-left:14px"><div style="font-size:12.5px;font-weight:700;color:var(--ink)" id="srFootName">Home Depot Sri Lanka</div><div style="font-size:11px;color:var(--muted);margin-top:2px" id="srFootAddr">213 Nawala Rd, Nugegoda, Colombo</div></div></div>
             <div style="text-align:right"><div style="font-size:11px;color:var(--faint);font-weight:600">Sales Operating System</div><div style="font-size:10px;color:var(--faint);margin-top:2px">Powered by Business Booster</div></div>
           </div>
         </div>
@@ -1625,7 +1662,7 @@ function exportForecastXLS(){
  exportXLS('homedepot-revenue-forecast.xls',headers,body);
 }
 /* ═══════════ SMART INVENTORY (ported from master skeleton 9C) ═══════════ */
-const INV_LOW=10, INV_DEAD_DAYS=30;
+let INV_LOW=10, INV_DEAD_DAYS=30;
 /* ~11 real lighting SKUs. Codes match some quote items so auto-decrement fires on convert.
    Mix of healthy / low / zero / dead so all three signals show. */
 const PRODUCTS=[
@@ -1902,8 +1939,50 @@ function downloadImportTemplate(){
  exportCSV(sc.label.toLowerCase().replace(/\s+/g,'-')+'-import-template.csv',sc.fields.map(f=>f.l),[ex]);
 }
 
-const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],inventory:['Inventory','Smart stock — low, out and dead-stock signals'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');if(pg==='inventory')renderInventory();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+/* ═══════════ SETTINGS / Customization Studio ═══════════ */
+const CFG_HD_DEFAULT={accent:'#E4002B',company:'Home Depot Sri Lanka',address:'213 Nawala Rd, Nugegoda, Colombo',phone:'011 000 0000',email:'hello@thehomedepot.lk',lowStock:10,deadDays:30,modules:{inventory:true,revpipeline:true,salesreport:true,taskbook:true,finance:true,audit:true}};
+let CFG_HD=JSON.parse(JSON.stringify(CFG_HD_DEFAULT));
+const STU={tab:'brand'};
+function escA(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function hexA(hex,a){const c=hexToRgb(hex);return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';}
+function shade(hex,pct){const c=hexToRgb(hex);const t=pct<0?0:255,f=Math.abs(pct)/100;return 'rgb('+Math.round((t-c[0])*f+c[0])+','+Math.round((t-c[1])*f+c[1])+','+Math.round((t-c[2])*f+c[2])+')';}
+function applyAccent(hex){const rs=document.documentElement.style;rs.setProperty('--red',hex);rs.setProperty('--red-dark',shade(hex,-14));rs.setProperty('--red-soft',hexA(hex,.09));rs.setProperty('--red-glow',hexA(hex,.28));rs.setProperty('--accent-grad','linear-gradient(135deg,'+shade(hex,20)+' 0%,'+hex+' 55%,'+shade(hex,-14)+' 100%)');}
+function stuSetAccent(hex){CFG_HD.accent=hex;applyAccent(hex);}
+function applyBiz(){const n=document.getElementById('srFootName');if(n)n.textContent=CFG_HD.company;const a=document.getElementById('srFootAddr');if(a)a.textContent=CFG_HD.address;}
+function stuSetBiz(k,v){CFG_HD[k]=v;applyBiz();}
+function applyModules(){Object.keys(CFG_HD.modules).forEach(k=>{const nav=document.querySelector('.nav-item[data-pg="'+k+'"]');if(nav)nav.style.display=CFG_HD.modules[k]?'':'none';});const act=document.querySelector('.nav-item.active');if(act&&act.style.display==='none')go('dashboard');}
+function stuToggleModule(k){CFG_HD.modules[k]=!CFG_HD.modules[k];applyModules();renderSettings();}
+function stuSetLow(v){CFG_HD.lowStock=parseInt(v)||0;INV_LOW=CFG_HD.lowStock;renderInventory();}
+function stuSetDead(v){CFG_HD.deadDays=parseInt(v)||0;INV_DEAD_DAYS=CFG_HD.deadDays;renderInventory();}
+function stuSetTheme(t){applyTheme(t);renderSettings();}
+function stuResetAll(){CFG_HD=JSON.parse(JSON.stringify(CFG_HD_DEFAULT));applyAccent(CFG_HD.accent);applyBiz();applyModules();INV_LOW=CFG_HD.lowStock;INV_DEAD_DAYS=CFG_HD.deadDays;renderInventory();renderSettings();toast(I.check+' Reset to Home Depot defaults');}
+function stuTab(t){STU.tab=t;[...document.querySelectorAll('#stuTabs button')].forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase()===t));renderSettings();}
+function stuRow(label,sub,control){return '<div class="stu-row"><div class="sr-l"><div class="t">'+label+'</div>'+(sub?'<div class="s">'+sub+'</div>':'')+'</div>'+control+'</div>';}
+function renderSettings(){
+ const t=STU.tab;let h='';
+ if(t==='brand'){
+  const sw=['#E4002B','#2563eb','#16a34a','#7c3aed','#d97706','#0891b2','#db2777','#111827'];
+  h=stuRow('Accent colour','Recolours buttons, links and the active menu live','<div class="stu-color"><input type="color" value="'+CFG_HD.accent+'" oninput="stuSetAccent(this.value)"><div class="stu-swatches">'+sw.map(c=>'<div class="stu-swatch" style="background:'+c+'" onclick="stuSetAccent(\''+c+'\')" title="'+c+'"></div>').join('')+'</div></div>');
+ }else if(t==='business'){
+  h=stuRow('Company name','Shown on the Sales Report footer','<input type="text" value="'+escA(CFG_HD.company)+'" oninput="stuSetBiz(\'company\',this.value)">')
+   +stuRow('Address','','<input type="text" value="'+escA(CFG_HD.address)+'" oninput="stuSetBiz(\'address\',this.value)">')
+   +stuRow('Phone','','<input type="text" value="'+escA(CFG_HD.phone)+'" oninput="stuSetBiz(\'phone\',this.value)">')
+   +stuRow('Email','','<input type="text" value="'+escA(CFG_HD.email)+'" oninput="stuSetBiz(\'email\',this.value)">');
+ }else if(t==='modules'){
+  const mods=[['inventory','Inventory'],['revpipeline','Revenue Pipeline'],['salesreport','Sales Report'],['taskbook','Task Book'],['finance','Finance'],['audit','Login Audit']];
+  h=mods.map(m=>stuRow(m[1],'Show in the sidebar','<button class="sw '+(CFG_HD.modules[m[0]]?'on':'')+'" onclick="stuToggleModule(\''+m[0]+'\')" aria-label="Toggle '+m[1]+'"></button>')).join('');
+ }else if(t==='inventory'){
+  h=stuRow('Low-stock alert at','Default threshold for new products','<input type="number" min="0" value="'+CFG_HD.lowStock+'" oninput="stuSetLow(this.value)">')
+   +stuRow('Dead-stock after','Days with no sale before a product is flagged','<input type="number" min="0" value="'+CFG_HD.deadDays+'" oninput="stuSetDead(this.value)">');
+ }else if(t==='system'){
+  const dark=document.body.classList.contains('dark');
+  h=stuRow('Theme','Default appearance','<div class="rv-seg"><button class="'+(!dark?'on':'')+'" onclick="stuSetTheme(\'light\')">Light</button><button class="'+(dark?'on':'')+'" onclick="stuSetTheme(\'dark\')">Dark</button></div>')
+   +'<div class="stu-foot"><div style="font-size:12px;color:var(--muted);max-width:360px">Reset every customization back to the Home Depot defaults. Changes here apply live for this demo and reset on reload.</div><div style="flex:1"></div><button class="stu-reset" onclick="stuResetAll()">Reset all</button></div>';
+ }
+ document.getElementById('stuBody').innerHTML=h;
+}
+const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],inventory:['Inventory','Smart stock — low, out and dead-stock signals'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when'],settings:['Settings','Customize this system for Home Depot']};
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');if(pg==='inventory')renderInventory();if(pg==='settings')renderSettings();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 let RV_VIEW='pipeline';
 function rvView(which){const fc=which==='forecast';RV_VIEW=fc?'forecast':'pipeline';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
 function rvExport(){RV_VIEW==='forecast'?exportForecastXLS():exportRevPipelineXLS();}
