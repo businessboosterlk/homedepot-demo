@@ -587,6 +587,16 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .ia-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px}
 .ia-tag.out{background:var(--red-soft);color:var(--red)}.ia-tag.low{background:var(--amber-soft);color:var(--amber)}
 @media(max-width:860px){#page-inventory #invSearch{flex:1 1 100%;width:100%}#page-inventory #invCat,#page-inventory #invSort{flex:1 1 42%}#page-inventory #invSeg{flex:1 1 100%;margin-left:0}#page-inventory #invSeg button{flex:1}}
+.inv-insights-head{margin:28px 0 14px;padding-top:22px;border-top:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
+.inv-insights-head span:first-child{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink)}
+.inv-insights-head .ih-note{font-size:12px;color:var(--faint)}
+.ia-catbars{margin-top:16px}
+.ia-catbar{margin-bottom:10px}
+.ia-catbar-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.ia-catbar-top .cb-nm{font-weight:600}.ia-catbar-top .cb-v{color:var(--muted);font-variant-numeric:tabular-nums}
+.ia-catbar-track{height:7px;background:var(--line2);border-radius:99px;overflow:hidden}
+.ia-catbar-fill{height:100%;background:var(--red);border-radius:99px}
+.ia-reorder-q{font-size:10.5px;font-weight:700;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);padding:2px 7px;border-radius:6px;white-space:nowrap}
 .bdg-amber{background:var(--amber-soft);color:var(--amber)}
 .bdg-blue{background:var(--blue-soft);color:var(--blue)}
 .photo-drop{aspect-ratio:16/10;border:2px dashed var(--line);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;color:var(--muted);cursor:pointer;background:var(--surface-2);transition:border-color .15s,background .15s}
@@ -775,6 +785,7 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
         </div>
         <div id="invBody"></div>
         <div id="invEmpty"></div>
+        <div class="inv-insights-head" id="invInsightsHead"><span>Inventory insights</span><span class="ih-note">for the owner and stock manager</span></div>
         <div class="inv-analytics" id="invAnalytics"></div>
       </div>
 
@@ -1701,13 +1712,19 @@ function renderInvAnalytics(){
  const movers=[...all].filter(p=>unitsSold(p)>0).sort((a,b)=>unitsSold(b)-unitsSold(a)).slice(0,5);
  const deadList=all.filter(prodDead);
  const deadVal=deadList.reduce((s,p)=>s+stockValue(p),0);
- const reorder=all.filter(p=>prodStatus(p)!=='ok');
+ const reorder=all.filter(p=>prodStatus(p)!=='ok').sort((a,b)=>a.qty-b.qty);
+ const reorderQty=p=>{const t=(p.threshold!=null?p.threshold:INV_LOW);return Math.max(t*2-p.qty,t);}; // bring back above threshold + one-threshold buffer
  const moversH=movers.length?movers.map((p,i)=>'<div class="ia-row"><span class="ia-nm"><span class="ia-rank">'+(i+1)+'</span>'+p.name+'</span><span class="ia-v">'+unitsSold(p)+' sold · '+lkr(unitsSold(p)*p.price)+'</span></div>').join(''):'<div class="ia-row" style="color:var(--faint)">No sales recorded yet.</div>';
- const reorderH=reorder.length?reorder.map(p=>'<div class="ia-row"><span class="ia-nm">'+p.name+'<span class="ia-tag '+(prodStatus(p)==='out'?'out':'low')+'">'+(prodStatus(p)==='out'?'OUT':'LOW '+p.qty)+'</span></span><span class="ia-v">'+(p.code||'')+'</span></div>').join(''):'<div class="ia-row" style="color:var(--faint)">Nothing to reorder.</div>';
+ const reorderH=reorder.length?reorder.map(p=>'<div class="ia-row"><span class="ia-nm">'+p.name+'<span class="ia-tag '+(prodStatus(p)==='out'?'out':'low')+'">'+(prodStatus(p)==='out'?'OUT':'LOW '+p.qty)+'</span></span><span class="ia-reorder-q">order ~'+reorderQty(p)+'</span></div>').join(''):'<div class="ia-row" style="color:var(--faint)">Nothing to reorder.</div>';
+ // stock value by category (top categories)
+ const catVal={};all.forEach(p=>{const c=p.cat||'Other';catVal[c]=(catVal[c]||0)+stockValue(p);});
+ const catRows=Object.entries(catVal).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const catMax=catRows.length?catRows[0][1]:1;
+ const catBars=catRows.map(c=>'<div class="ia-catbar"><div class="ia-catbar-top"><span class="cb-nm">'+c[0]+'</span><span class="cb-v">'+lkr(c[1])+'</span></div><div class="ia-catbar-track"><div class="ia-catbar-fill" style="width:'+Math.max(4,Math.round(c[1]/catMax*100))+'%"></div></div></div>').join('');
  document.getElementById('invAnalytics').innerHTML=
-  '<div class="iaC"><div class="iaC-h">'+I.box+'Stock on hand</div><div class="iaC-big">'+lkr(onHand)+'</div><div class="iaC-sub">'+units.toLocaleString()+' units across '+all.length+' SKUs</div></div>'
+  '<div class="iaC"><div class="iaC-h">'+I.box+'Stock on hand</div><div class="iaC-big">'+lkr(onHand)+'</div><div class="iaC-sub">'+units.toLocaleString()+' units across '+all.length+' SKUs</div><div class="ia-catbars"><div class="sec-t" style="font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:700;margin-bottom:10px">Value by category</div>'+catBars+'</div></div>'
   +'<div class="iaC"><div class="iaC-h">'+I.bolt+'Winning products</div>'+moversH+'</div>'
-  +'<div class="iaC"><div class="iaC-h">'+I.clock+'Capital stuck · '+lkr(deadVal)+'</div><div class="iaC-sub" style="margin:0 0 8px">'+deadList.length+' dead-stock SKUs · reorder list below</div>'+reorderH+'</div>';
+  +'<div class="iaC"><div class="iaC-h">'+I.clock+'Capital stuck · '+lkr(deadVal)+'</div><div class="iaC-sub" style="margin:0 0 8px">'+deadList.length+' dead-stock SKUs · reorder oldest first</div>'+reorderH+'</div>';
 }
 function openProduct(id){
  const p=PRODUCTS.find(x=>x.id===id);if(!p)return;const st=prodStatus(p),dead=prodDead(p);
