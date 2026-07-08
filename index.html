@@ -1679,7 +1679,22 @@ const PRODUCTS=[
  {id:11,name:'Linear Track Light 1m',code:'TR-10',details:'Surface linear LED, 30W',price:22000,qty:22,threshold:8,photo:null,lastSale:null,history:[{t:'Stock added',qty:22,when:'2026-04-20'}]}
 ];
 const PROD_CAT={'CH-800':'Chandeliers','LED-18':'LED Panels','OUT-BOL':'Outdoor','TRK-SP':'Track','PD-22':'Pendants','WL-09':'Wall Lamps','OG-05':'Outdoor','PD-CL':'Pendants','CL-07':'Ceiling','UW-08':'Pool','TR-10':'Track'};
-PRODUCTS.forEach(p=>{if(p.cat==null)p.cat=PROD_CAT[p.code]||'Other';});
+/* Real product photos, pulled from the client's live catalogue (thehomedepot.lk WooCommerce).
+   Referenced by URL — no base64, no repo weight. Swap to Supabase Storage on go-live. */
+const PROD_PHOTO={
+ 'CH-800':'https://thehomedepot.lk/wp-content/uploads/2026/06/08.jpg',
+ 'LED-18':'https://thehomedepot.lk/wp-content/uploads/2020/10/A-EF-PPL-026.jpg',
+ 'OUT-BOL':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-ODL-488.png',
+ 'TRK-SP':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-SPL-096.jpg',
+ 'PD-22':'https://thehomedepot.lk/wp-content/uploads/2020/10/A-EF-PLA-549.png',
+ 'WL-09':'https://thehomedepot.lk/wp-content/uploads/2026/06/16.jpg',
+ 'OG-05':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-ODL-490.png',
+ 'PD-CL':'https://thehomedepot.lk/wp-content/uploads/2026/06/15.jpg',
+ 'CL-07':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-CLI-023.jpg',
+ 'UW-08':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-ODL-496.png',
+ 'TR-10':'https://thehomedepot.lk/wp-content/uploads/2020/10/S-EF-TRL-025.jpg'
+};
+PRODUCTS.forEach(p=>{if(p.cat==null)p.cat=PROD_CAT[p.code]||'Other';if(p.photo==null&&PROD_PHOTO[p.code])p.photo=PROD_PHOTO[p.code];});
 function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);}
 function prodStatus(p){if(p.qty<=0)return'out';if(p.qty<=(p.threshold!=null?p.threshold:INV_LOW))return'low';return'ok';}
 function prodDead(p){if(p.qty<=0)return false;const ref=p.lastSale||(p.history&&p.history.length?p.history[p.history.length-1].when:null);if(!ref)return true;return daysBetween(ref,TODAY)>INV_DEAD_DAYS;}
