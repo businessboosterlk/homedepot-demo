@@ -653,6 +653,23 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 .imp-summary{text-align:center;padding:18px 8px}
 .imp-summary .is-big{font-family:'Poppins';font-size:34px;font-weight:800;color:var(--green)}
 .imp-summary .is-sub{font-size:13px;color:var(--muted);margin-top:4px}
+/* ── Self-test report panel (ported from master skeleton) ── */
+.st-ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:400;display:flex;align-items:center;justify-content:center;padding:18px}
+.st-panel{background:var(--surface);border-radius:18px;width:640px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow2);overflow:hidden}
+.st-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.st-head .st-badge{font-family:'Poppins';font-size:15px;font-weight:800;padding:6px 14px;border-radius:99px}
+.st-badge.pass{background:var(--green-soft);color:var(--green)}
+.st-badge.fail{background:var(--red-soft);color:var(--red)}
+.st-head .hint{font-size:12px;color:var(--muted)}
+.st-body{overflow-y:auto;padding:8px 22px 16px}
+.st-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line2);font-size:12.5px}
+.st-row:last-child{border:none}
+.st-row>svg,.st-row .ic{width:15px;height:15px;flex-shrink:0;margin-top:1px}
+.st-row.p>svg,.st-row.p .ic{color:var(--green)}.st-row.f>svg,.st-row.f .ic{color:var(--red)}
+.st-row .nm{font-weight:650;min-width:0;color:var(--ink)}
+.st-row .dt{color:var(--faint);font-size:11.5px;margin-top:2px;word-break:break-word}
+.st-row.f .nm{color:var(--red)}
+.st-foot{padding:12px 22px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -1000,6 +1017,19 @@ select.filter,select.ivl,.fld select{appearance:none;-webkit-appearance:none;bac
 <div class="toast" id="toast"></div>
 
 <script>
+/* ═══════════ SECTION 0 — ERROR RECORDER (defensive standard, ported from master skeleton) ═══════════
+   Every console.error/warn, uncaught error and unhandled rejection is recorded from the first parsed
+   line. The self-test harness asserts this log stays empty; the error boundary writes into it.
+   Original console behaviour is preserved. */
+window.__ST_LOG=[];
+(function(){
+ const rec=(kind,args)=>{try{window.__ST_LOG.push({kind:kind,msg:Array.from(args).map(a=>a&&a.message?a.message:String(a)).join(' ').slice(0,300),at:0});}catch(e){}};
+ const ce=console.error.bind(console),cw=console.warn.bind(console);
+ console.error=function(){rec('error',arguments);ce.apply(null,arguments);};
+ console.warn=function(){rec('warn',arguments);cw.apply(null,arguments);};
+ window.addEventListener('error',e=>rec('uncaught',[e.message||e.type]));
+ window.addEventListener('unhandledrejection',e=>rec('rejection',[e.reason&&e.reason.message||String(e.reason)]));
+})();
 const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg>';
 const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
 function setReportLogo(){const f=document.getElementById('srFootLogo');if(!f)return;const dark=document.body.classList.contains('dark');const src=dark?document.querySelector('.side-logo')?.src:document.querySelector('.login-logo')?.src;if(src)f.src=src;}
@@ -1252,12 +1282,15 @@ function saveInquiry(){
  go('pipeline');toast(I.check+' Inquiry added: '+name);
 }
 /* excel export (.xls, opens in Excel) */
+/* ONE download seam (ported from skeleton) — every exporter routes through here so the self-test
+   harness can stub it and count real payload bytes with zero files hitting disk. */
+function _download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();}
 function exportXLS(name,headers,rows){
  const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;');
  const head='<tr>'+headers.map(h=>`<th style="background:#E4002B;color:#fff;padding:6px">${esc(h)}</th>`).join('')+'</tr>';
  const body=rows.map(r=>'<tr>'+r.map(c=>`<td style="padding:5px">${esc(c)}</td>`).join('')+'</tr>').join('');
  const html=`<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1" cellspacing="0">${head}${body}</table></body></html>`;
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'application/vnd.ms-excel'}));a.download=name;a.click();
+ _download(name,new Blob([html],{type:'application/vnd.ms-excel'}));
 }
 function exportInquiriesXLS(){exportXLS('homedepot-inquiries.xls',['Customer','Company','Type','Lead','Stage','Source','Owner','Products','Value (LKR)'],filtered().map(l=>[l.name,l.co,l.type,l.lead,stageLabel(l.stage),l.source,l.owner,l.products.join(' / '),val(l)]));}
 function exportQuotesXLS(){const rows=[];LEADS.filter(l=>l.quote.length).forEach(l=>l.quote.forEach(r=>rows.push([l.name,r.p,r.n,r.q,r.u,r.q*r.u,stageLabel(l.stage)])));exportXLS('homedepot-quotations.xls',['Customer','Product','Code','Qty','Unit (LKR)','Line Total (LKR)','Stage'],rows);}
@@ -1312,7 +1345,9 @@ function renderBoard(){
  document.getElementById('board').innerHTML=STAGES.filter(s=>s.k!=='lost').map(s=>{const it=data.filter(l=>l.stage===s.k);return `<div class="col" ondragover="dragOver(event,this)" ondragleave="dragLeave(this)" ondrop="drop(event,'${s.k}')"><div class="col-h"><div class="ct"><span class="dot" style="background:${s.color}"></span>${s.label}</div><span class="cn">${it.length}</span></div><div class="col-b">${it.map(cardHTML).join('')||'<div style="color:var(--faint);font-size:12px;text-align:center;padding:14px">—</div>'}</div></div>`;}).join('');
 }
 function cardHTML(l){return `<div class="lead-card" draggable="true" ondragstart="dragStart(event,${l.id})" ondragend="dragEnd(event)" onclick="openLead(${l.id})"><div class="lc-top"><div><div class="lc-nm">${l.name}</div><div class="lc-co">${l.co}</div></div><span class="bdg ${l.type==='B2B'?'bdg-b2b':'bdg-b2c'}">${l.type}</span></div><div class="lc-prods">${l.products.map(p=>`<span class="lc-prod">${p}</span>`).join('')}</div><div class="lc-foot"><div class="lc-val">${val(l)?lkr(val(l)):'No quote yet'}</div><div class="lc-own" title="${l.owner}">${init(l.owner)}</div></div></div>`;}
-function renderAll(){document.getElementById('allList').innerHTML=[...filtered()].sort((a,b)=>val(b)-val(a)).map(rowHTML).join('')||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
+/* defensive list map (ported from skeleton): a throwing row is skipped, never blanks the list */
+function mapSafe(arr,fn,rowWrap){let skipped=0;const html=arr.map(function(x,i){try{return fn(x,i);}catch(e){skipped++;console.warn('row skipped',e&&e.message);return '';}}).join('');return html+(skipped?(rowWrap==='tr'?'<tr><td colspan="9" style="color:var(--faint);font-size:11.5px;padding:8px 15px">'+skipped+' record'+(skipped===1?'':'s')+' could not be displayed</td></tr>':'<div style="color:var(--faint);font-size:11.5px;padding:8px 14px">'+skipped+' record'+(skipped===1?'':'s')+' could not be displayed</div>'):'');}
+function renderAll(){const sv=l=>{try{return val(l);}catch(e){return -1;}};document.getElementById('allList').innerHTML=mapSafe([...filtered()].sort((a,b)=>sv(b)-sv(a)),rowHTML)||'<div style="color:var(--faint);font-size:13px;padding:14px">No inquiries for this filter.</div>';}
 function monthLbl(ym){const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];const p=ym.split('-');return M[+p[1]-1]+' '+p[0];}
 function monthOpts(set){return '<option value="all">All months</option>'+[...new Set(set)].sort().reverse().map(m=>'<option value="'+m+'">'+monthLbl(m)+'</option>').join('');}
 let QUO_MONTH='all';function setQuoMonth(v){QUO_MONTH=v;renderQuo();}
@@ -1476,7 +1511,7 @@ function renderQueue(){
 function exportCSV(name,headers,rows){
  const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
  const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();
+ _download(name,new Blob([csv],{type:'text/csv'}));
 }
 function exportInquiries(){exportCSV('homedepot-inquiries.csv',['Customer','Company','Type','Lead','Stage','Source','Owner','Products','Value'],LEADS.map(l=>[l.name,l.co,l.type,l.lead,stageLabel(l.stage),l.source,l.owner,l.products.join(' / '),val(l)]));}
 function exportQuotes(){const rows=[];LEADS.filter(l=>l.quote.length).forEach(l=>l.quote.forEach(r=>rows.push([l.name,r.p,r.n,r.q,r.u,r.q*r.u,stageLabel(l.stage)])));exportCSV('homedepot-quotations.csv',['Customer','Product','Code','Qty','Unit','Line Total','Stage'],rows);}
@@ -1852,7 +1887,6 @@ function saveProduct(){
  else{const nid=Math.max.apply(null,PRODUCTS.map(x=>x.id).concat(0))+1;PRODUCTS.unshift(Object.assign({id:nid},data,{lastSale:null,history:[{t:'Stock added',qty:data.qty,when:TODAY}]}));toast(I.check+' '+name+' added');}
  closeProductModal();renderInventory();
 }
-function exportCSV(name,headers,rows){const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const csv=[headers.map(esc).join(','),...rows.map(r=>r.map(esc).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();toast(I.check+' CSV exported');}
 function exportInventory(){exportCSV('homedepot-inventory.csv',['Name','Code','Category','Price','In stock','Sold','Stock value','Low alert','Status','Last sale'],PRODUCTS.map(p=>[p.name,p.code,p.cat||'Other',p.price,p.qty,unitsSold(p),stockValue(p),(p.threshold!=null?p.threshold:INV_LOW),prodStatus(p),p.lastSale||'']));}
 /* toast with an Undo action */
 let UNDO_FN=null;
@@ -1992,12 +2026,19 @@ function renderSettings(){
  }else if(t==='system'){
   const dark=document.body.classList.contains('dark');
   h=stuRow('Theme','Default appearance','<div class="rv-seg"><button class="'+(!dark?'on':'')+'" onclick="stuSetTheme(\'light\')">Light</button><button class="'+(dark?'on':'')+'" onclick="stuSetTheme(\'dark\')">Dark</button></div>')
+   +stuRow('Built-in QA self-test','Runs the full check suite over every module and the defensive layer, then leaves zero footprint','<button class="btn-red" onclick="runSelfTest({all:true})">Run self-test</button>')
    +'<div class="stu-foot"><div style="font-size:12px;color:var(--muted);max-width:360px">Reset every customization back to the Home Depot defaults. Changes here apply live for this demo and reset on reload.</div><div style="flex:1"></div><button class="stu-reset" onclick="stuResetAll()">Reset all</button></div>';
  }
  document.getElementById('stuBody').innerHTML=h;
 }
 const TITLES={dashboard:['Dashboard','Showroom & project sales overview'],pipeline:['Sales Pipeline','Every inquiry from new to delivered'],revpipeline:['Revenue Pipeline','Weighted value + month-by-month forecast'],inquiries:['All Inquiries','Every lead, ranked by value'],quotations:['Quotations','Quotes sent, by value'],customers:['Customers','Track and maintain customers, follow-up reminders'],inventory:['Inventory','Smart stock — low, out and dead-stock signals'],taskbook:['Task Book','Assign and track tasks across the team'],team:['Team & Performance','Deals closed and money brought in, per person'],finance:['Finance','Revenue, invoices and collections'],salesreport:['Sales Report','Monthly performance overview and insights'],audit:['Login Audit','Who signed in, where and when'],settings:['Settings','Customize this system for Home Depot']};
-function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];if(pg==='revpipeline')rvView('pipeline');if(pg==='inventory')renderInventory();if(pg==='settings')renderSettings();closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
+/* ---- Defensive layer (ported from master skeleton): per-view error boundary + self-heal ---- */
+var RENDERERS={dashboard:renderDash,pipeline:renderBoard,revpipeline:function(){rvView(RV_VIEW||'pipeline');},inquiries:renderAll,quotations:renderQuo,customers:renderCus,inventory:renderInventory,taskbook:renderTasks,team:renderTeam,finance:renderFinance,salesreport:renderSalesReport,audit:renderTeam,settings:renderSettings};
+var PAGE_PRISTINE={};
+function snapshotPages(){document.querySelectorAll('.page').forEach(function(p){PAGE_PRISTINE[p.id]=p.innerHTML;});}
+function healPage(pg){var el=document.getElementById('page-'+pg);if(el&&el.getAttribute('data-st-err')==='1'&&PAGE_PRISTINE[el.id]!=null){el.innerHTML=PAGE_PRISTINE[el.id];el.removeAttribute('data-st-err');}}
+function pageErrorBoundary(pg,err){var el=document.getElementById('page-'+pg);if(!el)return;el.setAttribute('data-st-err','1');el.innerHTML='<div class="card" style="margin:14px;padding:20px;text-align:center"><div style="font-size:26px;margin-bottom:6px">'+(typeof I!=='undefined'&&I.warn?I.warn:'!')+'</div><div style="font-weight:700;font-size:14px;color:var(--ink)">This view hit an error</div><div style="color:var(--faint);font-size:12px;margin-top:5px">The rest of the app is unaffected. Try another view, or reload to reset.</div><div style="color:var(--faint);font-size:11px;margin-top:8px;font-family:monospace;word-break:break-word">'+String(err&&err.message||err).slice(0,160)+'</div></div>';console.error('view '+pg+' failed',err&&err.message);}
+function go(pg){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.pg===pg));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+pg).classList.add('active');document.getElementById('pgTitle').textContent=TITLES[pg][0];document.getElementById('pgSub').textContent=TITLES[pg][1];healPage(pg);try{if(RENDERERS[pg])RENDERERS[pg]();}catch(e){pageErrorBoundary(pg,e);}closePanel();closeSidebar();animateCounts(document.getElementById('page-'+pg));}
 let RV_VIEW='pipeline';
 function rvView(which){const fc=which==='forecast';RV_VIEW=fc?'forecast':'pipeline';const pv=document.getElementById('rvPipelineView'),fv=document.getElementById('rvForecastView');if(!pv||!fv)return;pv.style.display=fc?'none':'';fv.style.display=fc?'':'none';document.getElementById('rvSegPipe').classList.toggle('on',!fc);document.getElementById('rvSegFc').classList.toggle('on',fc);document.getElementById('rvMonth').style.display=fc?'none':'';if(fc){renderRevenue();animateCounts(fv);}}
 function rvExport(){RV_VIEW==='forecast'?exportForecastXLS():exportRevPipelineXLS();}
@@ -2012,7 +2053,7 @@ document.getElementById('nbCus').textContent=dueCustomers();
 document.getElementById('quoMonth').innerHTML=monthOpts(LEADS.filter(l=>l.quote.length).map(l=>MONTH[l.id]));
 document.getElementById('cusMonth').innerHTML=monthOpts(CUSTOMERS.map(c=>custPurchase(c).slice(0,7)));
 document.getElementById('finMonth').innerHTML=monthOpts(ORDERS.map(o=>o.date.slice(0,7)));
-seedRevModels();renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderInventory();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);
+seedRevModels();renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderInventory();renderTeam();renderFinance();renderScopeStats();updateClock();setInterval(updateClock,15000);snapshotPages();
 
 /* ── Revenue Pipeline ── */
 let rvCharts={};
@@ -2344,6 +2385,149 @@ async function exportSalesReportPDF(){
   }catch(e){console.error('PDF export failed',e);toast('PDF export failed');}
   btn.disabled=false;btn.innerHTML='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export PDF';
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   BUILT-IN QA — self-test harness (ported/adapted from master skeleton)
+   Snapshots all demo state, exercises every module + the defensive layer,
+   restores everything (zero footprint), reports PASS/FAIL per check.
+   Run via: Settings → System tab button, ?selftest in the URL, or
+   runSelfTest({all:true}) in the console. Returns {pass,failed,results}.
+   ════════════════════════════════════════════════════════════════════ */
+async function runSelfTest(opts){
+ opts=opts||{};
+ const R=[];const ok=(name,pass,detail)=>{R.push({name:name,pass:!!pass,detail:String(detail==null?'':detail).slice(0,200)});};
+ /* full snapshot — the harness must leave zero footprint */
+ const snapLeads=JSON.stringify(LEADS),snapProd=JSON.stringify(PRODUCTS),snapCust=JSON.stringify(CUSTOMERS),snapTasks=JSON.stringify(TASKS),snapMonth=JSON.stringify(MONTH);
+ const snapLow=INV_LOW,snapDead=INV_DEAD_DAYS,snapOwner=FILTER_OWNER,snapLM=LEAD_MONTH;
+ const snapDark=document.body.classList.contains('dark');
+ const snapPage=((document.querySelector('.page.active')||{}).id||'page-dashboard').replace('page-','');
+ const dlOrig=_download,boundOrig=RENDERERS.finance;
+ const bootLog=window.__ST_LOG.slice();
+ const reload=(arr,json)=>{arr.length=0;JSON.parse(json).forEach(x=>arr.push(x));};
+ try{
+  /* ── boot integrity ── */
+  ok('Boot: core globals present',typeof CFG_HD==='object'&&Array.isArray(LEADS)&&Array.isArray(PRODUCTS)&&typeof RENDERERS==='object'&&typeof go==='function');
+  ok('Boot: zero console errors/warnings since load',bootLog.length===0,bootLog.length?bootLog[0].kind+': '+bootLog[0].msg:'');
+  /* duplicate top-level identifiers — reads the script's own source (this is the check that catches PRODUCTS/exportCSV-style collisions) */
+  const src=Array.from(document.scripts).map(s=>s.textContent).join('\n');
+  const seen={};const reDecl=/^(?:const|let|function)\s+([A-Za-z_$][\w$]*)/gm;let m;
+  while((m=reDecl.exec(src)))seen[m[1]]=(seen[m[1]]||0)+1;
+  const dupes=Object.keys(seen).filter(k=>seen[k]>1);
+  ok('Boot: no duplicate global identifiers',dupes.length===0,dupes.join(', '));
+  const idSeen={};document.querySelectorAll('[id]').forEach(el=>idSeen[el.id]=(idSeen[el.id]||0)+1);
+  const idDupes=Object.keys(idSeen).filter(k=>idSeen[k]>1);
+  ok('Boot: no duplicate DOM ids',idDupes.length===0,idDupes.join(', '));
+  /* ── revenue / forecast math ── */
+  const es=evenSplit(1000001,'Project','2026-07','2026-12');
+  ok('Forecast: evenSplit sums exactly to the estimate',Object.values(es).reduce((a,b)=>a+b,0)===1000001,JSON.stringify(es));
+  seedRevModels();
+  const revLeads=LEADS.filter(l=>l.rev);
+  ok('Forecast: every rev cell is finite and non-negative',revLeads.every(l=>REV_MONTHS.every(mm=>{const v=+l.rev.months[mm];return isFinite(v)&&v>=0;})));
+  ok('Forecast: each deal reconciles to its own estimate',revLeads.filter(l=>l.stage!=='lost').every(l=>REV_MONTHS.reduce((s,mm)=>s+(+l.rev.months[mm]||0),0)===l.rev.est));
+  const mt=rfMonthTotals();const grand=REV_MONTHS.reduce((s,mm)=>s+mt[mm],0);
+  const cellSum=rfActive().reduce((s,l)=>s+REV_MONTHS.reduce((x,mm)=>x+(+l.rev.months[mm]||0),0),0);
+  ok('Forecast: month totals reconcile to the sum of all cells',grand===cellSum,grand+' vs '+cellSum);
+  /* ── finance ── */
+  ok('Finance: collection never exceeds the invoiced amount',ORDERS.every(o=>o.paid<=o.amount));
+  ok('Finance: no negative balances',ORDERS.every(o=>balance(o)>=0));
+  const invTot=ORDERS.reduce((s,o)=>s+o.amount,0),invPaid=ORDERS.reduce((s,o)=>s+o.paid,0);
+  ok('Finance: outstanding reconciles (invoiced − collected = Σ balances)',invTot-invPaid===ORDERS.reduce((s,o)=>s+balance(o),0),(invTot-invPaid)+'');
+  /* ── quotes ── */
+  ok('Quotes: line totals are never negative',LEADS.filter(l=>l.quote&&l.quote.length).every(l=>qTotal(l)>=0));
+  /* ── inventory ── */
+  ok('Inventory: no negative stock',PRODUCTS.every(p=>p.qty>=0));
+  ok('Inventory: low/out/dead signals all compute',PRODUCTS.every(p=>['ok','low','out'].includes(prodStatus(p))&&typeof prodDead(p)==='boolean'));
+  const pd=PRODUCTS.find(p=>p.qty>0);const q0=pd.qty;
+  adjustStock(pd.id,-1,'Self-test sale');const dec=pd.qty===q0-1;runUndo();
+  ok('Inventory: a sale decrements stock and undo restores it',dec&&pd.qty===q0,'q0='+q0);
+  const undoInv=decrementForRecord({id:99988,name:'Self-test',quote:[{p:pd.name,n:pd.code,q:2,u:pd.price}]});
+  const auto=pd.qty===q0-2;if(undoInv)undoInv();
+  ok('Inventory: auto-decrement on a won deal + returned undo restores',!!undoInv&&auto&&pd.qty===q0);
+  /* convert-order end to end: stage + stock + customer, fully reversible */
+  const cl=LEADS.find(l=>!['order_confirmed','delivered','lost'].includes(l.stage)&&l.quote&&l.quote.length&&!CUSTOMERS.find(c=>c.name===l.name));
+  if(cl){const st0=cl.stage,cn0=CUSTOMERS.length;convertOrder(cl.id);const won=cl.stage==='order_confirmed';runUndo();
+   ok('Convert order: wins the deal then fully reverses (stage + customer + stock)',won&&cl.stage===st0&&CUSTOMERS.length===cn0,'stage '+st0+'→'+cl.stage);}
+  else ok('Convert order: an eligible open lead exists to test',false,'none found');
+  /* ── export (stub the download seam, assert real payloads) ── */
+  let dlN=0,dlBytes=0;_download=function(name,blob){dlN++;dlBytes+=blob.size;};
+  exportInventory();exportXLS('st.xls',['a'],[[1]]);
+  _download=dlOrig;
+  ok('Export: produces real file payloads',dlN>=2&&dlBytes>60,dlN+' files, '+dlBytes+' bytes');
+  /* ── import: maps columns, imports good rows, skips bad ── */
+  const pN=PRODUCTS.length;
+  openImport('products');
+  impParsed(parseCSV('Product name,Product code,Category,Price,Quantity\nST Widget,ST-01,Test,1000,5\n,,,,\nST Gadget,ST-02,Test,2000,3'));
+  impDoImport();
+  ok('Import: maps columns, imports good rows, skips the bad one',PRODUCTS.length===pN+2,(PRODUCTS.length-pN)+' imported (expected 2, 1 skipped)');
+  closeImport();
+  /* ── search ── */
+  doSearch(LEADS[0].name.slice(0,5));
+  ok('Search: returns matching results',document.querySelectorAll('#searchResults .sr-item').length>0);
+  closeSearch();
+  /* ── every page renders, no overflow, no stray fixed/absolute rects ── */
+  const vw=window.innerWidth;
+  const rectAudit=()=>{const b=[];document.querySelectorAll('.page.active *').forEach(el=>{const cs=getComputedStyle(el);if((cs.position==='fixed'||cs.position==='absolute')&&cs.display!=='none'){const rc=el.getBoundingClientRect();if(rc.width>0&&(Math.round(rc.right)>vw+1||Math.round(rc.left)<-1)){let p=el.parentElement,clip=false;while(p){if(/(hidden|clip|auto|scroll)/.test(getComputedStyle(p).overflowX)){clip=true;break;}p=p.parentElement;}if(!clip)b.push(el.className||el.id||el.tagName);}}});return b;};
+  Object.keys(RENDERERS).forEach(pg=>{
+   go(pg);
+   const el=document.getElementById('page-'+pg);
+   const blank=!el||el.innerHTML.trim().length<40;
+   const over=document.documentElement.scrollWidth>vw+1;
+   const rects=rectAudit();
+   ok('Page "'+pg+'": renders, no overflow ('+vw+'px), rects clean',!blank&&!over&&!rects.length,(blank?'blank ':'')+(over?'scrollW '+document.documentElement.scrollWidth+' ':'')+rects.join(','));
+  });
+  /* ── dark mode sweep ── */
+  const logBeforeDark=window.__ST_LOG.length;
+  applyTheme('dark');['dashboard','finance','inventory','salesreport'].forEach(pg=>go(pg));
+  applyTheme(snapDark?'dark':'light');
+  ok('Dark mode: renders every swept page with zero errors',window.__ST_LOG.length===logBeforeDark);
+  /* ── clean run: no unexpected errors during the behaviour tests ── */
+  ok('Clean run: no console errors during behaviour tests',window.__ST_LOG.length===bootLog.length,window.__ST_LOG.length>bootLog.length?window.__ST_LOG[bootLog.length].kind+': '+window.__ST_LOG[bootLog.length].msg:'');
+  /* ── resilience (the failures below are INTENTIONAL) ── */
+  LEADS.unshift({id:99999,name:'Broken Row',co:'malformed',type:'B2C',lead:'Retail',stage:'new_inquiry',owner:'Nihla',acts:[]}); /* no quote → rowHTML throws */
+  FILTER_OWNER='all';LEAD_MONTH='all';go('inquiries');
+  const allHTML=document.getElementById('allList').innerHTML;
+  ok('Resilience: one malformed lead cannot blank the inquiries list',allHTML.indexOf('could not be displayed')>-1&&document.querySelectorAll('#allList .eq-row').length>0);
+  LEADS.splice(LEADS.findIndex(l=>l.id===99999),1);
+  RENDERERS.finance=function(){throw new Error('selftest-boom');};
+  go('finance');
+  const boundary=document.getElementById('page-finance').getAttribute('data-st-err')==='1';
+  RENDERERS.finance=boundOrig;
+  go('finance');
+  ok('Resilience: a throwing renderer shows the error card, never a white screen',boundary&&document.getElementById('page-finance').getAttribute('data-st-err')!=='1');
+ }catch(e){
+  ok('HARNESS: completed without crashing',false,String(e&&e.message||e));
+ }finally{
+  /* ── restore EVERYTHING (zero footprint) ── */
+  _download=dlOrig;RENDERERS.finance=boundOrig;UNDO_FN=null;
+  reload(LEADS,snapLeads);reload(PRODUCTS,snapProd);reload(CUSTOMERS,snapCust);
+  TASKS=JSON.parse(snapTasks);
+  Object.keys(MONTH).forEach(k=>delete MONTH[k]);Object.assign(MONTH,JSON.parse(snapMonth));
+  INV_LOW=snapLow;INV_DEAD_DAYS=snapDead;FILTER_OWNER=snapOwner;LEAD_MONTH=snapLM;
+  applyTheme(snapDark?'dark':'light');
+  closePanel();closeSidebar();
+  try{renderDash();renderQueue();renderTasks();renderBoard();renderAll();renderQuo();renderCus();renderInventory();renderTeam();renderFinance();renderScopeStats();}catch(e){}
+  snapshotPages();
+  go(snapPage);
+  /* drain the harness's own intentional log entries so re-runs stay idempotent */
+  window.__ST_LOG.length=bootLog.length;
+ }
+ const failed=R.filter(r=>!r.pass);
+ try{console.table(R.map(r=>({check:r.name,result:r.pass?'PASS':'FAIL',detail:r.detail})));}catch(e){}
+ stReport(R,failed);
+ return {pass:failed.length===0,failed:failed,results:R,viewport:window.innerWidth+'px'};
+}
+function stReport(R,failed){
+ const old=document.getElementById('stOv');if(old)old.remove();
+ const ov=document.createElement('div');ov.className='st-ov';ov.id='stOv';
+ ov.innerHTML='<div class="st-panel"><div class="st-head">'
+  +'<span class="st-badge '+(failed.length?'fail':'pass')+'">'+(failed.length?failed.length+' FAILED':'ALL GREEN')+'</span>'
+  +'<span class="hint">'+R.length+' checks · '+window.innerWidth+'px viewport · '+(failed.length?'not ready':'passed at this width — run at ~390px AND desktop')+'</span></div>'
+  +'<div class="st-body">'+R.map(r=>'<div class="st-row '+(r.pass?'p':'f')+'">'+(r.pass?I.check:I.x)+'<div><div class="nm">'+r.name+'</div>'+(r.detail?'<div class="dt">'+r.detail+'</div>':'')+'</div></div>').join('')+'</div>'
+  +'<div class="st-foot"><button class="btn-ghost" onclick="document.getElementById(\'stOv\').remove()">Close</button><button class="btn-red" onclick="document.getElementById(\'stOv\').remove();runSelfTest({all:true})">Re-run</button></div></div>';
+ document.body.appendChild(ov);
+}
+/* dev gate: ?selftest auto-runs the harness after boot settles */
+if(location.search.indexOf('selftest')>-1)setTimeout(function(){runSelfTest({all:true});},220);
 </script>
 </body>
 </html>
